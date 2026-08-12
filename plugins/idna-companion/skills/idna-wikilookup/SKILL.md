@@ -18,6 +18,13 @@ below. The file is self-contained; the behavior is identical regardless of
 how you got here. Do not report the skill as broken because of the
 invocation path.
 
+**The procedure is per-question, not per-session.** Every in-scope question
+runs steps 2–8 afresh — a skill that is already loaded is not already done.
+Do not skip the wiki grounding on follow-up questions because you applied
+this skill earlier in the session; only step 1 (the persona read) is
+once-per-session. If your runtime does not re-invoke an already-loaded
+skill, simply follow the steps below again for the new question.
+
 ## Intended behavior
 
 **Hard rule — read before you define.** State iDNA/Notes definitions, metrics, or schema facts
