@@ -28,6 +28,7 @@ related:
   - schema/tables/usage-cube-repset-vs-department
   - schema/tables/usage-cube-repset-vs-location
   - schema/tables/usage-cube-repset-vs-user
+  - schema/topics/trial-license-masking
   - schema/tables/repset-activity-summary-per-user
   - howtos/identify-content-creators-and-consumers
 requires_capability: none
@@ -96,6 +97,7 @@ One row per replica set, i.e. one row per distinct application in the environmen
 | `docs_total_min` | bigint | Min total document count across instances. |
 | `has_docs_in_retention` | boolean | Whether any instance holds documents inside the retention window. |
 | `retention_analysis_status_lifecycle_annotation` | text | Annotation feeding the lifecycle_vector reason segment (e.g. warning / scan-failure reasons). |
+| `is_selected_trial_db` | boolean | TRUE = the replica set is trial-selected: its modernization item detail AND its identity (real `title`, licensed `replica_paths`, pseudo-bracket `title_unique` — M9) stay unmasked on trial licenses. FALSE on full license. Appended last; since the 2026-08 ETL revision — older builds lack it. See [[schema/topics/trial-license-masking]]. |
 
 ## Relationships
 
@@ -122,6 +124,7 @@ One row per replica set, i.e. one row per distinct application in the environmen
 - The retention / content-age fields (`retention_*`, `docs_*`, `has_docs_in_retention`, `contentage_status`) are populated only when content-age analysis has run (`is_content_age_analyzed = true`), otherwise NULL. The `min` / `max` pairs are the replica-set roll-up across its instances; a `min != max` divergence is what feeds the lifecycle `conflict_retention` reason (see [[concepts/lifecycle-vector]]).
 - The `modernization_vector_*` headline columns cover the two **built-in** targets only; custom compatibility rulesets surface exclusively through `cqx_data.modernization_vector`. Headline values exist only for kept (`keep/%`) focus apps — NULL is "out of modernization scope", not "ready".
 - `last_accessed_user` and `last_write_user` are application-grain point-in-time columns: they name the **single** most-recent reader and writer respectively, not a ranking. For a heavy-user cohort or a read/write split across multiple users, use the per-user cube `cqx_data.usage_cube_repset_vs_user` (permissive only — see [[howtos/identify-content-creators-and-consumers]]). These columns are restricted-safe: pseudonymized when the customer's license sets `pseudonymize=Y`; real values when the customer has waived pseudonymization. See [[concepts/regulatory-usage-constraints]] for the strict / permissive framing.
+- TRIAL licenses (2026-08 ETL revision): the template-name columns (`templates_inherits_from`, `templates_acts_as_master`, `most_similar_template_name_*`, `template_similarity_ranking_list`) carry per-run `Master n` aliases for ALL template names except masters operated solely by trial-selected replica sets (M8 — built-in standard names are aliased too; the old `*** Not Licensed ***` sentinel arrays are gone, and the `*_count` twins are honest distinct-name counts matching the arrays). Titles/paths/replicaids are pseudonymized as before. See [[schema/topics/trial-license-masking]].
 
 ## Sources
 

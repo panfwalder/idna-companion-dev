@@ -89,7 +89,7 @@ ORDER BY week_date, user_access_days DESC
 - Do not query one of the 12 pruned grouping sets (username broken out, dep or loc
   rolled up) — it returns zero rows, which looks like "no data" but means "this
   subtotal does not exist"; use the dep/loc-pinned form instead.
-- Eval/trial license masks *names* here (`*** Trial license ***` patterns) while IDs
+- Eval/trial license masks *names* here (`*** Trial license ***` patterns; since the M9 ETL revision, fully trial-selected replica sets show their real title instead) while IDs
   remain populated — the opposite of `user_activity_summary`, which NULLs the IDs.
 - Weekly grain: per-user *daily* analysis needs `usage_sessions`, not the cube.
 

@@ -12,7 +12,7 @@ related:
   - schema/tables/design-insight-overview-bydb
 requires_capability: none
 source: docs/reference/cqx_data_schema_enriched_all_tables.md
-last_reviewed: 2026-06-15
+last_reviewed: 2026-08-18
 ---
 
 # Design Similarity in the Schema
@@ -46,7 +46,7 @@ The application-level standard-template flag and most-similar-template columns a
 
 ## Depth tables
 
-- `cqx_data.similarity_templates` — finer-grained similarity drill-down beyond the summary columns (also referenced from [[schema/topics/template-inheritance]]).
+- `cqx_data.similarity_templates` — finer-grained similarity drill-down beyond the summary columns (also referenced from [[schema/topics/template-inheritance]]). On trial licenses its keys are masked and template names appear as `Master n` aliases (built-in standard names included since M8) (see [[schema/topics/trial-license-masking]]).
 - `cqx_data.code_cluster`, `cqx_data.code_similarty` (note the schema's spelling), `cqx_data.code_hash_set` — code-level similarity, the foundation beneath design-level similarity. Use for shared-code-block analysis.
 
 ## Typical use

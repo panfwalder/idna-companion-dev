@@ -79,6 +79,7 @@ Catalog of all wiki pages, grouped by type. Updated on every ingest.
 - [[schema/topics/template-inheritance]] - Template inheritance across tables
 - [[schema/topics/complexity]] - Complexity columns across tables (computed family, volumes, manual field)
 - [[schema/topics/similarity]] - Design similarity columns across tables (clusters, standard-template detection)
+- [[schema/topics/trial-license-masking]] - What trial licenses mask across cqx_data (pseudonyms, detail_masked, `Master n` aliases)
 - [[schema/topics/department-and-location]] - Department/location table families and pairing
 
 ## Playbooks

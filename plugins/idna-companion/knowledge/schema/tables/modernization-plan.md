@@ -9,10 +9,11 @@ related:
   - concepts/about-modernization-vector
   - schema/tables/modernization-vector
   - schema/tables/modernization-worklist
+  - schema/topics/trial-license-masking
   - howtos/query-modernization-views
 requires_capability: none
-source: ETL cqx_data_ifa/010_cqx_data.initialize_components_structure.pxsql (view) over dda_dm.modernization_plan (ETL script 286); types verified against live instance 2026-07-23
-last_reviewed: 2026-07-23
+source: ETL cqx_data_ifa/010_cqx_data.initialize_components_structure.pxsql (view) over dda_dm.modernization_plan (ETL script 286); types verified against live instance 2026-07-23; trial anchor aliasing gated live 2026-08-18
+last_reviewed: 2026-08-18
 ---
 
 # cqx_data.modernization_plan
@@ -60,3 +61,4 @@ A session's worksheet: drill into `modernization_worklist_by_session` by (`sessi
 - Unify/investigate sessions **assume human decisions resolve** (reconcilability judgment, possible cohort splits); present their `n_apps` as potential, and partial outcomes (two masters instead of one; "not reconcilable") as legitimate exits.
 - Session displays may reference sunset design-family peers ("+N sunset peer(s)") — evidence for the unification decision, not remediation targets.
 - Advisory framing: the ranking has a stated rationale (apps cleared); sequencing decisions (staffing, politics) remain the customer's.
+- TRIAL licenses (2026-08 ETL revision): master anchors and displays carry per-run `Master n` aliases ("Remediate master Master 292") — join-consistent with the vector/worklist within a run; all counts honest. See [[schema/topics/trial-license-masking]].

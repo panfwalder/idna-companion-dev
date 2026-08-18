@@ -12,7 +12,7 @@ related:
   - schema/topics/template-inheritance
 requires_capability: none
 source: CoCo Copilot server/knowledge/foundation_domain_knowledge.md
-last_reviewed: 2026-04-17
+last_reviewed: 2026-08-18
 ---
 
 # List master templates in the environment
@@ -60,6 +60,7 @@ Query `cqx_data.database` for rows where `template_acts_as_master IS NOT NULL`. 
 - `template_acts_as_master` is the template's declared name — this is the value that appears in `templates_inherits_from` on inheriting databases.
 - Multiple instances of the same master template can exist (e.g. copies on different servers). Expect duplicates; the template name is what matters for inheritance, not the file path.
 - A template with zero inheriting applications is a candidate for cleanup — it's design overhead with no consumers.
+- On TRIAL licenses (2026-08 ETL revision), ALL template names appear as per-run `Master n` aliases — built-in standard names included since the M8 revision; only masters operated solely by trial-selected replica sets stay real. The inheritance matching still works — the same alias appears on both sides — but aliases renumber each ETL run, so never persist them across days. See [[schema/topics/trial-license-masking]].
 
 ## Variations
 

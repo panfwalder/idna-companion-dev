@@ -16,9 +16,10 @@ related:
   - schema/tables/design-insight-overview-byrepset
   - schema/tables/code-source
   - playbooks/application-lifecycle/lifecycle-routing
+  - schema/topics/trial-license-masking
 requires_capability: none
-source: mcp-server Phase 2 tool surface and remediation playbook mapping
-last_reviewed: 2026-07-24
+source: mcp-server Phase 2 tool surface and remediation playbook mapping; trial-masking surfacing per the 2026-08 MCP build (docs/plans/completed/trial-masking-mcp-consumption)
+last_reviewed: 2026-08-18
 ---
 
 # Use the source-code-remediation MCP tools
@@ -85,6 +86,7 @@ Readiness questions route to the modernization tools, volume/severity questions 
 - `modernization_for_app` is the per-app verdict + block work list (work states cleared_by_refresh / apply / review / scan_first; the authoring home is the pair `authored_session_kind` + `authored_in`). Sunset apps are MIS_ROUTED to `sunset_disposition` — follow it.
 - `modernization_session_dossier` is a worksheet executed by the customer's developer in Domino Designer — iDNA locates and quantifies; scan_first rows are a Domino-admin ask. Diverging (review) rows carry a firm warning: a refresh overwrites them.
 - All three error with NOT_FOUND + a manual-fallback hint when the ruleset is not in the modernization precompute — that means "use the manual playbook method", not "empty estate".
+- **Trial licenses (2026-08 MCP build):** `modernization_for_app` and `modernization_session_dossier` surface `detail_masking_active` (top-level) and, on for_app, `vector.detail_masked` + `vector.n_dismissed_items`; their notes carry the required framing — masked detail is "withheld, a full license unlocks it", NEVER "no work", and `Master n` aliases renumber every ETL run. Relay those notes; rules in [[schema/topics/trial-license-masking]].
 - `exposure_summary` is the aggregate volume view.
 - `most_affected_apps` is the named application working set.
 - `findings_for_app` is the bridge from application scope into concrete finding rows.

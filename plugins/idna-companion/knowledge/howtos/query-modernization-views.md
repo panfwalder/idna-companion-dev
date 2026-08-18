@@ -14,7 +14,7 @@ related:
   - schema/tables/code-source
 requires_capability: none
 source: modernization-vector-integration plan (verified queries, ifa test instance 2026-07-09/23)
-last_reviewed: 2026-07-24
+last_reviewed: 2026-08-18
 ---
 
 # How to query the modernization views
@@ -52,6 +52,8 @@ The trailing slash prevents `design_family_#8` from matching `#80`. The raw `mod
 ## Rule 3: query `items` defensively
 
 `items` has **one entry per finding** (a block can appear under several insights) and can be very large on template-derived apps. Project fields, dedupe by `code_hash` for block-level analysis (`n_fix_items` counts distinct blocks), check `jsonb_array_length(items)` first, use `LIMIT`:
+
+On TRIAL licenses check `detail_masked` first (2026-08 ETL revision): masked rows carry ordinal aliases instead of document/element names and null `noteid`/`designer_link` — `code_hash*`/`clearance` stay usable for block-level analysis. Present masked rows as "detail withheld, a full license unlocks it", never "no work". Master anchors across all four views are per-run `Master n` aliases (join-consistent within a run). See [[schema/topics/trial-license-masking]].
 
 ```sql
 SELECT DISTINCT item ->> 'code_hash' AS code_hash, item ->> 'clearance' AS clearance

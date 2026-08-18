@@ -15,7 +15,7 @@ related:
   - howtos/query-modernization-views
 requires_capability: none
 source: ETL dda_dm/scheduled/285_dda_dm.modernization_vector.update.sql (routing CASE) + ADR 0001 (iDNA_Applications_ETL docs/decisions) + product-owner design dialogue 2026-07-08
-last_reviewed: 2026-07-24
+last_reviewed: 2026-08-18
 ---
 
 # Modernization Vector
@@ -74,6 +74,8 @@ The recognizer matches template names against the HCL standard set with **suffix
 - `(standard template)` — name-recognized only, not operated in this estate
 
 When a similarity target qualifies both ways, **estate-operated beats standard-recognized** — a renamed standard carrying customizations is a customer asset; the customizations are precisely what needs the work (same precedence as in the routing tiebreaks above).
+
+Two precision notes (2026-08 ETL revision): the ROUTING recognizer additionally honors customer-configured `custom_known_databases` patterns, but the `(standard …)` **labels** certify membership in the built-in HCL list only — a customer-known-only match routes `similar_standard` without earning a label. And on TRIAL licenses, the target name in the display is a per-run `Master n` alias — built-in standard names included since M8; only masters operated solely by trial-selected replica sets stay real ("Investigate inheritance: 100% similar to Master 12 (standard template)") — see [[schema/topics/trial-license-masking]].
 
 ## Coverage clearance per block
 

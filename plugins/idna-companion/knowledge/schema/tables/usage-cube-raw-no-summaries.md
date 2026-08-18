@@ -76,7 +76,7 @@ ORDER BY week_date, sessions_total DESC
 - Safe to aggregate freely — every row is a disjoint leaf cell.
 - `*** Anonymous ***` rows are real unattributable activity; keep them visible in
   totals rather than filtering them out.
-- Eval/trial license masks names (titles, usernames, org names) while structure
+- Eval/trial license masks names (titles, usernames, org names; since the M9 ETL revision, fully trial-selected replica sets show their real title) while structure
   remains.
 
 ## Sources

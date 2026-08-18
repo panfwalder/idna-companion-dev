@@ -12,10 +12,11 @@ related:
   - schema/tables/modernization-worklist
   - schema/tables/replica-set
   - schema/tables/design-insight-overview-byrepset
+  - schema/topics/trial-license-masking
   - howtos/query-modernization-views
 requires_capability: none
-source: ETL cqx_data_ifa/010_cqx_data.initialize_components_structure.pxsql (view) over dda_dm.modernization_vector (ETL script 285); types verified against live instance 2026-07-23; dismissed columns verified live 2026-07-24
-last_reviewed: 2026-07-24
+source: ETL cqx_data_ifa/010_cqx_data.initialize_components_structure.pxsql (view) over dda_dm.modernization_vector (ETL script 285); types verified against live instance 2026-07-23; dismissed columns verified live 2026-07-24; trial masking + detail_masked gated live on dev instances 2026-08-17/18
+last_reviewed: 2026-08-18
 ---
 
 # cqx_data.modernization_vector
@@ -56,6 +57,7 @@ Per-app modernization readiness: the routing verdict ([[concepts/about-moderniza
 | `items` | jsonb | One entry per ACTIVE finding (see size warning below). |
 | `n_dismissed_items` | integer | Count of config-dismissed non-issue occurrences (`= jsonb_array_length(dismissed_items)`; occurrence grain — deliberately different from the block-grain `n_fix_items`). |
 | `dismissed_items` | jsonb | Findings dismissed as non-issue via instance configuration — documented, counted nowhere (see below). |
+| `detail_masked` | boolean | TRUE = trial license AND repset not trial-selected: item identity fields are masked (see trial section). FALSE on full license. Since the 2026-08 ETL revision. |
 
 ## `modernization_search` (prefix filtering)
 
@@ -85,6 +87,7 @@ Admins can declare finding-grain false positives in the instance config
 - The config carries no who/when/why — dismissals are instance configuration, not attributed decisions.
 - Scope: kept cohort apps only (a dismissal matching only non-cohort apps surfaces nowhere).
 - **Availability:** the two columns ship with the 2026-07 ETL revision; instances on older builds do not have them.
+- **MCP surfacing:** from the 2026-08 MCP build, `modernization_for_app` reports `n_dismissed_items` in its core `vector` payload — no SQL needed for the count; query `dismissed_items` (below) only when the individual dismissals matter.
 
 ## Cohort / NULL semantics
 
@@ -107,6 +110,14 @@ SELECT title, modernization_vector_display
 FROM cqx_data.modernization_vector
 WHERE ruleset_id = '<ruleset_id>' AND modernization_search LIKE 'template/remediate_master/%'
 ```
+
+## Trial licenses (2026-08 ETL revision)
+
+On `ia_eval_license` instances, computation stays honest (routing, counts, KPIs are real) but identity detail is masked — full rules in [[schema/topics/trial-license-masking]]:
+
+- `items`/`dismissed_items`: `name`/`element_name` are ordinal aliases (`Form 2`) and `noteid`/`designer_link` null unless the repset is trial-selected; `code_hash*`, `insight_id`, `finding_name`, `clearance` always populated. `detail_masked` marks such rows — present them as "detail withheld, a full license unlocks it", NEVER as "no work".
+- ALL template names in `session_anchor`, `master_names`, `most_similar_template`, and the display are per-run `Master n` aliases — built-in standard names included (M8); only masters operated solely by trial-selected replica sets stay real. The `(standard template)`/`(standard master)` suffixes still mark the class. Aliases renumber each run but are join-consistent across vector/plan/worklist within a run.
+- Older trial builds instead show a false all-clear (all rows `ready`, 0 items) — suspect the build, not the estate.
 
 ## Notes and caveats
 

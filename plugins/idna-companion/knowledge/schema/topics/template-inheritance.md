@@ -14,7 +14,7 @@ related:
   - schema/tables/database
 requires_capability: none
 source: docs/reference/cqx_data_schema_enriched_all_tables.md
-last_reviewed: 2026-07-24
+last_reviewed: 2026-08-18
 ---
 
 # Template Inheritance in the Schema
@@ -63,6 +63,10 @@ That distinction underpins the modernization vector's template routing (`remedia
 ## Related depth tables
 
 For finer-grained similarity drill-down beyond the summary columns, iDNA provides `cqx_data.similarity_templates` as a depth topic.
+
+## Trial licenses
+
+On trial licenses (2026-08 ETL revision), all template-name columns on this page carry per-run `Master n` aliases for ALL template names (M8 — built-in standard names included); only masters operated solely by trial-selected replica sets stay real. The clean-vs-broken logic and all counts stay honest — only the names are masked. See [[schema/topics/trial-license-masking]].
 
 ## Sources
 

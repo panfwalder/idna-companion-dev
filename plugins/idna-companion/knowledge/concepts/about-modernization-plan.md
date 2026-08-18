@@ -12,7 +12,7 @@ related:
   - howtos/query-modernization-views
 requires_capability: none
 source: ETL dda_dm/scheduled/286 (plan) + 288 (worklist) + ADR 0001 amendments 2026-07-10/11 (iDNA_Applications_ETL docs/decisions) + product-owner design dialogue 2026-07-08
-last_reviewed: 2026-07-23
+last_reviewed: 2026-08-18
 ---
 
 # Modernization Plan (Sessions and the Worklist)
@@ -37,7 +37,7 @@ There is **no lossless DXL round-trip** for Notes design elements — you cannot
 
 ## Sessions (`cqx_data.modernization_plan`)
 
-One row per session per ruleset ([[schema/tables/modernization-plan]]). Session kinds mirror the vector routes: `template/remediate_master`, `template/upgrade_standard`, `template/unify_similar`, `template/investigate_inheritance/*`, `direct/remediate_code`. The anchor is the container (master template name, design family, or the app itself); `item_display` is the ETL-assembled human sentence — quote it.
+One row per session per ruleset ([[schema/tables/modernization-plan]]). Session kinds mirror the vector routes: `template/remediate_master`, `template/upgrade_standard`, `template/unify_similar`, `template/investigate_inheritance/*`, `direct/remediate_code`. The anchor is the container (master template name, design family, or the app itself); `item_display` is the ETL-assembled human sentence — quote it. On trial licenses, master anchors appear as per-run `Master n` aliases (see [[schema/topics/trial-license-masking]]).
 
 **The session KPI is apps cleared** (`n_apps_green`): how many apps this one session turns fully green — that is the queue's ranking driver (owner decision; no composite scores, the ranking stays explainable). Companions `uad_90d_cleared`/`uad_365d_cleared` express the same thing usage-weighted, for breaking ties. `n_apps_partial` counts apps the session helps but does not clear (they carry surplus/diverging work beyond it).
 

@@ -10,10 +10,11 @@ related:
   - schema/tables/modernization-plan
   - schema/tables/modernization-vector
   - schema/tables/code-source
+  - schema/topics/trial-license-masking
   - howtos/query-modernization-views
 requires_capability: none
-source: ETL cqx_data_ifa/010_cqx_data.initialize_components_structure.pxsql (views) over dda_dm.modernization_worklist (ETL script 288); types verified against live instance 2026-07-23
-last_reviewed: 2026-07-23
+source: ETL cqx_data_ifa/010_cqx_data.initialize_components_structure.pxsql (views) over dda_dm.modernization_worklist (ETL script 288); types verified against live instance 2026-07-23; trial masking gated live 2026-08-18
+last_reviewed: 2026-08-18
 ---
 
 # cqx_data.modernization_worklist (+ `_by_session`)
@@ -87,3 +88,4 @@ LIMIT 20
 - **`scan_first` is not work.** Coverage under an unscanned master is unknown — presenting those occurrences as fixable work (or as cleared) is wrong in both directions. The identity keeps the books honest.
 - **Worklist `reach` counts KEPT apps only.** The vector's shared/solo counts use estate-wide reach across ALL focus apps *including sunset* — two deliberately different scopes; don't reconcile one against the other without accounting for sunset carriers.
 - Ranking is reach-first by design (2026-07-09): the earlier masters-first order let blocks in dormant template variants outrank high-payoff blocks.
+- TRIAL licenses (2026-08 ETL revision): master anchors in `sessions`/`session_anchors`/`authored_in`/`master_targets` (and `session_anchor` in the dossier view) are per-run `Master n` aliases — pair-joins keep working within a run; `item_display` document names show real only for trial-selected repsets, ordinal aliases otherwise. Counts, reach, and the accounting identity stay honest. See [[schema/topics/trial-license-masking]].
