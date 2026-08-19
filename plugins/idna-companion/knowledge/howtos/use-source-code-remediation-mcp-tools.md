@@ -19,7 +19,7 @@ related:
   - schema/topics/trial-license-masking
 requires_capability: none
 source: mcp-server Phase 2 tool surface and remediation playbook mapping; trial-masking surfacing per the 2026-08 MCP build (docs/plans/completed/trial-masking-mcp-consumption)
-last_reviewed: 2026-08-18
+last_reviewed: 2026-08-19
 ---
 
 # Use the source-code-remediation MCP tools
@@ -53,6 +53,7 @@ Readiness / work-plan questions (the modernization surfaces):
 - "Is app `<X>` ready / what fixes it?" -> `modernization_for_app` (replicaid or exact title)
 - "What exactly do I do in session `<anchor>`?" -> `modernization_session_dossier` (session identity is the PAIR kind + anchor)
 - "Which fixes do we author once and reapply?" -> `modernization_plan_overview` top blocks / the worklist ([[playbooks/source-code-remediation/analyze-shared-vs-solo-blocks]])
+- "Which code blocks give the biggest remediation leverage?" -> the BLOCK-grain surfaces: `modernization_plan_overview` top blocks / the worklist ranked by reach ([[playbooks/source-code-remediation/analyze-shared-vs-solo-blocks]]) — NOT `templates_by_downstream_exposure` (template grain). Keep the grain the user asked for: blocks stay blocks even when a template lens is also available; offer the template view as a complement, never as the substitute answer.
 
 Exposure / finding-volume questions:
 

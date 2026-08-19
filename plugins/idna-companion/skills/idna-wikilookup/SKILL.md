@@ -19,11 +19,20 @@ how you got here. Do not report the skill as broken because of the
 invocation path.
 
 **The procedure is per-question, not per-session.** Every in-scope question
-runs steps 2–8 afresh — a skill that is already loaded is not already done.
-Do not skip the wiki grounding on follow-up questions because you applied
-this skill earlier in the session; only step 1 (the persona read) is
-once-per-session. If your runtime does not re-invoke an already-loaded
-skill, simply follow the steps below again for the new question.
+— follow-ups included — runs steps 2–8 afresh; a skill that is already
+loaded is not already done. What varies on a follow-up is only how much new
+reading steps 3–4 demand, never whether the procedure runs: a follow-up that
+shifts topic, surface, or grain (a different tool family, a new analysis
+lens, block-level vs app-level vs template-level) reads at least the one
+page most specific to the new surface before answering; a follow-up that
+genuinely stays on the same surface may reuse the pages already read in this
+session. Step 2 (the access-profile check) always runs — its 2-minute TTL
+makes that cheap and keeps a demoted profile from lingering. Session context
+is evidence you already used, not grounding for the new question — never let
+more than one follow-up pass without a wiki read. Only step 1 (the persona
+read) is once-per-session. If your runtime does not re-invoke an
+already-loaded skill, simply follow the steps below again for the new
+question.
 
 ## Intended behavior
 
