@@ -14,7 +14,7 @@ related:
   - concepts/document-age-timestamps
 requires_capability: none
 source: docs/reference/cqx_data_schema_enriched_all_tables.md
-last_reviewed: 2026-05-04
+last_reviewed: 2026-08-19
 ---
 
 # cqx_data.database_content_retention_summary
@@ -41,15 +41,22 @@ Retention values come from iDNA Custom DB Properties; without that configuration
 | `server_name` | text | Server hosting this instance. |
 | `file_name` | text | NSF path. |
 | `replicas_count` | integer | Replicas in the set. |
+| `replicas_other_servers` | text[] | The OTHER servers holding replicas of this set (this instance's own `server_name` removed). NULL when there are none — a single-instance set, or all replicas on this server. |
 | `database_type` | text | Database-type label. |
 | `is_licensed` | boolean | iDNA licensing flag. |
 | `is_content_age_analyzed` | boolean | Whether content-age analysis has run for this DB. |
+| `retention_analysis_complete` | boolean | TRUE only when BOTH halves are present: the content-age scan has run AND a `retention_cutoff` exists. The precise "this row's retention answer is trustworthy" marker — prefer it over checking the two columns separately. |
+| `has_retention_config` | boolean | A usable retention horizon exists (`retention_cutoff IS NOT NULL`). Because the cutoff is only derived when mode AND years are both set, this is the column-level form of the configuration prerequisite below — FALSE covers unconfigured and half-configured alike. |
+| `resource_status` | text | Database resource/access state from the collection layer; `OK` is healthy. Anything else drives `collection_status` to "Error (Database Access)" or "Warning (Outdated / Collection Halted)". |
+| `contentage_status` | text | RAW content-age scan state feeding `collection_status`: NULL = collection pending, `OK` = healthy, any other value = content-collection error. Read `collection_status` for the consultant-facing label; read this when you need the underlying scan state. |
 | `collection_status` | text | Collection state for the content-age scan. |
 | `contentage_scantime` | timestamp tz | When the content-age scan ran. |
 | `contentage_scanduration_seconds` | numeric | Scan duration. |
 | `docs_count_total` | bigint | Total documents in the NSF. |
 | `docs_count_catalog` | bigint | Catalog/system documents excluded from retention math. |
+| `docs_count_error` | bigint | Documents that errored during collection. `> 0` on a completed scan surfaces as "Warning (Document Errors)" in `collection_status` — the retention counts below are then incomplete for this instance. |
 | `doc_age_months_avg` | numeric | Average document age, months. |
+| `retention_settings` | text | Display string for the configuration: `"<n> Years - <mode>"` when years > 0 AND mode are both set, else the literal `No/Incomplete Configuration` — which covers unconfigured AND partially configured alike, so it does not distinguish the two. |
 | `retention_years` | integer | Configured retention period (years). |
 | `retention_mode` | text | Retention configuration mode. NULL when not configured. |
 | `retention_cutoff` | date | Boundary date: documents modified after this are inside retention. |
