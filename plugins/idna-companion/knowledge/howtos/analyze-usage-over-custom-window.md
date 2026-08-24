@@ -16,8 +16,8 @@ related:
   - schema/tables/usage-cube-repset-vs-location-activity-history
   - howtos/attribute-usage-aggregate-only
 requires_capability: none
-source: user-activity-time-windows plan (2026-07-27); cross-mode rewrite 2026-07-28; rank apps_used amendment 2026-07-29
-last_reviewed: 2026-07-29
+source: user-activity-time-windows plan (2026-07-27); cross-mode rewrite 2026-07-28; rank apps_used amendment 2026-07-29; window-coverage fix (overlap-week predicate) 2026-08-24
+last_reviewed: 2026-08-24
 ---
 
 # Analyze usage over a custom time window
@@ -78,7 +78,7 @@ SELECT
   count(*)              AS weeks_covered
 FROM cqx_data.usage_cube_repset_activity_history
 WHERE replicaid = '<replicaid>'
-  AND week_date >= '<from_date>' AND week_date <= '<to_date>'
+  AND week_date >= ('<from_date>'::date - 6) AND week_date <= '<to_date>'::date
 ```
 
 Present alongside the canonical bucket (`usage_last90d` / `usage_last365d` and
@@ -114,7 +114,7 @@ SELECT department_id, max(department_name) AS department,
   sum(sessions_total) AS sessions
 FROM cqx_data.usage_cube_repset_vs_department_activity_history
 WHERE replicaid = '<replicaid>'
-  AND week_date >= '<from_date>' AND week_date <= '<to_date>'
+  AND week_date >= ('<from_date>'::date - 6) AND week_date <= '<to_date>'::date
 GROUP BY department_id
 ORDER BY uad DESC
 ```
@@ -142,8 +142,13 @@ Manual: the corresponding weekly table, one row per week, `ORDER BY week_date`.
   `user_activity_over_window`.
 - **No tier claims from custom windows** ([[concepts/usage-time-windows]]):
   compare with the embedded canonical figures, never grade a custom total.
-- **ISO-week floor** (variants A/B/D): edge weeks are partial; say so when the
-  boundary matters.
+- **Whole-week widening** (all weekly variants): iDNA stores usage in whole
+  Monday-anchored ISO weeks, so the overlap predicate above widens the window
+  to every week it touches — no requested day is lost, but the first and last
+  weeks can reach outside the requested dates. The tool reports the real span
+  as `covered_from_date` / `covered_to_date`; when running the SQL manually,
+  the covered span is the Monday of the from-week through the Sunday of the
+  to-week. Quote that span when you report the numbers.
 - **History depth is instance-specific** — check `min(week_date)` before
   promising a long window; the tool reports requested vs effective dates.
 - **Cross-mode caveats** (variant C): department/location rows are

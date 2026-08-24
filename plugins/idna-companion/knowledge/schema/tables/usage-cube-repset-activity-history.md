@@ -13,7 +13,7 @@ related:
   - concepts/usage-tier
 requires_capability: none
 source: ETL view definition (cqx_data_ifa) + live verification 2026-07-27
-last_reviewed: 2026-07-27
+last_reviewed: 2026-08-24
 ---
 
 # cqx_data.usage_cube_repset_activity_history
@@ -85,9 +85,12 @@ ordered by `week_date`.
 - **All other metrics are genuinely additive across weeks**: weeks partition dates,
   so distinct (date, user) pairs in different weeks are disjoint — summing
   `user_access_days` over a window is exact.
-- **ISO-week floor.** Weeks are Monday-anchored ISO weeks; a custom window's edges
-  land mid-week, so the first and last covered weeks are partial. State this when
-  reporting a window total.
+- **Whole-week widening.** Weeks are Monday-anchored ISO weeks; a custom window
+  is widened to every week it overlaps (predicate form
+  `week_date >= ('<from_date>'::date - 6) AND week_date <= '<to_date>'::date`) —
+  no requested day is lost, but the edge weeks can reach outside the requested
+  dates. `usage_over_window` reports the real span as `covered_from_date` /
+  `covered_to_date`; quote that span when reporting a window total.
 - **History depth is instance-specific** — there is no retention cut in the ETL;
   depth equals source-table retention. Check `min(week_date)` before promising a
   window.

@@ -13,8 +13,8 @@ related:
   - schema/tables/replica-set
   - howtos/analyze-usage-over-custom-window
 requires_capability: none
-source: user-activity-time-windows plan (2026-07-27), external audit E3-E5
-last_reviewed: 2026-07-27
+source: user-activity-time-windows plan (2026-07-27), external audit E3-E5; window-coverage fix (2026-08-24)
+last_reviewed: 2026-08-24
 ---
 
 # Usage over time windows
@@ -43,6 +43,16 @@ a **three-rung ladder**, with binding rules for when each rung applies.
    (privileged profile only). Offered only after the active access profile is
    resolved. Recipes live on a permissive-only howto page and are not part of
    this page.
+
+**The two window tools do not cover the same period.** `usage_over_window`
+works on whole Monday-anchored weeks, so a custom window is widened to every
+week it overlaps (it reports the real span as `covered_from_date` /
+`covered_to_date`). `user_activity_over_window` works on daily session rows, so
+its window is exact. Asking both for "July 2026" therefore covers
+2026-06-29–2026-08-02 in the first and 2026-07-01–2026-07-31 in the second:
+their numbers are not directly reconcilable. Use the weekly tool for aggregate
+trend and restricted-safe work, the daily tool when the window boundaries must
+be exact — and say which one a figure came from.
 
 ## The explicit-window rule
 
@@ -85,8 +95,13 @@ figure and the aggregate answer; exact window-distinct user counts require
 per-user data — if the customer has already approved the privileged MCP
 posture, `user_activity_over_window` computes them.
 
-Weekly grain itself has a floor: ISO weeks are Monday-anchored, so custom
-window edges land mid-week and the edge weeks are partial.
+Weekly grain itself has a floor: iDNA stores usage in whole Monday-anchored ISO
+weeks. A custom window is therefore widened to every week it overlaps — no
+requested day is lost, but the first and last weeks can reach outside the
+window. The tool reports the real span as `covered_from_date` /
+`covered_to_date` and says so in its notes whenever the widening is non-empty;
+quote that span when you report the numbers. A Monday–Sunday window is not
+widened.
 
 ## Profile gating and the no-fallback rule
 

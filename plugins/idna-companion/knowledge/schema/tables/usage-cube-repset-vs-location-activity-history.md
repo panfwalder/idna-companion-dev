@@ -14,7 +14,7 @@ related:
   - concepts/usage-time-windows
 requires_capability: none
 source: ETL view definition (cqx_data_ifa, added 2026-07-28) + live validation
-last_reviewed: 2026-07-28
+last_reviewed: 2026-08-24
 ---
 
 # cqx_data.usage_cube_repset_vs_location_activity_history
@@ -55,7 +55,8 @@ substituted; see that page. Subtree questions use
 
 All caveats of the department twin apply unchanged: leaf grain (no hierarchy
 roll-up), `-1` cohort is real activity, peak-week-only `users_active`
-(within-week sums across sibling locations are fine), ISO-week floor,
+(within-week sums across sibling locations are fine), whole-week widening
+(custom windows cover every overlapping Monday-anchored week),
 instance-specific depth, threshold-pseudonymized names.
 
 ## Sources

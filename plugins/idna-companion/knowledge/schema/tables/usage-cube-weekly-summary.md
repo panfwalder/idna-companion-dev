@@ -11,7 +11,7 @@ related:
   - concepts/user-access-days
 requires_capability: none
 source: ETL view definition (cqx_data_ifa) + live verification 2026-07-27
-last_reviewed: 2026-07-27
+last_reviewed: 2026-08-24
 ---
 
 # cqx_data.usage_cube_weekly_summary
@@ -63,7 +63,7 @@ SELECT
   max(users_active)     AS users_active_peak_week,
   count(*)              AS weeks_covered
 FROM cqx_data.usage_cube_weekly_summary
-WHERE week_date >= '<from_date>' AND week_date < '<to_date>'
+WHERE week_date >= ('<from_date>'::date - 6) AND week_date <= '<to_date>'::date
 ```
 
 ## Notes and caveats
@@ -71,7 +71,9 @@ WHERE week_date >= '<from_date>' AND week_date < '<to_date>'
 - The distinct-count columns (`users_active`, `repsets_accessed`,
   `departments_active`, `locations_active`) are per-week distincts — **never sum
   them across weeks**; report peak week or a weekly series instead.
-- ISO-week floor and instance-specific history depth apply exactly as on
+- Whole-week widening (custom windows cover every overlapping Monday-anchored
+  week; see `covered_from_date` / `covered_to_date`) and instance-specific
+  history depth apply exactly as on
   [[schema/tables/usage-cube-repset-activity-history]] — as does the caveat there
   that cube session totals can diverge a few percent from the raw session tables
   (different ETL population filters; don't mix the two sources in one comparison).

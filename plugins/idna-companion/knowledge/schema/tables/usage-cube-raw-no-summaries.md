@@ -11,7 +11,7 @@ related:
   - concepts/regulatory-usage-constraints
 requires_capability: mcp_unrestricted
 source: ETL view definition (cqx_data_ifa), verified 2026-07-27
-last_reviewed: 2026-07-27
+last_reviewed: 2026-08-24
 ---
 
 # cqx_data.usage_cube_raw_no_summaries
@@ -67,13 +67,17 @@ Per-user weekly session/read/write series for one application:
 SELECT username, week_date, sessions_total, reads_client, writes_client
 FROM cqx_data.usage_cube_raw_no_summaries
 WHERE replicaid = '<replicaid>'
-  AND week_date >= '<from_date>'
+  AND week_date >= ('<from_date>'::date - 6)
 ORDER BY week_date, sessions_total DESC
 ```
 
 ## Notes and caveats
 
 - Safe to aggregate freely — every row is a disjoint leaf cell.
+- Custom windows cover whole Monday-anchored weeks: the `('<from_date>'::date - 6)`
+  form selects every week overlapping the window, so edge weeks can reach outside
+  the requested dates (`usage_over_window` reports the real span as
+  `covered_from_date` / `covered_to_date`).
 - `*** Anonymous ***` rows are real unattributable activity; keep them visible in
   totals rather than filtering them out.
 - Eval/trial license masks names (titles, usernames, org names; since the M9 ETL revision, fully trial-selected replica sets show their real title) while structure
