@@ -30,7 +30,7 @@ iDNA identifies two states of inheritance:
 
 ## Why it matters
 
-Clean associations are the lowest-effort remediation path — the modernization vector routes them to `template/remediate_master` or `template/upgrade_standard` ([[concepts/about-modernization-vector]]). Broken associations carry the same design lineage but require validation before a fix can propagate — the vector routes them to `template/investigate_inheritance/*`. (Legacy vocabulary: Category A/B — mapping on [[concepts/remediation-category]].)
+Clean associations are the lowest-effort remediation path — the modernization vector routes them to `template/remediate_master`, `template/upgrade_standard`, or — for a master that is itself a detached fork of a standard template — `template/rebase_ancestor` ([[concepts/about-modernization-vector]], [[concepts/about-template-lineage]]). Broken associations carry the same design lineage but require validation before a fix can propagate — the vector routes them to `template/investigate_inheritance/*`. (Legacy vocabulary: Category A/B — mapping on [[concepts/remediation-category]].)
 
 ## Columns involved
 

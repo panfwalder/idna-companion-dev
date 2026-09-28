@@ -60,7 +60,7 @@ The iDNA ETL precomputes the whole classify-and-plan pipeline per compatibility 
 Narrate the plan multipliers-first — the computed rankings stay as-is (sessions by apps cleared, blocks by reach); the tiers are the presentation:
 
 1. **Custom-master multipliers** (`remediate_master`): fix the master once, a refresh clears the cohort. Broken/lost template relations (`unify_similar`, `investigate_inheritance`) belong here as the secondary opportunity.
-2. **Standard-template multipliers** (`upgrade_standard`): port to the current HCL version — the fixes are already made and HCL maintains them.
+2. **Standard-template multipliers** (`upgrade_standard`, `rebase_ancestor`): port to the current HCL version — the fixes are already made and HCL maintains them. Detached forks of a standard are rebased onto the current version of their lineage, then their customizations are re-applied ([[concepts/about-template-lineage]]).
 3. **Piece-work from the worklist**, heavy-impact first: shared script libraries down to unique solo blocks.
 
 The work itself happens **outside iDNA**, in Domino Designer, by the customer's developer or admin — iDNA locates and quantifies it. Stay advisory on sequencing; keep risk statements firm (a refresh overwrites diverging blocks — review first).

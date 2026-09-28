@@ -101,11 +101,12 @@ For source-code-remediation questions, the current semantic tool map is:
 - reuse/spread of one code block -> `find_code_block_usage`
 - template downstream exposure -> `templates_by_downstream_exposure`
 
-**For modernization-readiness questions, the modernization tools are the PRIMARY surface — not the exposure/findings tools above, and not hand-written SQL.** Trigger phrasings: "what apps will break on 64-bit clients", "which apps aren't Nomad-ready", "how ready are we", "where do we start", "what do I do in this session", "which blocks do we fix once". The semantic tool map (semantics in `knowledge/concepts/about-modernization-vector.md` / `about-modernization-plan.md`; routing detail in `knowledge/howtos/use-source-code-remediation-mcp-tools.md`):
+**For modernization-readiness questions, the modernization tools are the PRIMARY surface — not the exposure/findings tools above, and not hand-written SQL.** Trigger phrasings: "what apps will break on 64-bit clients", "which apps aren't Nomad-ready", "how ready are we", "where do we start", "what do I do in this session", "which blocks do we fix once", "what did we customize". The semantic tool map (semantics in `knowledge/concepts/about-modernization-vector.md` / `about-modernization-plan.md`; routing detail in `knowledge/howtos/use-source-code-remediation-mcp-tools.md`):
 
 - readiness KPI + session queue ("how ready / where do we start") -> `modernization_plan_overview` (ranks by `n_apps_green`; quote `item_display`)
 - one app's verdict + block work list -> `modernization_for_app` (replicaid or exact title; sunset apps get MIS_ROUTED to `sunset_disposition` — follow it)
 - one session's worksheet -> `modernization_session_dossier` (session identity is the PAIR kind + anchor)
+- one master's lineage ("what did we customize / what survives the update") -> `modernization_lineage_overview` (master name, or an app on a rebase/upgrade/with-notes route); drill into a count with `modernization_lineage_dossier` using the values it shows
 - per-block estate reach -> `find_code_block_usage` WITH the target bound
 
 These tools work in EVERY profile (restricted included). `execute_sql` against the `cqx_data.modernization_*` views is the privileged custom-slice fallback only (ALWAYS filter by `ruleset_id`; mechanics in `knowledge/howtos/query-modernization-views.md`). A NOT_FOUND with a manual-fallback hint means the ruleset is not precomputed — use the manual playbook method, do not report an empty estate.

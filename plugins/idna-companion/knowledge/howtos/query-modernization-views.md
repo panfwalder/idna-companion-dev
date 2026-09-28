@@ -12,9 +12,12 @@ related:
   - concepts/about-modernization-plan
   - schema/tables/design-insight-overview-byrepset
   - schema/tables/code-source
+  - schema/tables/template-ancestry
+  - schema/tables/modernization-lineage-dossier
+  - schema/tables/modernization-session-steps
 requires_capability: none
-source: modernization-vector-integration plan (verified queries, ifa test instance 2026-07-09/23)
-last_reviewed: 2026-08-19
+source: modernization-vector-integration plan (verified queries, ifa test instance 2026-07-09/23); template-lineage views and the revised reach identity (ETL ADRs 0002-0004) verified live 2026-09-24
+last_reviewed: 2026-09-25
 ---
 
 # How to query the modernization views
@@ -31,12 +34,17 @@ Query mechanics only — for what the values *mean*, read [[concepts/about-moder
 | "Which apps aren't ready?" / readiness split + KPI | `modernization_plan_overview` | `modernization_vector` grouped by vector value |
 | "Where do we start? What pays off most?" | `modernization_plan_overview` | `modernization_plan` ordered by `item_rank` |
 | "Which blocks do we fix once and reapply?" | `modernization_plan_overview` (top blocks) | `modernization_worklist` ordered by `item_rank` |
-| "What exactly do I do in session X?" | `modernization_session_dossier` | `modernization_worklist_by_session` filtered by (`session_kind`, `session_anchor`) |
+| "What exactly do I do in session X?" | `modernization_session_dossier` (work rows) | `modernization_worklist_by_session` filtered by (`session_kind`, `session_anchor`) |
+| "In what order do I do it?" (the procedure) | `modernization_session_dossier` (`steps`) | `modernization_session_steps` by the session key, `ORDER BY step_rank` |
+| "Which standard template was this master forked from?" | `modernization_lineage_overview` (the `master` header) | `template_ancestry` |
+| "What did we customize? What survives the update?" | `modernization_lineage_overview` (counts), then `modernization_lineage_dossier` (drill-down) | `modernization_lineage_dossier` (element rows / finding rows) |
 | Quick per-app headline (built-in targets only) | `modernization_for_app` | `replica_set.modernization_vector_notes64bit` / `..._nomad` |
+
+The session steps (ETL ADR 0004) come through `modernization_session_dossier` (`steps`; on an older MCP build without that field, query the view in privileged sessions). The two lineage views (`template_ancestry`, `modernization_lineage_dossier`; ETL ADRs 0002–0003, 0005) come through `modernization_lineage_overview` (counts) and `modernization_lineage_dossier` (the drill-down) in any profile; privileged `execute_sql` stays the custom-slice fallback. On an older MCP build without those tools, `execute_sql` is the only path; restricted sessions then answer from [[concepts/about-template-lineage]] and say that lineage detail is not available in this session.
 
 ## Rule 1: ALWAYS filter by ruleset
 
-All four views are per-target. `modernization_vector` has one row per (app × ruleset) — unfiltered counts double (574 = 287 × 2 on a reference instance). Built-in ids: Notes 64bit `71f16a9a-8fc6-4dfe-add8-3a43c539d353`, Nomad `a8efac35-3e54-48f4-aa27-4c342529ed0a` (resolve custom ones via `ruleset_name`).
+The vector, plan, worklist, dossier-by-session and steps views are per-target. So are the lineage dossier's finding rows; its element rows and `template_ancestry` are ruleset-independent. `modernization_vector` has one row per (app × ruleset) — unfiltered counts double (574 = 287 × 2 on a reference instance). Built-in ids: Notes 64bit `71f16a9a-8fc6-4dfe-add8-3a43c539d353`, Nomad `a8efac35-3e54-48f4-aa27-4c342529ed0a` (resolve custom ones via `ruleset_name`).
 
 ## Rule 2: category selection uses `modernization_search`, not the raw vector
 
@@ -48,6 +56,15 @@ WHERE modernization_search LIKE 'template/remediate_master/%'
 ```
 
 The trailing slash prevents `design_family_#8` from matching `#80`. The raw `modernization_vector` is unpadded (a bare `template/remediate_master` means "fully covered") — string-match it only for exact values.
+
+**Ready = prefix `ready/`.** `ready/with_notes` apps are ready (ETL ADR 0003), so the readiness split is `modernization_search LIKE 'ready/%'` vs. the rest — NOT `modernization_vector = 'ready'`, which drops them:
+
+```sql
+SELECT (modernization_search LIKE 'ready/%') AS is_ready, count(*) AS apps
+FROM cqx_data.modernization_vector
+WHERE ruleset_id = '<ruleset_id>'
+GROUP BY 1
+```
 
 ## Rule 3: query `items` defensively
 
@@ -99,12 +116,14 @@ When presenting worklist blocks, always include `scope` alongside `reach` — th
 
 ## Rule 6: reach is usually a lookup now
 
-`modernization_worklist.reach` (and the identity `reach = n_cleared_by_refresh + |apply| + |review| + |scan_first|`) materializes per-block reach — prefer it over recomputing. Recompute from `design_insight_overview_byrepset` only when reconciling doubted numbers or analyzing blocks outside the worklist.
+`modernization_worklist.reach` (and the identity `reach = n_cleared_by_refresh + n_persists_after_update + |apply| + |review| + |scan_first|`, ETL ADR 0003 — covered occurrences whose block survives the template update count as persists) materializes per-block reach — prefer it over recomputing. Recompute from `design_insight_overview_byrepset` only when reconciling doubted numbers or analyzing blocks outside the worklist.
 
 ## Traps in query results (short list)
 
 - **Sunset apps have no vector rows** but DO count in vector shared/solo reach and appear in `design_family` arrays. Worklist `reach` conversely counts **kept apps only** — two different scopes.
 - **shared ≠ family-shared:** `n_shared_items` is estate-wide exact-hash reach. Family siblings drift → different hashes → a member can be 8/0 next to a 4/4 sibling. Reconcile per block hash before calling numbers weird.
 - **Coverage NULLs mean unscanned master** (unknown, not zero) — the action is scanning the master.
+- **On lineage routes, covered ≠ cleared.** For `upgrade_standard` / `rebase_ancestor` use the vector's `n_cleared_after_update` and `n_hcl_notes` (and the display), not `n_covered_by_master`.
+- **Session steps have no fixed scan order** — always `ORDER BY step_rank`.
 - **Dossier joins use the pair** (`session_kind`, `session_anchor`), never anchor text alone.
 - **`items` holds ACTIVE findings only** — config-dismissed findings live in `dismissed_items`. A raw-source count that exceeds the `items` count is usually dismissals, not a defect (Rule 4b).

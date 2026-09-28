@@ -12,10 +12,12 @@ related:
   - concepts/compatibility-ruleset-routing
   - concepts/about-template-inheritance
   - concepts/design-similarity
+  - concepts/about-template-lineage
+  - schema/tables/template-ancestry
   - howtos/query-modernization-views
 requires_capability: none
-source: ETL dda_dm/scheduled/285_dda_dm.modernization_vector.update.sql (routing CASE) + ADR 0001 (iDNA_Applications_ETL docs/decisions) + product-owner design dialogue 2026-07-08
-last_reviewed: 2026-08-18
+source: ETL dda_dm/scheduled/285_dda_dm.modernization_vector.update.sql (routing CASE) + ADR 0001, 0002, 0003 (iDNA_Applications_ETL docs/decisions) + product-owner design dialogue 2026-07-08
+last_reviewed: 2026-09-24
 ---
 
 # Modernization Vector
@@ -35,31 +37,45 @@ Two framing rules for every answer:
 
 ```
 ready
+ready/with_notes
+template/upgrade_standard      [/unscanned_master_template | /diverging_code_blocks | /surplus_code_blocks]
+template/rebase_ancestor       [/diverging_code_blocks | /surplus_code_blocks]
 template/remediate_master      [/unscanned_master_template | /diverging_code_blocks | /surplus_code_blocks]
-template/upgrade_standard      [same qualifiers]
 template/investigate_inheritance/similar_standard
 template/investigate_inheritance/similar_master
 template/unify_similar
 direct/remediate_code
 ```
 
-`modernization_vector_display` carries the user-facing sentence for each value (e.g. *"Remediate master X: 5 of 8 blocks clear with the master; 2 diverging (refresh would overwrite — review first)"*). Recognize and reuse those words — do not invent parallel phrasing.
+`modernization_vector_display` carries the user-facing sentence for each value. Examples:
+- *"Remediate master X: 5 of 8 blocks clear with the master; 2 diverging (refresh would overwrite — review first)"*
+- *"Rebase master X onto Y lineage (97% similar): 12 of 14 blocks clear with the update (3 via re-applied delta fix); 1 to verify after the update; 1 HCL-owned note(s)"*
+- *"Ready - 3 note(s): findings in HCL-shipped code (current template version), maintained by HCL"*
+
+Recognize and reuse those words — do not invent parallel phrasing.
+
+**Three app states** (ETL ADR 0003): `ready`, `ready/with_notes`, or a work route. `ready/with_notes` IS ready — count it as ready in every readiness answer (see [[concepts/about-template-lineage]]).
 
 ## How routing works (and why)
 
 The routing is a **relationship decision tree, not a scoring function** — because that is how a Notes developer triages an estate. Findings decide only *ready vs. not ready*; everything after that is a question about relationships:
 
 1. **No findings for the target → `ready`.** Short-circuits before any relationship logic.
-2. **"Who's your master?"** App inherits from an estate-operated master template → `template/remediate_master` — fix the master once, a refresh clears the inheriting apps. Templates carry a Notes estate; *fix multipliers first, then leftovers*. If the primary master's name is standard-recognized → `template/upgrade_standard` instead: a pristine standard is HCL's work — **upgrade it, don't edit it**; the current HCL version already contains the fix.
-3. **No master link, but ≥85% design-similar to a classifiable template** → `template/investigate_inheritance` — `/similar_master` (template operated in the estate) or `/similar_standard` (name-recognized only). **Estate-operated beats standard-recognized**: a renamed standard carrying customizations is a customer asset — the customizations are precisely what needs the work.
-4. **No template relation, but design-family peers exist** (≥1 kept peer) → `template/unify_similar` — similar-but-unlinked apps are a *missed multiplier*: candidates to unify under one new shared master (see [[concepts/design-families]]). The trigger is the **design relationship alone** — unify does NOT imply the peers carry the same finding hashes (a unify app's blocks can be entirely solo; similarity tolerates code drift, hashes don't).
-5. **Otherwise → `direct/remediate_code`** — a genuine one-off.
+2. **Every active fix item is HCL-owned → `ready/with_notes`.** The app inherits from a standard master or a standard-lineage fork, and ALL its active fix items persist in the current HCL template version (`n_hcl_notes = n_fix_items`). Nothing a session could achieve — a terminal state: `session_kind = 'ready'`, no anchor, never in the plan or worklist. An app with any block that the update clears still routes to its upgrade/rebase session.
+3. **"Who's your master?"** The app inherits from an estate-operated master template — three-way on the master's lineage ([[concepts/about-template-lineage]]):
+   - the primary master's name is standard-recognized → `template/upgrade_standard`: a pristine standard is HCL's work — **upgrade it, don't edit it**; the current HCL version already contains the fix;
+   - the master carries its own name but its design derives from a standard ancestor ([[schema/tables/template-ancestry]]) → `template/rebase_ancestor`: replace the design with the current version of the ancestor lineage, then re-apply the customizations;
+   - otherwise → `template/remediate_master` — fix the master once, a refresh clears the inheriting apps.
+   Templates carry a Notes estate; *fix multipliers first, then leftovers*.
+4. **No master link, but design-similar to a classifiable template** (at or above the configured design-cluster threshold `ai_similarity_cluster_threshold`, default 95) → `template/investigate_inheritance` — `/similar_master` (template operated in the estate) or `/similar_standard` (name-recognized only). **Estate-operated beats standard-recognized**: a renamed standard carrying customizations is a customer asset — the customizations are precisely what needs the work.
+5. **No template relation, but design-family peers exist** (≥1 kept peer) → `template/unify_similar` — similar-but-unlinked apps are a *missed multiplier*: candidates to unify under one new shared master (see [[concepts/design-families]]). The trigger is the **design relationship alone** — unify does NOT imply the peers carry the same finding hashes (a unify app's blocks can be entirely solo; similarity tolerates code drift, hashes don't).
+6. **Otherwise → `direct/remediate_code`** — a genuine one-off.
 
 The primary master is the most-covering scanned template (scanned preferred, alphabetical tiebreak); coverage is **primary-master-scoped** on purpose — the question is "does *my* master's session clear me", not "does any template anywhere contain this hash".
 
 ## Qualifiers are risk communication (worst-wins)
 
-The `remediate_master`/`upgrade_standard` qualifiers are warnings a consultant would voice, in escalating order (`unscanned_master_template` > `diverging_code_blocks` > `surplus_code_blocks` — the worst present is displayed):
+The `remediate_master`/`upgrade_standard`/`rebase_ancestor` qualifiers are warnings a consultant would voice, in escalating order (`unscanned_master_template` > `diverging_code_blocks` > `surplus_code_blocks` — the worst present is displayed). `rebase_ancestor` never carries `/unscanned_master_template`: ancestry presupposes a scanned master.
 
 - **`/unscanned_master_template`** — *coverage unknown*: the master's design was never collected. The first action is a scan, not a fix — ask the Domino admin to place the master on a server iDNA scans. Coverage columns are NULL here (unknown, not zero).
 - **`/diverging_code_blocks`** — *data-loss risk*: the app carries a local variant of an element the master also has. **A template refresh overwrites diverging blocks — review them before any refresh.** This warning is firm, always; it is the single most important risk statement in the feature.
@@ -79,7 +95,14 @@ Two precision notes (2026-08 ETL revision): the ROUTING recognizer additionally 
 
 ## Coverage clearance per block
 
-For master-linked apps, each finding block is classified against the primary master: `covered` (hash present in the master — a refresh clears it), `diverging` (same design element, different hash — refresh would overwrite), `surplus` (element absent from the master — separate work). These per-block clearances drive the counts (`n_covered_by_master`, `n_diverging`, `n_surplus`) and the work states in the [[schema/tables/modernization-worklist]].
+For master-linked apps, each finding block is classified against the primary master: `covered` (hash present in the master — a refresh clears it), `diverging` (same design element, different hash — refresh would overwrite), `surplus` (element absent from the master — separate work). These per-block clearances drive the counts (`n_covered_by_master`, `n_diverging`, `n_surplus`) and the work kinds in the [[schema/tables/modernization-worklist]].
+
+**On the lineage routes (`upgrade_standard`, `rebase_ancestor`, and `ready/with_notes`) "covered" is not the end of the story.** The master is replaced or upgraded, not edited, so a covered block's fate comes from the lineage dossier's verdict ([[schema/tables/modernization-lineage-dossier]]):
+- **`n_cleared_after_update`** counts covered blocks the update clears, including custom blocks cleared via a re-applied delta fix.
+- **`n_hcl_notes`** counts covered blocks that persist in the current HCL version.
+- The display adds "to verify after the update" for re-applied or unknown-fate blocks.
+
+For these routes, quote the display's "N of M blocks clear with the update", not raw coverage.
 
 ## Dismissed non-issues (configured false positives)
 
@@ -119,6 +142,7 @@ decisions) — never invent an actor or date for them.
 
 ## Answer-shape rules for this topic
 
-- **Aggregate through the template lens.** "Which apps are affected" answers group by route/session (master cohorts, standard upgrades, unify families, one-offs) — never a flat N-app finding list. A Notes developer expects help leveraging their template environment; a flat list loses credibility instantly.
+- **Aggregate through the template lens.** "Which apps are affected" answers group by route/session (master cohorts, standard upgrades, ancestor rebases, unify families, one-offs) — never a flat N-app finding list. A Notes developer expects help leveraging their template environment; a flat list loses credibility instantly.
+- **`ready/with_notes` counts as ready.** Report it as "ready, with N note(s) on HCL-shipped code, maintained by HCL" — never as not-ready, never as a session, never as work to do.
 - **Advisory on sequencing, firm on risks.** Recommend orderings with their rationale ("the plan ranks X first because it clears 29 apps"); never soften risk warnings.
 - **Every number must reconcile.** When a user doubts a figure, offer the reconciliation path (see [[howtos/query-modernization-views]]).

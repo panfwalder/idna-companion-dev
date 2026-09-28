@@ -23,7 +23,7 @@ related:
   - schema/topics/template-inheritance
 requires_capability: none
 source: CoCo_Playbook_64bit_Migration_Consulting.docx (manual method) + modernization-vector-integration phase-2 rewrite (consume-first)
-last_reviewed: 2026-07-24
+last_reviewed: 2026-09-25
 ---
 
 # Classify Template-Based Remediation Paths
@@ -42,10 +42,12 @@ The vector already classifies every kept focus app's template relationship per t
 
 - **`template/remediate_master`** — clean estate-master link: fix the master once, refresh clears the inheriting apps. Per-block coverage is precomputed (`covered` / `diverging` / `surplus`) against the primary master.
 - **`template/upgrade_standard`** — the master is a pristine, standard-named HCL template: **upgrade it to the current HCL version, don't hand-edit it** — the fixes are already made upstream.
-- **`template/investigate_inheritance/similar_master|similar_standard`** — no formal link but ≥85% design-similar to a classifiable template. The display labels the SIMILARITY TARGET three ways: `(standard master)` standard-named and operated here, `(estate master)` operated under a custom name, `(standard template)` name-recognized only. This route is a **human reconcilability call**: locate the drift, then decide re-establish vs. adopt. Partial outcomes (no link re-established) are legitimate.
+- **`template/rebase_ancestor`** — the master carries its own name, but its design derives from a standard ancestor (a detached fork — [[schema/tables/template-ancestry]]). Replace its design with the current version of the ancestor lineage, then re-apply the customizations. This route replaces `remediate_master` for such masters. The lineage dossier says what was customized and which findings survive the update ([[concepts/about-template-lineage]]).
+- **`ready/with_notes`** — not a path but a terminal state: every remaining finding is HCL-shipped code present in the current template version. The app is ready; the findings are notes maintained by HCL.
+- **`template/investigate_inheritance/similar_master|similar_standard`** — no formal link but design-similar to a classifiable template (at or above the configured design-cluster threshold). The display labels the SIMILARITY TARGET three ways: `(standard master)` standard-named and operated here, `(estate master)` operated under a custom name, `(standard template)` name-recognized only. This route is a **human reconcilability call**: locate the drift, then decide re-establish vs. adopt. Partial outcomes (no link re-established) are legitimate.
 - **`template/unify_similar`** — similar-but-unlinked peers, the missed multiplier ([[playbooks/source-code-remediation/classify-shared-code-paths]] and [[concepts/design-families]] carry that path).
 
-Tool routing: estate view via `modernization_plan_overview` (filter `session_kind`); per app via `modernization_for_app` (coverage counts, master names, `master_scanned`); the master session's worksheet via `modernization_session_dossier`. Existing leverage lens: `templates_by_downstream_exposure` still answers "which template families drive the most downstream exposure" at the finding level.
+Tool routing: estate view via `modernization_plan_overview` (filter `session_kind`); per app via `modernization_for_app` (coverage counts, master names, `master_scanned`); the master session's worksheet and its ordered steps via `modernization_session_dossier`. A master's ancestry and lineage counts via `modernization_lineage_overview`, drilled down with `modernization_lineage_dossier` ([[howtos/use-source-code-remediation-mcp-tools]]). Existing leverage lens: `templates_by_downstream_exposure` still answers "which template families drive the most downstream exposure" at the finding level.
 
 ## Risk communication (firm, always)
 

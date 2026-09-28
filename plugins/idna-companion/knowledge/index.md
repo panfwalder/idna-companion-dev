@@ -17,6 +17,7 @@ Catalog of all wiki pages, grouped by type. Updated on every ingest.
 - [[concepts/lifecycle-vector]] - Lifecycle Vector (ETL-computed lifecycle bucket: `direction/disposition/reason`)
 - [[concepts/about-modernization-vector]] - Modernization Vector — READINESS: "what apps will break on 64-bit clients", "which apps aren't Nomad-ready" (per-target readiness split + fix routing)
 - [[concepts/about-modernization-plan]] - Modernization Plan — "where do we start", "what pays off most", session worksheets (session queue + block worklist)
+- [[concepts/about-template-lineage]] - Template Lineage — detached forks of standard templates, rebase vs upgrade, "what did we customize / what survives the update", ready with notes (HCL-owned findings), the step-by-step session procedure
 - [[concepts/design-families]] - Design Families (similarity components; unify-under-one-master candidates)
 - [[concepts/database-complexity]] - Database Complexity (weighted design/code score, how to read it)
 - [[concepts/design-similarity]] - Design Similarity (clusters, template candidates, complexity corrector)
@@ -72,6 +73,9 @@ Catalog of all wiki pages, grouped by type. Updated on every ingest.
 - [[schema/tables/modernization-vector]] - `cqx_data.modernization_vector` (per app x ruleset readiness; GRAIN WARNING)
 - [[schema/tables/modernization-plan]] - `cqx_data.modernization_plan` (session queue, ranked by apps cleared)
 - [[schema/tables/modernization-worklist]] - `cqx_data.modernization_worklist` (+ `_by_session` dossier; block-grain fixes, reach-first)
+- [[schema/tables/template-ancestry]] - `cqx_data.template_ancestry` (which standard template a master was forked from; similarity, family, newest version)
+- [[schema/tables/modernization-lineage-dossier]] - `cqx_data.modernization_lineage_dossier` (what we customized vs the ancestor; which findings survive the template update)
+- [[schema/tables/modernization-session-steps]] - `cqx_data.modernization_session_steps` (ordered step-by-step procedure per plan session; ORDER BY step_rank)
 
 ### Topics
 

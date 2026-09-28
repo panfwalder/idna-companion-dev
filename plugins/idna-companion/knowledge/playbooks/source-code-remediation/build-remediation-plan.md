@@ -28,7 +28,7 @@ related:
   - concepts/database-complexity
 requires_capability: none
 source: CoCo_Playbook_64bit_Migration_Consulting.docx (manual method) + modernization-vector-integration phase-2 rewrite (consume-first)
-last_reviewed: 2026-07-24
+last_reviewed: 2026-09-25
 ---
 
 # Build the Source-Code Remediation Plan
@@ -43,12 +43,12 @@ Turn the precomputed work queue into a customer-ready roadmap that balances effi
 
 ## The plan is precomputed (primary path)
 
-The ordered queue exists: `modernization_plan_overview` returns the readiness KPI plus the session queue ranked by **apps cleared** (`n_apps_green` — the session KPI; usage-cleared companions break ties), and the worklist ranks every block fix reach-first. A session is one human sitting on one design container. Session detail: `modernization_session_dossier` — the worksheet with author/apply/review/scan_first rows, executed by the customer's developer in Domino Designer (iDNA locates and quantifies; it does not apply fixes).
+The ordered queue exists: `modernization_plan_overview` returns the readiness KPI plus the session queue ranked by **apps cleared** (`n_apps_green` — the session KPI; usage-cleared companions break ties), and the worklist ranks every block fix reach-first. A session is one human sitting on one design container. Session detail: `modernization_session_dossier` — the worksheet with author/apply/review/scan_first rows (plus the informational `cleared_by_update` / `verify_update` / `hcl_owned` rows of rebase and upgrade sessions), executed by the customer's developer in Domino Designer (iDNA locates and quantifies; it does not apply fixes). The ordered procedure per session is [[schema/tables/modernization-session-steps]]; the dossier tool returns it as `steps`, with the work rows in procedure order.
 
 **Narrate in three tiers** (presentation order; the computed rankings stay as-is):
 
 1. **Custom-master multipliers** (`remediate_master`) — fix the master once, refresh clears the cohort; broken/lost relations (`unify_similar`, `investigate_inheritance`) mentioned here as the secondary opportunity.
-2. **Standard-template multipliers** (`upgrade_standard`) — port to the current HCL version, don't hand-edit.
+2. **Standard-template multipliers** (`upgrade_standard`, `rebase_ancestor`) — port to the current HCL version, don't hand-edit; detached forks are rebased onto their lineage and their customizations re-applied ([[concepts/about-template-lineage]]).
 3. **Worklist piece-work**, heavy-impact first — shared script libraries down to unique solo blocks ([[playbooks/source-code-remediation/analyze-shared-vs-solo-blocks]]).
 
 Advisory framing throughout: the ranking has a stated rationale (apps cleared); sequencing decisions — staffing, politics, deadlines — stay with the customer. Unify/investigate session counts assume human decisions resolve; partial outcomes (two masters instead of one; "not reconcilable") are legitimate exits. Risk statements stay firm: a refresh on a session with diverging blocks needs the review-first warning every time.

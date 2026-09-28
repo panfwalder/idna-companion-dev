@@ -13,10 +13,12 @@ related:
   - schema/tables/replica-set
   - schema/tables/design-insight-overview-byrepset
   - schema/topics/trial-license-masking
+  - schema/tables/template-ancestry
+  - schema/tables/modernization-lineage-dossier
   - howtos/query-modernization-views
 requires_capability: none
-source: ETL cqx_data_ifa/010_cqx_data.initialize_components_structure.pxsql (view) over dda_dm.modernization_vector (ETL script 285); types verified against live instance 2026-07-23; dismissed columns verified live 2026-07-24; trial masking + detail_masked gated live on dev instances 2026-08-17/18
-last_reviewed: 2026-08-18
+source: ETL cqx_data_ifa/010_cqx_data.initialize_components_structure.pxsql (view) over dda_dm.modernization_vector (ETL script 285); types verified against live instance 2026-07-23; dismissed columns verified live 2026-07-24; trial masking + detail_masked gated live on dev instances 2026-08-17/18; lineage columns (ETL ADRs 0002/0003) verified live 2026-09-24
+last_reviewed: 2026-09-24
 ---
 
 # cqx_data.modernization_vector
@@ -40,7 +42,7 @@ Per-app modernization readiness: the routing verdict ([[concepts/about-moderniza
 | `modernization_vector` | text | The raw routing value (see the value tree in [[concepts/about-modernization-vector]]). |
 | `modernization_vector_display` | text | User-facing sentence — quote it, don't paraphrase. |
 | `modernization_search` | text | Vector padded to full depth with trailing slash, for prefix filtering (see below). |
-| `session_kind`, `session_anchor` | text | Which plan session clears this app (join to `modernization_plan`). |
+| `session_kind`, `session_anchor` | text | Which plan session clears this app (join to `modernization_plan`). `ready` and `ready/with_notes` rows carry `session_kind = 'ready'` and a NULL anchor — they are in no session. |
 | `n_fix_items` | integer | Distinct code BLOCKS to fix (not items entries — see `items` note). |
 | `n_covered_by_master` | integer | Blocks a master refresh clears. NULL when master unscanned. |
 | `n_diverging` | integer | Blocks where the app diverges from the master (refresh would overwrite — review first). NULL when master unscanned. |
@@ -50,6 +52,9 @@ Per-app modernization readiness: the routing verdict ([[concepts/about-moderniza
 | `master_names` | text[] | Master template(s) the app inherits from. |
 | `master_scanned` | boolean | Primary master's design collected? `false` → coverage columns NULL, qualifier `/unscanned_master_template`. |
 | `most_similar_template`, `most_similar_pct` | text, numeric | Best similarity target for investigate routes. |
+| `ancestor_name`, `ancestor_kind`, `ancestor_similarity` | text, text, numeric | The master's standard ancestor (`standard_estate` / `standard_shipped`) and its similarity — populated exactly on `template/rebase_ancestor` rows, NULL elsewhere (see [[schema/tables/template-ancestry]]). |
+| `n_cleared_after_update` | integer | Lineage routes (`upgrade_standard`, `rebase_ancestor`, `ready/with_notes`): covered blocks the template update clears, incl. custom blocks cleared via a re-applied delta fix. NULL on other routes. |
+| `n_hcl_notes` | integer | Lineage routes: covered blocks that persist in the current HCL template version (HCL-owned notes). `n_hcl_notes = n_fix_items` is what makes an app `ready/with_notes`. NULL on other routes. |
 | `design_family_id` | integer | Family key (see [[concepts/design-families]]). |
 | `design_family` | text[] | ALL family member replicaids — **including sunset apps**. |
 | `design_family_peers`, `peers_keep_modernize`, `peers_keep_qualify`, `peers_sunset` | integer | Peer counts by lifecycle. |
@@ -61,7 +66,7 @@ Per-app modernization readiness: the routing verdict ([[concepts/about-moderniza
 
 ## `modernization_search` (prefix filtering)
 
-The vector padded to full depth with a **trailing slash** (`template/remediate_master/fully_covered_by_master/`, `template/unify_similar/design_family_#8/`). Built for "starts with": prefix `template/remediate_master/` matches the bare value plus all qualifier variants; the trailing slash prevents `design_family_#8` from matching `#80`. This is the intended way to select "everything under node X". The raw `modernization_vector` is NOT padded — a bare `template/remediate_master` there means "fully covered".
+The vector padded to full depth with a **trailing slash** (`template/remediate_master/fully_covered_by_master/`, `template/unify_similar/design_family_#8/`, `ready/no_issues_identified/target_compatible_as_is/`, `ready/with_notes/hcl_owned_findings_persist/`). Built for "starts with": prefix `template/remediate_master/` matches the bare value plus all qualifier variants; prefix `ready/` selects every ready app, with or without notes; the trailing slash prevents `design_family_#8` from matching `#80`. This is the intended way to select "everything under node X". The raw `modernization_vector` is NOT padded — a bare `template/remediate_master` (or `template/rebase_ancestor`, `template/upgrade_standard`) there means "fully covered".
 
 ## `items` shape and size warning
 
@@ -96,12 +101,18 @@ Admins can declare finding-grain false positives in the instance config
 
 ## Typical use
 
-Readiness split for one target:
+Readiness split for one target (`ready/with_notes` counts as ready):
 ```sql
 SELECT modernization_vector, count(*) AS apps
 FROM cqx_data.modernization_vector
 WHERE ruleset_id = '<ruleset_id>'
 GROUP BY 1 ORDER BY 2 DESC
+
+-- ready vs not ready
+SELECT (modernization_search LIKE 'ready/%') AS is_ready, count(*) AS apps
+FROM cqx_data.modernization_vector
+WHERE ruleset_id = '<ruleset_id>'
+GROUP BY 1
 ```
 
 Everything under one category (prefix filter):
@@ -116,7 +127,7 @@ WHERE ruleset_id = '<ruleset_id>' AND modernization_search LIKE 'template/remedi
 On `ia_eval_license` instances, computation stays honest (routing, counts, KPIs are real) but identity detail is masked — full rules in [[schema/topics/trial-license-masking]]:
 
 - `items`/`dismissed_items`: `name`/`element_name` are ordinal aliases (`Form 2`) and `noteid`/`designer_link` null unless the repset is trial-selected; `code_hash*`, `insight_id`, `finding_name`, `clearance` always populated. `detail_masked` marks such rows — present them as "detail withheld, a full license unlocks it", NEVER as "no work".
-- ALL template names in `session_anchor`, `master_names`, `most_similar_template`, and the display are per-run `Master n` aliases — built-in standard names included (M8); only masters operated solely by trial-selected replica sets stay real. The `(standard template)`/`(standard master)` suffixes still mark the class. Aliases renumber each run but are join-consistent across vector/plan/worklist within a run.
+- ALL template names in `session_anchor`, `master_names`, `most_similar_template`, `ancestor_name`, and the display are per-run `Master n` aliases — built-in standard names included (M8); only masters operated solely by trial-selected replica sets stay real. The `(standard template)`/`(standard master)` suffixes still mark the class. Aliases renumber each run but are join-consistent across vector/plan/worklist within a run.
 - Older trial builds instead show a false all-clear (all rows `ready`, 0 items) — suspect the build, not the estate.
 
 ## Notes and caveats

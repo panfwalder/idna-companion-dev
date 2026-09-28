@@ -58,7 +58,7 @@ Scalars appear here because each instance has at most one explicit parent templa
 - Clean: `replica_set.templates_inherits_from IS NOT NULL`
 - Broken: explicit inheritance is missing, but similarity columns point to a likely parent template
 
-That distinction underpins the modernization vector's template routing (`remediate_master`/`upgrade_standard` vs. `investigate_inheritance/*` — [[concepts/about-modernization-vector]]; legacy A/B mapping on [[concepts/remediation-category]]).
+That distinction underpins the modernization vector's template routing (`remediate_master`/`upgrade_standard`/`rebase_ancestor` vs. `investigate_inheritance/*` — [[concepts/about-modernization-vector]]; legacy A/B mapping on [[concepts/remediation-category]]).
 
 ## Related depth tables
 

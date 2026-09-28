@@ -27,7 +27,7 @@ The **historical, manual** four-part classification of how an application with c
 
 | Legacy category | Description | Vector route(s) |
 |---|---|---|
-| **A** | Clean standard-template association | `template/remediate_master` (estate master) / `template/upgrade_standard` (pristine HCL standard) |
+| **A** | Clean standard-template association | `template/remediate_master` (estate master) / `template/upgrade_standard` (pristine HCL standard) / `template/rebase_ancestor` (estate master that is a detached fork of a standard) |
 | **B** | Broken explicit link but strong template similarity | `template/investigate_inheritance/similar_master\|similar_standard` (and `template/unify_similar` when the similarity is to unlinked peers rather than a template) |
 | **C** | Shared custom code blocks across applications | worklist blocks with reach > 1 (fix-once/reapply; `scope` says whether one sitting covers it) |
 | **D** | Unique application code | solo worklist blocks / `direct/remediate_code` |
