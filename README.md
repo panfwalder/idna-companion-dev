@@ -49,6 +49,12 @@ codex plugin marketplace add panfwalder/idna-companion-dev
 
 then install `idna-companion` from the marketplace (`/plugins` in the TUI).
 
+### Not supported: claude.ai Chat
+
+The Companion needs its plugin files - the persona and the knowledge wiki - next to its skill.
+They are not available to the skill in claude.ai Chat, so the Companion would answer there
+without its wiki. Use Cowork, Claude Code, GitHub Copilot or OpenAI Codex.
+
 ## Live data (optional)
 
 The plugin's knowledge wiki works standalone. For live estate data, connect the read-only iDNA

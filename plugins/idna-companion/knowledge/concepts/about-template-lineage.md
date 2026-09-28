@@ -15,7 +15,7 @@ related:
   - schema/tables/modernization-worklist
 requires_capability: none
 source: iDNA_Applications_ETL docs/decisions ADR 0002 (ancestry + rebase route), ADR 0003 (verdict-aware worklist, ready/with_notes), ADR 0004 (session steps); ETL scripts 225/226/285/286/288/289
-last_reviewed: 2026-09-25
+last_reviewed: 2026-09-28
 ---
 
 # Template Lineage (Ancestry, Rebase, Update Fate, Session Steps)
@@ -63,7 +63,7 @@ A template-lineage session is mostly template operations, and only its code-bloc
 
 Two rules to keep in every answer:
 
-- **Master-side work before the refresh, app-side work after it.** A refresh overwrites diverging app code: DECIDE the merge before the refresh — keep the variant by moving it into the master, or accept the master's version. The app-copy fix itself comes after the refresh (`fix_app_copies`).
+- **Master-side work before the refresh, app-side work after it.** A refresh overwrites diverging app code. When the dossier has review rows (apps whose code diverges from the master), DECIDE the merge before the refresh — keep the variant by moving it into the master, or accept the master's version. The app-copy fix itself comes after the refresh (`fix_app_copies`). Without review rows there is no merge to decide; do not raise it. When the dossier's rows were cut, follow the tool's review-timing note — it covers the case where the review rows are among the cut ones.
 - **Customizations are restored, not just flagged blocks** — a design replace can destroy fork-only elements; the verify step exists because of that.
 
 Steps are guidance only: no completion state, never "edit the standard code".

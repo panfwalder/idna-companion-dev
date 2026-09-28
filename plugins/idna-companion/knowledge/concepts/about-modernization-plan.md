@@ -14,7 +14,7 @@ related:
   - howtos/query-modernization-views
 requires_capability: none
 source: ETL dda_dm/scheduled/286 (plan) + 288 (worklist) + 289 (session steps) + ADR 0001 amendments 2026-07-10/11, ADR 0002, 0003, 0004 (iDNA_Applications_ETL docs/decisions) + product-owner design dialogue 2026-07-08
-last_reviewed: 2026-09-24
+last_reviewed: 2026-09-28
 ---
 
 # Modernization Plan (Sessions and the Worklist)
@@ -61,7 +61,7 @@ Blocks no sitting owns — resolved entirely by template upgrades/rebases — ha
 
 The plan says which sessions pay off; the worklist says which blocks; **[[schema/tables/modernization-session-steps]] says in what order to do it** — including the template operations that have no block rows (back up the master, replace its design, re-apply customizations, refresh member apps). Every work row groups under its step via the by-session view's `step_kind`. Two ordering rules:
 - Master-side work comes before the refresh of member apps.
-- App-side fixes come after it, because a refresh overwrites diverging app code.
+- App-side fixes come after it, because a refresh overwrites diverging app code. A merge decision exists only where the dossier has review rows; decide it before the refresh.
 
 Steps are guidance only: no completion state.
 
@@ -71,7 +71,7 @@ Lead with the KPI (n ready of n kept focus apps, target named — `ready/with_no
 
 ## Answer shape for "what do I do in this session?"
 
-Lead with the procedure — the session's ordered steps — and put the block work beneath the step it belongs to. For lineage sessions most block rows are informational (`cleared_by_update`, `verify_update`, `hcl_owned`); the real work is the template operation plus re-applying the customizations. Close with the outside-iDNA principle: the customer's developer or admin executes the steps in Domino Designer / Domino administration.
+Lead with the procedure — the session's ordered steps — and put the block work beneath the step it belongs to. For lineage sessions most block rows are informational (`cleared_by_update`, `verify_update`, `hcl_owned`); the real work is the template operation plus re-applying the customizations. The verify_update rows are checks after the update, not bookkeeping: name each block. Close with the outside-iDNA principle: the customer's developer or admin executes the steps in Domino Designer / Domino administration.
 
 ## The consulting narrative (presentation order)
 
