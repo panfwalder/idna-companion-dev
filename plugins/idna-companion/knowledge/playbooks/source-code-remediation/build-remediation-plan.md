@@ -27,8 +27,8 @@ related:
   - schema/tables/dbviews-used
   - concepts/database-complexity
 requires_capability: none
-source: CoCo_Playbook_64bit_Migration_Consulting.docx (manual method) + modernization-vector-integration phase-2 rewrite (consume-first)
-last_reviewed: 2026-09-25
+source: CoCo_Playbook_64bit_Migration_Consulting.docx (manual method) + modernization-vector-integration phase-2 rewrite (consume-first); hcl_owned in every session kind (ETL ADR 0006) 2026-10-01
+last_reviewed: 2026-10-01
 ---
 
 # Build the Source-Code Remediation Plan
@@ -43,7 +43,7 @@ Turn the precomputed work queue into a customer-ready roadmap that balances effi
 
 ## The plan is precomputed (primary path)
 
-The ordered queue exists: `modernization_plan_overview` returns the readiness KPI plus the session queue ranked by **apps cleared** (`n_apps_green` — the session KPI; usage-cleared companions break ties), and the worklist ranks every block fix reach-first. A session is one human sitting on one design container. Session detail: `modernization_session_dossier` — the worksheet with author/apply/review/scan_first rows (plus the informational `cleared_by_update` / `verify_update` / `hcl_owned` rows of rebase and upgrade sessions), executed by the customer's developer in Domino Designer (iDNA locates and quantifies; it does not apply fixes). The ordered procedure per session is [[schema/tables/modernization-session-steps]]; the dossier tool returns it as `steps`, with the work rows in procedure order.
+The ordered queue exists: `modernization_plan_overview` returns the readiness KPI plus the session queue ranked by **apps cleared** (`n_apps_green` — the session KPI; usage-cleared companions break ties), and the worklist ranks every block fix reach-first. A session is one human sitting on one design container. Session detail: `modernization_session_dossier` — the worksheet with author/apply/review/scan_first rows (plus the informational `cleared_by_update` / `verify_update` rows of rebase and upgrade sessions, and `hcl_owned` notes — current HCL template code, no code fix to author — in any session kind), executed by the customer's developer in Domino Designer (iDNA locates and quantifies; it does not apply fixes). The ordered procedure per session is [[schema/tables/modernization-session-steps]]; the dossier tool returns it as `steps`, with the work rows in procedure order.
 
 **Narrate in three tiers** (presentation order; the computed rankings stay as-is):
 

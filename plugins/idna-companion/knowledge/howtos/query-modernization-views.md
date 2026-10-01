@@ -16,8 +16,8 @@ related:
   - schema/tables/modernization-lineage-dossier
   - schema/tables/modernization-session-steps
 requires_capability: none
-source: modernization-vector-integration plan (verified queries, ifa test instance 2026-07-09/23); template-lineage views and the revised reach identity (ETL ADRs 0002-0004) verified live 2026-09-24
-last_reviewed: 2026-09-25
+source: modernization-vector-integration plan (verified queries, ifa test instance 2026-07-09/23); template-lineage views and the revised reach identity (ETL ADRs 0002-0004) verified live 2026-09-24; the n_hcl_current identity term (ETL ADR 0006) verified live 2026-09-30
+last_reviewed: 2026-10-01
 ---
 
 # How to query the modernization views
@@ -116,7 +116,7 @@ When presenting worklist blocks, always include `scope` alongside `reach` — th
 
 ## Rule 6: reach is usually a lookup now
 
-`modernization_worklist.reach` (and the identity `reach = n_cleared_by_refresh + n_persists_after_update + |apply| + |review| + |scan_first|`, ETL ADR 0003 — covered occurrences whose block survives the template update count as persists) materializes per-block reach — prefer it over recomputing. Recompute from `design_insight_overview_byrepset` only when reconciling doubted numbers or analyzing blocks outside the worklist.
+`modernization_worklist.reach` (and the identity `reach = n_cleared_by_refresh + n_persists_after_update + n_hcl_current + |apply| + |review| + |scan_first|`, ETL ADR 0003 as amended by ETL ADR 0006 — covered occurrences whose block survives the template update count as persists; occurrences of current HCL code outside lineage master coverage count as `n_hcl_current`, never as work) materializes per-block reach — prefer it over recomputing. Recompute from `design_insight_overview_byrepset` only when reconciling doubted numbers or analyzing blocks outside the worklist.
 
 ## Traps in query results (short list)
 

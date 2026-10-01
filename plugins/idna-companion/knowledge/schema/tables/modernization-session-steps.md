@@ -13,8 +13,8 @@ related:
   - concepts/about-modernization-plan
   - howtos/query-modernization-views
 requires_capability: none
-source: ETL cqx_data_ifa/010 (view + COMMENT) over dda_dm.modernization_session_steps (create 031, ETL script 289); ETL ADR 0004; column types verified against the live instance 2026-09-24
-last_reviewed: 2026-09-25
+source: ETL cqx_data_ifa/010 (view + COMMENT) over dda_dm.modernization_session_steps (create 031, ETL script 289); ETL ADR 0004; column types verified against the live instance 2026-09-24; HCL-origin step changes (ETL ADR 0006: review_hcl_notes in direct / remediate_master, the verify counts, the investigate exclusion) checked live 2026-10-01
+last_reviewed: 2026-10-01
 ---
 
 # cqx_data.modernization_session_steps
@@ -44,11 +44,17 @@ Master-side work comes BEFORE the refresh of member apps; app-side work comes AF
 |---|---|
 | `template/rebase_ancestor` | *scan_master* → backup_master → replace_design → reapply_customizations → *clear_blocks* → *verify_carryover* → *verify_cleared* → *review_hcl_notes* → refresh_apps → *fix_app_copies* → rescan_verify |
 | `template/upgrade_standard` | *scan_master* → backup_master → *replace_design* (skipped when the master already is the newest version) → *clear_blocks* → *verify_cleared* → *review_hcl_notes* → refresh_apps → *fix_app_copies* → rescan_verify |
-| `template/remediate_master` | *scan_master* → backup_master → *clear_blocks* → refresh_apps → *fix_app_copies* → rescan_verify |
-| `direct/remediate_code` | *clear_blocks* → rescan_verify |
+| `template/remediate_master` | *scan_master* → backup_master → *clear_blocks* → *review_hcl_notes* → refresh_apps → *fix_app_copies* → rescan_verify |
+| `direct/remediate_code` | *clear_blocks* → *review_hcl_notes* → rescan_verify |
 | `template/investigate_inheritance`, `template/unify_similar` | investigate (one step; all the session's blocks wait on its outcome) |
 
-Step meanings in brief: `scan_master` — scan the master's design first (the plan may change); `backup_master` — back up the master before touching its design; `replace_design` — replace the master's design with the current version of its lineage; `reapply_customizations` — restore ALL customizations from the backup against the dossier's element list, including finding-free modified elements; `clear_blocks` — author or apply fixes; `verify_carryover` — verify that fork-only elements survived the replace; `verify_cleared` — confirm the findings the update clears are gone; `review_hcl_notes` — review findings that persist in the current HCL version (HCL's to own, nothing to author); `refresh_apps` — point member apps at the master (Replace Master Template where not yet inherited), then refresh their design; `fix_app_copies` — after the refresh, fix blocks in app copies the master does not cover; `rescan_verify` — re-scan and confirm the remaining findings match the plan.
+Step meanings in brief: `scan_master` — scan the master's design first (the plan may change); `backup_master` — back up the master before touching its design; `replace_design` — replace the master's design with the current version of its lineage; `reapply_customizations` — restore ALL customizations from the backup against the dossier's element list, including finding-free modified elements; `clear_blocks` — author or apply fixes; `verify_carryover` — verify that fork-only elements survived the replace; `verify_cleared` — confirm the findings the update clears are gone; `review_hcl_notes` — review findings in current HCL template code (HCL's to own, nothing to author): in rebase / upgrade sessions it groups both the master's `persists_hcl_owned` verdict rows and app-side verbatim copies, in direct / remediate_master sessions the verbatim copies (ETL ADR 0006); `refresh_apps` — point member apps at the master (Replace Master Template where not yet inherited), then refresh their design; `fix_app_copies` — after the refresh, fix blocks in app copies the master does not cover; `rescan_verify` — re-scan and confirm the remaining findings match the plan.
+
+**Counts that are not the row count (ETL ADR 0006):**
+
+- **Upgrade `rescan_verify`** carries `n_items` / `item_source = 'blocks'` when the session has `verify_update` rows: the step text adds "re-check the M block(s) whose fate after the update is unknown", and `n_items` is M. Without such rows `n_items` stays NULL.
+- **Rebase `verify_carryover`** counts design ELEMENTS (`item_source = 'elements'`) when the master has fork-only / all-custom elements; when the session also has `verify_update` blocks, the text ends "Then re-check the M flagged block(s) preserved through the update." and `n_items` stays the element count. Without elements it counts the blocks.
+- **`investigate`** groups every row of the session, `hcl_owned` rows included, but its `n_items` counts only the flagged blocks that ride on the outcome; the text names the rest: "(M further block(s) are current HCL template code - no code fix to author)". The session's row count can therefore exceed `n_items` — present those rows as notes.
 
 ## Relationships
 

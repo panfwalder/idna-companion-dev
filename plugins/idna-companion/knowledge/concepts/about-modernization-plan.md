@@ -12,9 +12,10 @@ related:
   - concepts/about-template-lineage
   - schema/tables/modernization-session-steps
   - howtos/query-modernization-views
+  - schema/tables/code-block-hcl-origin
 requires_capability: none
-source: ETL dda_dm/scheduled/286 (plan) + 288 (worklist) + 289 (session steps) + ADR 0001 amendments 2026-07-10/11, ADR 0002, 0003, 0004 (iDNA_Applications_ETL docs/decisions) + product-owner design dialogue 2026-07-08
-last_reviewed: 2026-09-28
+source: ETL dda_dm/scheduled/286 (plan) + 288 (worklist) + 289 (session steps) + ADR 0001 amendments 2026-07-10/11, ADR 0002, 0003, 0004, 0006 (HCL-origin classification) (iDNA_Applications_ETL docs/decisions) + product-owner design dialogue 2026-07-08
+last_reviewed: 2026-10-01
 ---
 
 # Modernization Plan (Sessions and the Worklist)
@@ -45,7 +46,7 @@ One row per session per ruleset ([[schema/tables/modernization-plan]]). Session 
 
 "Green" is decided per session kind (ETL ADR 0003):
 - **`remediate_master`:** the master is scanned and covers every fix item.
-- **`upgrade_standard` / `rebase_ancestor`:** the master is scanned and cleared-by-update plus HCL-owned notes account for every fix item (`n_cleared_after_update + n_hcl_notes = n_fix_items`). Notes re-label green; they do not block it.
+- **`upgrade_standard` / `rebase_ancestor`:** the master is scanned and cleared-by-update plus HCL-owned notes account for every fix item (`n_cleared_after_update + n_hcl_notes = n_fix_items`; on these routes `n_hcl_notes` is the lineage-verdict count). Notes re-label green; they do not block it.
 - **`direct/remediate_code`:** always green; the session is the app itself.
 - **`investigate_inheritance` / `unify_similar`:** never green on their own. They wait on a human decision, so their `n_apps` is potential.
 
@@ -53,9 +54,10 @@ One row per session per ruleset ([[schema/tables/modernization-plan]]). Session 
 
 Every code fix at block grain, per ruleset ([[schema/tables/modernization-worklist]]) — the former "patches" plus all session piece-work in one place, ranked **reach-first** (kept apps carrying the block, then masters containing it, then severity). Its per-session projection `modernization_worklist_by_session` is the **dossier**: "print me session X's worksheet". Every block carries its work kind, and on apply rows `authored_in` (where the fix comes from). The work kinds (ETL ADR 0003):
 - **Work to do:** `author`, `apply`, `review`, `scan_first`.
-- **Informational rows of lineage sessions:** `cleared_by_update` (the update removes the block — no hand work), `verify_update` (re-applied or unknown-fate block — check after the update), `hcl_owned` (persists in the current HCL version — HCL's to maintain).
+- **Informational rows of lineage sessions:** `cleared_by_update` (the update removes the block — no hand work), `verify_update` (re-applied or unknown-fate block — check after the update).
+- **Notes in every session kind:** `hcl_owned` — the block's exact code is in the current shipped HCL template version: inherited in lineage master homes (the dossier verdict), a verbatim copy in every other home (ETL ADR 0006). HCL's to own, no code fix to author; a copy changes only when it is re-copied. Each such block carries `hcl_origin`, the name-free origin note (template family, Notes versions, current catalog version) — quote it when the user asks where the code comes from.
 
-Blocks no sitting owns — resolved entirely by template upgrades/rebases — have `scope = 'inherited_standard'` and no `authored_in`.
+Blocks no sitting owns have no `authored_in`: `scope = 'inherited_standard'` (resolved entirely by template upgrades/rebases) or `scope = 'hcl_owned'` (the code is current HCL template code; any diverging copies still to review are named in `item_display`). Occurrences of current HCL code outside lineage master coverage count in the worklist identity as `n_hcl_current`, never as work.
 
 ## Session steps: the order of work
 
@@ -71,7 +73,7 @@ Lead with the KPI (n ready of n kept focus apps, target named — `ready/with_no
 
 ## Answer shape for "what do I do in this session?"
 
-Lead with the procedure — the session's ordered steps — and put the block work beneath the step it belongs to. For lineage sessions most block rows are informational (`cleared_by_update`, `verify_update`, `hcl_owned`); the real work is the template operation plus re-applying the customizations. The verify_update rows are checks after the update, not bookkeeping: name each block. Close with the outside-iDNA principle: the customer's developer or admin executes the steps in Domino Designer / Domino administration.
+Lead with the procedure — the session's ordered steps — and put the block work beneath the step it belongs to. For lineage sessions most block rows are informational (`cleared_by_update`, `verify_update`, `hcl_owned`); the real work is the template operation plus re-applying the customizations. The verify_update rows are checks after the update, not bookkeeping: name each block. `hcl_owned` rows also appear outside lineage sessions — under `review_hcl_notes` in direct and remediate_master sessions, under the single `investigate` step in investigate / unify sessions (that step's `n_items` excludes them): present them as notes with their origin, never as work. Close with the outside-iDNA principle: the customer's developer or admin executes the steps in Domino Designer / Domino administration.
 
 ## The consulting narrative (presentation order)
 

@@ -76,6 +76,7 @@ Catalog of all wiki pages, grouped by type. Updated on every ingest.
 - [[schema/tables/template-ancestry]] - `cqx_data.template_ancestry` (which standard template a master was forked from; similarity, family, newest version)
 - [[schema/tables/modernization-lineage-dossier]] - `cqx_data.modernization_lineage_dossier` (what we customized vs the ancestor; which findings survive the template update)
 - [[schema/tables/modernization-session-steps]] - `cqx_data.modernization_session_steps` (ordered step-by-step procedure per plan session; ORDER BY step_rank)
+- [[schema/tables/code-block-hcl-origin]] - `cqx_data.code_block_hcl_origin` (is this block current HCL template code, from which family and versions; join by code_hash)
 
 ### Topics
 

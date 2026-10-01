@@ -12,9 +12,10 @@ related:
   - schema/tables/code-source
   - schema/topics/trial-license-masking
   - concepts/about-modernization-vector
+  - schema/tables/code-block-hcl-origin
 requires_capability: none
-source: ETL cqx_data_ifa/010 (view + COMMENT) over dda_dm.modernization_lineage_dossier (create 030, ETL script 226); ETL ADRs 0002, 0003 and 0005 (design-document grain); column list and types verified against the live instance 2026-09-25
-last_reviewed: 2026-09-25
+source: ETL cqx_data_ifa/010 (view + COMMENT) over dda_dm.modernization_lineage_dossier (create 030, ETL script 226); ETL ADRs 0002, 0003 and 0005 (design-document grain); column list and types verified against the live instance 2026-09-25; the persists_hcl_owned refinement from the shipped catalog (ETL ADR 0006) checked 2026-10-01
+last_reviewed: 2026-10-01
 ---
 
 # cqx_data.modernization_lineage_dossier
@@ -44,7 +45,7 @@ Both row kinds sit at one **design-document grain**:
 |---|---|---|
 | `tmpl_name` | text | The master. |
 | `row_kind` | text | `element` or `finding`. |
-| `classifier_mode` | text | `A` = estate-scanned ancestor (element identity on both sides); `B` = shipped reference (hash grain only); `F` = standard-master fate rows (finding rows only, judged against the family's newest version). |
+| `classifier_mode` | text | `A` = estate-scanned ancestor (element identity on both sides); `B` = shipped reference (hash grain only); `F` = standard-master fate rows (finding rows only, judged against the family's newest version or, for an unmapped family, against the shipped catalog). |
 | `ddoc_id` | bigint | The design document's internal id in the master's scan — the join key between the row kinds. It changes on rescan: use it to join within one query, never present it as an identifier or compare it across runs. NULL on trial-masked rows and on unresolved finding rows. |
 | `design_document_type` | text | The document's type as one token (`Form`, `View`, `Subform`, `Scriptlibrary`, `Sharedfield`, …), both row kinds. |
 | `delta_class` | text | Element rows: `inherited` / `modified` / `added`. Finding rows: the class of the row's own document; the verdict stays block-level, so a block that also sits in an added document reads `reapplied_with_element` even on its row in an inherited document. NULL in mode F and when no element row matches (document or element identity unknown). |
@@ -66,10 +67,10 @@ Both row kinds sit at one **design-document grain**:
 | `reapplied_with_element` | Inherited code carried inside an element the fork added (or whose identity is unknown — conservative): it comes back when that element is re-applied. Verify after the update. | `verify_update` |
 | `cleared_by_rebase` | Fork rows: inherited code the family's newest version no longer contains — the rebase removes it. | `cleared_by_update` |
 | `cleared_by_upgrade` | Standard-master rows: code the family's newest version no longer contains — the upgrade removes it. | `cleared_by_update` |
-| `persists_hcl_owned` | Inherited code still present in the current HCL version (or the master already is the newest version) — HCL's to maintain, no code fix to author. | `hcl_owned` |
-| `inherited_latest_unknown` | The template family cannot be mapped, or its newest version is unresolved — fate unknown. Verify after the update. | `verify_update` |
+| `persists_hcl_owned` | Inherited code still present in the current HCL version (or the master already is the newest version; or, where the family is unmapped, the shipped HCL catalog has the exact code in its current version — `block_in_latest` stays NULL then, ETL ADR 0006) — HCL's to maintain, no code fix to author. | `hcl_owned` |
+| `inherited_latest_unknown` | The template family cannot be mapped, or its newest version is unresolved — fate unknown, unless the shipped HCL catalog shows the block's exact code in the current version (then `persists_hcl_owned`, ETL ADR 0006). Verify after the update. | `verify_update` |
 
-An app whose active fix items are ALL `persists_hcl_owned` is `ready/with_notes` — ready, with notes on HCL-shipped code (see [[concepts/about-modernization-vector]]).
+An app on a lineage route whose active fix items are ALL `persists_hcl_owned` is `ready/with_notes` — ready, with notes on HCL-shipped code (see [[concepts/about-modernization-vector]]). The same state also covers a non-lineage app with no dossier rows: all its active items are current HCL template code and none is a diverging copy of such code (a diverging copy is review work; ETL ADR 0007 D-6). Its notes are verbatim copies, not lineage verdicts.
 
 ## Relationships
 
@@ -110,6 +111,6 @@ This join works on both licenses. On a full license `ddoc_id` decides, so same-n
 
 - **Mode B cannot see everything.** Against a shipped reference (hash grain only) the dossier cannot tell a fully rewritten element from a new one, and cannot see deletion-only customizations at element grain. Say "all-custom code elements (possibly new or fully rewritten)", never "fork-only elements", for mode B counts.
 - **Blocks with unknown element identity classify conservatively.** Blocks with NULL code hash are excluded.
-- **Findings in untouched standard code are not the customer's work.** They die with the upgrade (`cleared_by_*`) or stay with HCL (`persists_hcl_owned`). Never present them as fixes to author.
+- **Findings in untouched standard code are not the customer's work.** They die with the upgrade (`cleared_by_*`) or stay with HCL (`persists_hcl_owned`). Never present them as fixes to author. The template family and versions a block ships in: [[schema/tables/code-block-hcl-origin]], by `code_hash`.
 - TRIAL licenses: master names appear as per-run `Master n` aliases. Unless all of the master's instances are trial-selected (practically always masked): `design_document_name` becomes one ordinal alias per document (`Form 7`, numbered within master and type), the same on both row kinds and valid for one snapshot only (NULL on a finding row whose document could not be resolved); `ddoc_id` and `code_element_name` are NULL; `design_document_type` stays visible. `detail_masked = true` means "detail withheld", never "no work" — counts and verdicts stay honest. See [[schema/topics/trial-license-masking]].
 - Access: granted to the restricted role (ADR 0006 appendix). Two MCP tools read this view in any profile: `modernization_lineage_overview` (counts only) and `modernization_lineage_dossier` (the filtered drill-down: documents with their findings nested). On an older MCP build without them, privileged sessions reach the view via `execute_sql`.

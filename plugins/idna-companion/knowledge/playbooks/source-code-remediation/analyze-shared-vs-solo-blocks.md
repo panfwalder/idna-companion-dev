@@ -15,8 +15,8 @@ related:
   - playbooks/source-code-remediation/remediation-routing
   - concepts/code-block
 requires_capability: none
-source: modernization-vector-integration phase-2 plan §4.10; worked reconciliation example verified live 2026-07-09
-last_reviewed: 2026-07-24
+source: modernization-vector-integration phase-2 plan §4.10; worked reconciliation example verified live 2026-07-09; the hcl_owned blocks and the n_hcl_current identity term (ETL ADR 0006) 2026-10-01
+last_reviewed: 2026-10-01
 ---
 
 # Analyze Shared vs. Solo Code Blocks
@@ -31,11 +31,11 @@ Turn per-app shared/solo counts into a concrete authored-once/apply-elsewhere wo
 
 ## The analysis workflow (tool-first)
 
-1. **Enter from the app** — `modernization_for_app` (replicaid or exact title, target bound). Read `n_shared_items` / `n_solo_items` and the per-block list: each block carries its `work_state`, `scope`, kept-app `reach`, and the authoring home pair (`authored_session_kind`, `authored_in`). Blocks with `scope = 'inherited_standard'` have no authoring home — template upgrades/rebases resolve them; they are not fix-once candidates.
+1. **Enter from the app** — `modernization_for_app` (replicaid or exact title, target bound). Read `n_shared_items` / `n_solo_items` and the per-block list: each block carries its `work_state`, `scope`, kept-app `reach`, and the authoring home pair (`authored_session_kind`, `authored_in`). Blocks with `scope = 'inherited_standard'` have no authoring home — template upgrades/rebases resolve them; they are not fix-once candidates. Neither are `hcl_owned` blocks (`work_state` / `scope` `hcl_owned`): their code is current HCL template code — verbatim copies, HCL's to own, no code fix to author — even when they are shared across many apps; quote their `hcl_origin` instead.
 2. **Classify the fix-once candidates.** Blocks whose authoring home is *elsewhere* are pastes (the fix already exists — apply it); blocks authored in *this* app's session are written here and reapplied at their other carriers. Solo blocks (`reach` 1, estate-wide solo) are genuine one-offs.
 3. **Estate-wide context per block** — `find_code_block_usage` **with the target bound**: grouped one-row-per-app output whose `row_count` is the block's per-ruleset focus reach. Without the target the tool returns occurrence-grain rows spanning all rulesets — never reconcile shared/solo from that.
 4. **Family drift interpretation** (unify/investigate apps): design-family membership is ≥85% *design similarity* — it tolerates code drift; hashes don't. A family member can be 8/0 shared/solo next to a 4/4 sibling because the sibling carries drifted block *versions* nobody else has. See [[concepts/design-families]].
-5. **Reconcile any doubted number.** The accounting identity on every worklist row: `reach = n_cleared_by_refresh + n_persists_after_update + apply + review + scan_first` (ETL ADR 0003: covered occurrences that survive the template update count as persists). The two reach scopes: the vector's shared/solo counts use estate-wide reach across ALL focus apps **including sunset**; the worklist's `reach` counts kept apps only. A block "shared only with a sunset sibling" is shared in the strict accounting but effectively a one-off in practice — say so.
+5. **Reconcile any doubted number.** The accounting identity on every worklist row: `reach = n_cleared_by_refresh + n_persists_after_update + n_hcl_current + apply + review + scan_first` (ETL ADR 0003 as amended by ETL ADR 0006: covered occurrences that survive the template update count as persists; occurrences of current HCL code outside lineage master coverage count as `n_hcl_current`, never as work). The two reach scopes: the vector's shared/solo counts use estate-wide reach across ALL focus apps **including sunset**; the worklist's `reach` counts kept apps only. A block "shared only with a sunset sibling" is shared in the strict accounting but effectively a one-off in practice — say so.
 
 ## Decision points (advisory — the customer owns these)
 

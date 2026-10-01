@@ -16,9 +16,10 @@ related:
   - schema/tables/template-ancestry
   - schema/tables/modernization-lineage-dossier
   - howtos/query-modernization-views
+  - schema/tables/code-block-hcl-origin
 requires_capability: none
-source: ETL cqx_data_ifa/010_cqx_data.initialize_components_structure.pxsql (view) over dda_dm.modernization_vector (ETL script 285); types verified against live instance 2026-07-23; dismissed columns verified live 2026-07-24; trial masking + detail_masked gated live on dev instances 2026-08-17/18; lineage columns (ETL ADRs 0002/0003) verified live 2026-09-24
-last_reviewed: 2026-09-24
+source: ETL cqx_data_ifa/010_cqx_data.initialize_components_structure.pxsql (view) over dda_dm.modernization_vector (ETL script 285); types verified against live instance 2026-07-23; dismissed columns verified live 2026-07-24; trial masking + detail_masked gated live on dev instances 2026-08-17/18; lineage columns (ETL ADRs 0002/0003) verified live 2026-09-24; n_hcl_notes on every row and the non-lineage ready/with_notes case (ETL ADR 0006) checked live 2026-09-29; item keys occurrence_state / verdict and the three-input contract (ETL ADR 0007) checked live 2026-09-30
+last_reviewed: 2026-10-01
 ---
 
 # cqx_data.modernization_vector
@@ -53,8 +54,8 @@ Per-app modernization readiness: the routing verdict ([[concepts/about-moderniza
 | `master_scanned` | boolean | Primary master's design collected? `false` → coverage columns NULL, qualifier `/unscanned_master_template`. |
 | `most_similar_template`, `most_similar_pct` | text, numeric | Best similarity target for investigate routes. |
 | `ancestor_name`, `ancestor_kind`, `ancestor_similarity` | text, text, numeric | The master's standard ancestor (`standard_estate` / `standard_shipped`) and its similarity — populated exactly on `template/rebase_ancestor` rows, NULL elsewhere (see [[schema/tables/template-ancestry]]). |
-| `n_cleared_after_update` | integer | Lineage routes (`upgrade_standard`, `rebase_ancestor`, `ready/with_notes`): covered blocks the template update clears, incl. custom blocks cleared via a re-applied delta fix. NULL on other routes. |
-| `n_hcl_notes` | integer | Lineage routes: covered blocks that persist in the current HCL template version (HCL-owned notes). `n_hcl_notes = n_fix_items` is what makes an app `ready/with_notes`. NULL on other routes. |
+| `n_cleared_after_update` | integer | Lineage routes (`upgrade_standard`, `rebase_ancestor`, and a `ready/with_notes` app whose notes come from a lineage verdict): covered blocks the template update clears, incl. custom blocks cleared via a re-applied delta fix. NULL on other routes — also on a non-lineage `ready/with_notes` app (verbatim copies of current HCL code), so it is the lineage marker. |
+| `n_hcl_notes` | integer | Every row with active items (ETL ADR 0006; formerly NULL outside the lineage routes). Lineage routes: covered blocks that persist in the current HCL template version (HCL-owned notes, by the lineage verdict). Other routes: fix items whose exact code is current shipped HCL code (verbatim copies). `n_hcl_notes = n_fix_items` is what makes a lineage app `ready/with_notes`; for a non-lineage app see "HCL-shipped code in non-lineage apps" below. |
 | `design_family_id` | integer | Family key (see [[concepts/design-families]]). |
 | `design_family` | text[] | ALL family member replicaids — **including sunset apps**. |
 | `design_family_peers`, `peers_keep_modernize`, `peers_keep_qualify`, `peers_sunset` | integer | Peer counts by lifecycle. |
@@ -70,8 +71,11 @@ The vector padded to full depth with a **trailing slash** (`template/remediate_m
 
 ## `items` shape and size warning
 
-Array with **one entry per ACTIVE finding** — a code block can appear with several insights. Fields per entry: `type`, `name` (design document), `element_type`, `element_name`, `code_hash_id`, `code_hash`, `insight_id`, `finding_name`, `noteid`, `designer_link`, `clearance` (`covered` | `diverging` | `surplus`).
+Array with **one entry per ACTIVE finding** — a code block can appear with several insights. Fields per entry: `type`, `name` (design document), `element_type`, `element_name`, `code_hash_id`, `code_hash`, `insight_id`, `finding_name`, `noteid`, `designer_link`, `clearance` (`covered` | `diverging` | `surplus`), `hcl_in_current` (boolean, ETL ADR 0006: the block's exact code is current shipped HCL code), and — since ETL ADR 0007 — `occurrence_state` and `verdict`:
 
+- `occurrence_state`: the bucket the worklist counts the occurrence in — `covered`, `covered_persists`, `review`, `scan_first`, `hcl_current` or `apply`. Defined once by the ETL.
+- `verdict`: the primary master's block-level lineage verdict (`persists_hcl_owned`, `reapplied_with_element`, `inherited_latest_unknown`, `cleared_by_rebase`, `cleared_by_upgrade`, `custom_fix_required`), NULL when none — every non-lineage app, and lineage blocks the dossier carries no verdict for (the rebase `covered` + NULL and upgrade `covered_persists` + NULL rows below).
+- Both keys are present on every entry, terminal apps included; on `ready` / `ready/with_notes` every item is a note by the route.
 - `n_fix_items` counts **distinct code blocks**; unpacking `items` without `DISTINCT code_hash` inflates block counts.
 - **`items` can be very large** (mail-template apps carry hundreds of findings). Query defensively: project specific fields, use `jsonb_array_length(items)` before unpacking, add `LIMIT`. Do not SELECT whole `items` columns across many rows.
 
@@ -81,6 +85,25 @@ SELECT DISTINCT item ->> 'code_hash' AS code_hash, item ->> 'clearance' AS clear
 FROM cqx_data.modernization_vector mv, jsonb_array_elements(mv.items) AS item
 WHERE mv.replicaid = '<replicaid>' AND mv.ruleset_id = '<ruleset_id>'
 ```
+
+## Per-item work state: the three-input contract (ETL ADR 0007)
+
+A block's work state follows from **three inputs**: the app's route (`modernization_vector`), the item's `occurrence_state` and the item's `verdict`. **Never re-derive it from `clearance`** (or from `hcl_in_current`): those stay for display. `modernization_for_app` applies the ETL's truth table and returns the label as `work_state`:
+
+- route `ready/with_notes` → `hcl_owned` for every item (a note; the app is ready);
+- lineage routes (`template/upgrade_standard*`, `template/rebase_ancestor*`): `covered` + `cleared_by_rebase` / `cleared_by_upgrade` → `cleared_by_update`; `covered` + `custom_fix_required` → `cleared_by_refresh`; rebase `covered` + NULL → `cleared_by_refresh`; `covered_persists` + `persists_hcl_owned` → `hcl_owned`; `covered_persists` + `reapplied_with_element` / `inherited_latest_unknown` (upgrade also NULL) → `verify_update`;
+- `template/remediate_master*`: `covered` + NULL → `cleared_by_refresh`;
+- unscanned master (`/unscanned_master_template`): `scan_first` + NULL → `scan_first`;
+- any non-terminal route: `review` → `review`, `hcl_current` → `hcl_owned`, `apply` → `apply` (verdict NULL).
+
+Anything else — a missing key, a value outside the two vocabularies, a tuple not in the table — means **"contract unavailable"**: no label. A missing key is the signature of an ETL build older than ETL ADR 0007; quote the route and the display, never derive block states.
+
+## HCL-shipped code in non-lineage apps (ETL ADR 0006)
+
+- A block whose exact code ships in the current HCL template version is a **note, not work**, in every home: inherited in lineage master homes, a **verbatim copy** elsewhere (`occurrence_state = 'hcl_current'`). It changes only when it is re-copied.
+- A non-lineage app is `ready/with_notes` when all its active items are current HCL template code and none is a diverging copy of such code (a diverging copy is review work; ETL ADR 0007 D-6). Its display reads "Ready - N note(s): verbatim copies of current HCL template code - no fix to author" — never "maintained by HCL" (the app does not inherit from HCL).
+- On the direct route the display may end "; K in current HCL code": K of the app's blocks are such notes.
+- The origin note per block (template family and versions, name-free): [[schema/tables/code-block-hcl-origin]], joined by `code_hash`.
 
 ## Dismissed non-issues (`dismissed_items` / `n_dismissed_items`)
 

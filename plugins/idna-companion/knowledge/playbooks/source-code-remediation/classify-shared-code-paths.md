@@ -24,8 +24,8 @@ related:
   - schema/tables/code-source
   - schema/tables/replica-set
 requires_capability: none
-source: CoCo_Playbook_64bit_Migration_Consulting.docx (manual method) + modernization-vector-integration phase-2 rewrite (consume-first)
-last_reviewed: 2026-07-24
+source: CoCo_Playbook_64bit_Migration_Consulting.docx (manual method) + modernization-vector-integration phase-2 rewrite (consume-first); hcl_owned scope and the n_hcl_current identity term (ETL ADR 0006) 2026-10-01
+last_reviewed: 2026-10-01
 ---
 
 # Classify Shared-Code and Unique Remediation Paths
@@ -40,7 +40,7 @@ Identify which remaining work can be addressed through high-impact fix-once/reap
 
 ## The precomputed worklist (primary path)
 
-`cqx_data.modernization_worklist` IS this classification, per target, at block grain ([[schema/tables/modernization-worklist]]): every code fix, ranked **reach-first**, with `scope` (`cross_session` = author once, apply in several sittings; `session` = all occurrences inside one home; `inherited_standard` = no sitting owns it, template upgrades/rebases resolve it — and scope is NOT the reach split), the authoring home pair (`authored_session_kind`, `authored_in`), and per-block accounting (`reach = n_cleared_by_refresh + n_persists_after_update + apply + review + scan_first`, ETL ADR 0003).
+`cqx_data.modernization_worklist` IS this classification, per target, at block grain ([[schema/tables/modernization-worklist]]): every code fix, ranked **reach-first**, with `scope` (`cross_session` = author once, apply in several sittings; `session` = all occurrences inside one home; `inherited_standard` = no sitting owns it, template upgrades/rebases resolve it; `hcl_owned` = no sitting owns it, the code is current HCL template code, no code fix to author — and scope is NOT the reach split), the authoring home pair (`authored_session_kind`, `authored_in`), and per-block accounting (`reach = n_cleared_by_refresh + n_persists_after_update + n_hcl_current + apply + review + scan_first`, ETL ADR 0003 as amended by ETL ADR 0006).
 
 - Estate view: `modernization_plan_overview` (top blocks) or the worklist directly.
 - Per app: `modernization_for_app` (block list with work states).

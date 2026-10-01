@@ -15,9 +15,10 @@ related:
   - concepts/about-template-lineage
   - schema/tables/template-ancestry
   - howtos/query-modernization-views
+  - schema/tables/code-block-hcl-origin
 requires_capability: none
-source: ETL dda_dm/scheduled/285_dda_dm.modernization_vector.update.sql (routing CASE) + ADR 0001, 0002, 0003 (iDNA_Applications_ETL docs/decisions) + product-owner design dialogue 2026-07-08
-last_reviewed: 2026-09-24
+source: ETL dda_dm/scheduled/285_dda_dm.modernization_vector.update.sql (routing CASE) + ADR 0001, 0002, 0003, 0006 (HCL-origin classification), 0007 (occurrence state, readiness amendment) (iDNA_Applications_ETL docs/decisions) + product-owner design dialogue 2026-07-08; displays checked live 2026-10-01
+last_reviewed: 2026-10-01
 ---
 
 # Modernization Vector
@@ -50,7 +51,9 @@ direct/remediate_code
 `modernization_vector_display` carries the user-facing sentence for each value. Examples:
 - *"Remediate master X: 5 of 8 blocks clear with the master; 2 diverging (refresh would overwrite — review first)"*
 - *"Rebase master X onto Y lineage (97% similar): 12 of 14 blocks clear with the update (3 via re-applied delta fix); 1 to verify after the update; 1 HCL-owned note(s)"*
-- *"Ready - 3 note(s): findings in HCL-shipped code (current template version), maintained by HCL"*
+- *"Ready - 3 note(s): findings in HCL-shipped code (current template version), maintained by HCL"* (an app that inherits from HCL: the lineage verdict)
+- *"Ready - 1 note(s): verbatim copies of current HCL template code - no fix to author"* (an app that does not inherit from HCL: verbatim copies)
+- *"Direct remediation: 107 blocks (13 shared with other apps, 94 unique); 1 in current HCL code"* (1 of the blocks is a verbatim copy of current HCL code — a note, not work)
 
 Recognize and reuse those words — do not invent parallel phrasing.
 
@@ -61,7 +64,11 @@ Recognize and reuse those words — do not invent parallel phrasing.
 The routing is a **relationship decision tree, not a scoring function** — because that is how a Notes developer triages an estate. Findings decide only *ready vs. not ready*; everything after that is a question about relationships:
 
 1. **No findings for the target → `ready`.** Short-circuits before any relationship logic.
-2. **Every active fix item is HCL-owned → `ready/with_notes`.** The app inherits from a standard master or a standard-lineage fork, and ALL its active fix items persist in the current HCL template version (`n_hcl_notes = n_fix_items`). Nothing a session could achieve — a terminal state: `session_kind = 'ready'`, no anchor, never in the plan or worklist. An app with any block that the update clears still routes to its upgrade/rebase session.
+2. **Every active fix item is HCL-owned → `ready/with_notes`.** Two cases, one state (ETL ADRs 0003, 0006, 0007):
+   - **Inherited (lineage).** The app inherits from a standard master or a standard-lineage fork, and ALL its active fix items persist in the current HCL template version by the lineage verdict (`n_hcl_notes = n_fix_items`). The display says "maintained by HCL". An app with any block that the update clears still routes to its upgrade/rebase session.
+   - **Verbatim copies (no lineage).** The app does not inherit from HCL, but someone copied HCL template code into it: all its active items are current HCL template code and none is a diverging copy of such code (a diverging copy is review work; ETL ADR 0007 D-6). The display says "verbatim copies of current HCL template code - no fix to author" — never "maintained by HCL". A copy changes only when it is re-copied from a current template.
+
+   Either way: nothing a session could achieve — a terminal state: `session_kind = 'ready'`, no anchor, never in the plan or worklist. `n_cleared_after_update` tells the cases apart: non-NULL on the lineage case, NULL on the verbatim-copy case.
 3. **"Who's your master?"** The app inherits from an estate-operated master template — three-way on the master's lineage ([[concepts/about-template-lineage]]):
    - the primary master's name is standard-recognized → `template/upgrade_standard`: a pristine standard is HCL's work — **upgrade it, don't edit it**; the current HCL version already contains the fix;
    - the master carries its own name but its design derives from a standard ancestor ([[schema/tables/template-ancestry]]) → `template/rebase_ancestor`: replace the design with the current version of the ancestor lineage, then re-apply the customizations;
@@ -97,12 +104,16 @@ Two precision notes (2026-08 ETL revision): the ROUTING recognizer additionally 
 
 For master-linked apps, each finding block is classified against the primary master: `covered` (hash present in the master — a refresh clears it), `diverging` (same design element, different hash — refresh would overwrite), `surplus` (element absent from the master — separate work). These per-block clearances drive the counts (`n_covered_by_master`, `n_diverging`, `n_surplus`) and the work kinds in the [[schema/tables/modernization-worklist]].
 
-**On the lineage routes (`upgrade_standard`, `rebase_ancestor`, and `ready/with_notes`) "covered" is not the end of the story.** The master is replaced or upgraded, not edited, so a covered block's fate comes from the lineage dossier's verdict ([[schema/tables/modernization-lineage-dossier]]):
+**On the lineage routes (`upgrade_standard`, `rebase_ancestor`, and a lineage `ready/with_notes`) "covered" is not the end of the story.** The master is replaced or upgraded, not edited, so a covered block's fate comes from the lineage dossier's verdict ([[schema/tables/modernization-lineage-dossier]]):
 - **`n_cleared_after_update`** counts covered blocks the update clears, including custom blocks cleared via a re-applied delta fix.
 - **`n_hcl_notes`** counts covered blocks that persist in the current HCL version.
 - The display adds "to verify after the update" for re-applied or unknown-fate blocks.
 
 For these routes, quote the display's "N of M blocks clear with the update", not raw coverage.
+
+**Outside the lineage routes, current HCL code is a note too** (ETL ADR 0006). A block whose exact code ships in the current HCL template version is a verbatim copy wherever the app does not inherit it: `n_hcl_notes` counts those blocks on every route, and the worklist counts their occurrences as `n_hcl_current`, never as work. The block's origin (template family, Notes versions, current catalog version) is in [[schema/tables/code-block-hcl-origin]].
+
+**Per-block labels come from the ETL** (ETL ADR 0007): each item carries its `occurrence_state` and `verdict`, and the label follows from route × state × verdict (see [[schema/tables/modernization-vector]]) — never re-derive it from `clearance`.
 
 ## Dismissed non-issues (configured false positives)
 
@@ -143,6 +154,6 @@ decisions) — never invent an actor or date for them.
 ## Answer-shape rules for this topic
 
 - **Aggregate through the template lens.** "Which apps are affected" answers group by route/session (master cohorts, standard upgrades, ancestor rebases, unify families, one-offs) — never a flat N-app finding list. A Notes developer expects help leveraging their template environment; a flat list loses credibility instantly.
-- **`ready/with_notes` counts as ready.** Report it as "ready, with N note(s) on HCL-shipped code, maintained by HCL" — never as not-ready, never as a session, never as work to do.
+- **`ready/with_notes` counts as ready.** Report it as "ready, with N note(s) on HCL-shipped code" — "maintained by HCL" only for an app that inherits from HCL; for verbatim copies say "verbatim copies of current HCL template code, no fix to author". Never as not-ready, never as a session, never as work to do.
 - **Advisory on sequencing, firm on risks.** Recommend orderings with their rationale ("the plan ranks X first because it clears 29 apps"); never soften risk warnings.
 - **Every number must reconcile.** When a user doubts a figure, offer the reconciliation path (see [[howtos/query-modernization-views]]).

@@ -22,8 +22,8 @@ related:
   - schema/tables/design-insight-overview-byrepset
   - schema/topics/template-inheritance
 requires_capability: none
-source: CoCo_Playbook_64bit_Migration_Consulting.docx (manual method) + modernization-vector-integration phase-2 rewrite (consume-first)
-last_reviewed: 2026-09-25
+source: CoCo_Playbook_64bit_Migration_Consulting.docx (manual method) + modernization-vector-integration phase-2 rewrite (consume-first); non-lineage ready/with_notes (ETL ADRs 0006 / 0007) 2026-10-01
+last_reviewed: 2026-10-01
 ---
 
 # Classify Template-Based Remediation Paths
@@ -43,7 +43,7 @@ The vector already classifies every kept focus app's template relationship per t
 - **`template/remediate_master`** — clean estate-master link: fix the master once, refresh clears the inheriting apps. Per-block coverage is precomputed (`covered` / `diverging` / `surplus`) against the primary master.
 - **`template/upgrade_standard`** — the master is a pristine, standard-named HCL template: **upgrade it to the current HCL version, don't hand-edit it** — the fixes are already made upstream.
 - **`template/rebase_ancestor`** — the master carries its own name, but its design derives from a standard ancestor (a detached fork — [[schema/tables/template-ancestry]]). Replace its design with the current version of the ancestor lineage, then re-apply the customizations. This route replaces `remediate_master` for such masters. The lineage dossier says what was customized and which findings survive the update ([[concepts/about-template-lineage]]).
-- **`ready/with_notes`** — not a path but a terminal state: every remaining finding is HCL-shipped code present in the current template version. The app is ready; the findings are notes maintained by HCL.
+- **`ready/with_notes`** — not a path but a terminal state: every remaining finding is HCL-shipped code present in the current template version. The app is ready; the findings are notes. For an app that inherits from HCL they are maintained by HCL. For an app that does not (ETL ADR 0006) all its active items are current HCL template code and none is a diverging copy of such code (a diverging copy is review work; ETL ADR 0007 D-6): verbatim copies, no fix to author, never "maintained by HCL".
 - **`template/investigate_inheritance/similar_master|similar_standard`** — no formal link but design-similar to a classifiable template (at or above the configured design-cluster threshold). The display labels the SIMILARITY TARGET three ways: `(standard master)` standard-named and operated here, `(estate master)` operated under a custom name, `(standard template)` name-recognized only. This route is a **human reconcilability call**: locate the drift, then decide re-establish vs. adopt. Partial outcomes (no link re-established) are legitimate.
 - **`template/unify_similar`** — similar-but-unlinked peers, the missed multiplier ([[playbooks/source-code-remediation/classify-shared-code-paths]] and [[concepts/design-families]] carry that path).
 
