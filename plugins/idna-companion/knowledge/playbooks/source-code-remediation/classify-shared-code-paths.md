@@ -24,8 +24,8 @@ related:
   - schema/tables/code-source
   - schema/tables/replica-set
 requires_capability: none
-source: CoCo_Playbook_64bit_Migration_Consulting.docx (manual method) + modernization-vector-integration phase-2 rewrite (consume-first); hcl_owned scope and the n_hcl_current identity term (ETL ADR 0006) 2026-10-01
-last_reviewed: 2026-10-01
+source: CoCo_Playbook_64bit_Migration_Consulting.docx (manual method) + modernization-vector-integration phase-2 rewrite (consume-first); hcl_owned scope and the n_hcl_current identity term (ETL ADR 0006) 2026-10-01; element pair = the code inside the document per ETL ADR 0008 (2026-10-01)
+last_reviewed: 2026-10-02
 ---
 
 # Classify Shared-Code and Unique Remediation Paths
@@ -66,13 +66,12 @@ Intent: rank shared code blocks by cross-application impact.
 
 ```sql
 SELECT f.finding_name, f.severity, f.code_hash_id, f.source_code_hash,
-  COUNT(DISTINCT f.replicaid) AS affected_apps,
-  f.code_element_type
+  COUNT(DISTINCT f.replicaid) AS affected_apps
 FROM cqx_data.design_insight_overview_byrepset f
 JOIN cqx_data.replica_set rs USING (replicaid)
 WHERE rs.is_focus_db
   AND f.ruleset_id = '<ruleset_id>'
-GROUP BY f.finding_name, f.severity, f.code_hash_id, f.source_code_hash, f.code_element_type
+GROUP BY f.finding_name, f.severity, f.code_hash_id, f.source_code_hash
 HAVING COUNT(DISTINCT f.replicaid) > 1
 ORDER BY COUNT(DISTINCT f.replicaid) DESC
 LIMIT 20
@@ -81,11 +80,14 @@ LIMIT 20
 Intent: show which applications contain a specific code block.
 
 ```sql
-SELECT rs.title, f.finding_name, f.severity, f.code_element_type,
-  f.design_document_name, rs.user_access_days_last90d
+SELECT rs.title, f.finding_name, f.severity,
+  f.design_document_type, f.design_document_name, f.code_element_type, f.code_element_name,
+  rs.user_access_days_last90d
 FROM cqx_data.design_insight_overview_byrepset f
 JOIN cqx_data.replica_set rs USING (replicaid)
-WHERE rs.is_focus_db AND f.code_hash_id = <code_hash_id>
+WHERE rs.is_focus_db
+  AND f.ruleset_id = '<ruleset_id>'
+  AND f.code_hash_id = <code_hash_id>
 ORDER BY rs.user_access_days_last90d DESC NULLS LAST
 ```
 

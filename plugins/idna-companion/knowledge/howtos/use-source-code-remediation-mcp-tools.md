@@ -20,8 +20,8 @@ related:
   - concepts/about-template-lineage
   - schema/tables/code-block-hcl-origin
 requires_capability: none
-source: mcp-server Phase 2 tool surface and remediation playbook mapping; trial-masking surfacing per the 2026-08 MCP build (docs/plans/completed/trial-masking-mcp-consumption); tool output vs. the ETL template-lineage revision (ETL ADRs 0002-0004) checked against the tool code and live data 2026-09-24; HCL-origin follow-up (ETL ADRs 0006 / 0007; docs/plans/active/hcl-origin-followup) checked against the tool code and live data 2026-10-01
-last_reviewed: 2026-10-01
+source: mcp-server Phase 2 tool surface and remediation playbook mapping; trial-masking surfacing per the 2026-08 MCP build (docs/plans/completed/trial-masking-mcp-consumption); tool output vs. the ETL template-lineage revision (ETL ADRs 0002-0004) checked against the tool code and live data 2026-09-24; HCL-origin follow-up (ETL ADRs 0006 / 0007; docs/plans/active/hcl-origin-followup) checked against the tool code and live data 2026-10-01; element pair = the code inside the document per ETL ADR 0008 (2026-10-01)
+last_reviewed: 2026-10-02
 ---
 
 # Use the source-code-remediation MCP tools
@@ -121,6 +121,10 @@ Readiness questions route to the modernization tools, volume/severity questions 
 - `findings_for_app` is the bridge from application scope into concrete finding rows.
 - `prioritize_findings` is the planning lens inside one application.
 - `get_code_block` and `find_code_block_usage` are the shared-code drilldown pair. Ruleset-bound `find_code_block_usage` reach is raw-finding reach: an upper bound when FP suppressions are configured — the ignore-aware numbers are `modernization_worklist.reach` and the vector counts.
+- Finding rows (`findings_for_app`, `find_code_block_usage` occurrence mode, and `prioritize_findings`' `sample_*` columns):
+  - The location is the design document (`design_document_type` + `design_document_name`). The code element pair is subordinate detail, never the location. On ETL builds with ADR 0008 it is the code inside the document: `Code` + an opaque DXL identifier, such as an event, LotusScript section, entry sub, sub / function name, or raw `code[1]`, or a host such as `Field` / `Action`. Older builds may repeat the document or show `Globals / globals[1]`; the rule holds there too.
+  - Say "Script Library SetPrevLib, code element CheckAdminAccess". Never say "in Code options", and do not call the name a sub or function unless the code shows it.
+  - `prioritize_findings` is one row per finding x block from the 2026-10 MCP build, with its sample taken from the first finding row in the server's sort order of (document name, element name, document type, element type) (`sample_design_document_type` / `sample_code_element_type`; absent on older builds).
 - `templates_by_downstream_exposure` is the template-leverage lens at the finding level.
 
 **Lifecycle direction hint (read-only triage, not a disposition).** **When the MCP returns** `lifecycle_direction_hint` on `most_affected_apps` rows or the `findings_for_app` summary (`keep` / `sunset` / `null`), treat it as the coarse direction of the app's ETL lifecycle vector — surfaced so a remediation conversation can spot apps that may not be worth remediating. It is **not** an actionable disposition: a `sunset` hint means *consider retiring instead of fixing*. Route to the lifecycle tools (`sunset_candidates` / `sunset_disposition`, or `keep_candidates` / `keep_disposition`) for the gated decision — never act on the hint directly. `null` = non-focus or not classified. **If the field is absent** (an older MCP build that predates this field), continue the remediation flow normally and do not infer lifecycle direction. See [[playbooks/application-lifecycle/lifecycle-routing]].

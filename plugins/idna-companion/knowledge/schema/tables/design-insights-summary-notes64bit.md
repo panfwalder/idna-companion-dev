@@ -12,8 +12,8 @@ related:
   - schema/tables/design-insight-overview-byrepset
   - playbooks/source-code-remediation/assess-exposure
 requires_capability: none
-source: docs/reference/cqx_data_schema_enriched_all_tables.md
-last_reviewed: 2026-04-17
+source: docs/reference/cqx_data_schema_enriched_all_tables.md; element pair = the code inside the document per ETL ADR 0008 (2026-10-01)
+last_reviewed: 2026-10-02
 ---
 
 # cqx_data.design_insights_summary_notes64bit
@@ -55,7 +55,7 @@ WHERE rs.is_focus_db
 
 ## Notes and caveats
 
-- This is a summary table. For rule-level detail (`finding_name`, `code_element_type`, `code_hash_id`), use the overview-byrepset table.
+- This is a summary table. For rule-level detail (`finding_name`, `design_document_type` / `_name`, `code_hash_id`), use the overview-byrepset table.
 - There is no `ruleset_id` column here; the table choice implies the ruleset.
 
 ## Sources

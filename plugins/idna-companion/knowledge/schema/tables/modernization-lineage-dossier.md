@@ -14,8 +14,8 @@ related:
   - concepts/about-modernization-vector
   - schema/tables/code-block-hcl-origin
 requires_capability: none
-source: ETL cqx_data_ifa/010 (view + COMMENT) over dda_dm.modernization_lineage_dossier (create 030, ETL script 226); ETL ADRs 0002, 0003 and 0005 (design-document grain); column list and types verified against the live instance 2026-09-25; the persists_hcl_owned refinement from the shipped catalog (ETL ADR 0006) checked 2026-10-01
-last_reviewed: 2026-10-01
+source: ETL cqx_data_ifa/010 (view + COMMENT) over dda_dm.modernization_lineage_dossier (create 030, ETL script 226); ETL ADRs 0002, 0003 and 0005 (design-document grain); column list and types verified against the live instance 2026-09-25; the persists_hcl_owned refinement from the shipped catalog (ETL ADR 0006) checked 2026-10-01; element pair = the code inside the document per ETL ADR 0008 (2026-10-01)
+last_reviewed: 2026-10-02
 ---
 
 # cqx_data.modernization_lineage_dossier
@@ -54,7 +54,7 @@ Both row kinds sit at one **design-document grain**:
 | `ruleset_id`, `ruleset_name` | text | Finding rows only — the compatibility target. **Filter on it.** Element rows are ruleset-independent (NULL). |
 | `code_hash_id`, `code_hash` | bigint, text | The block (joins to [[schema/tables/code-source]]). |
 | `design_document_name` | text | The document's name, both row kinds (one per-document alias on trial; NULL on an unresolved trial finding row). |
-| `finding_name`, `code_element_name` | text | Finding rows: what was flagged and in which code elements — `'; '`-separated lists within this one document only. `code_element_name` is NULL on element rows. |
+| `finding_name`, `code_element_name` | text | Finding rows: what was flagged and in which code elements — `'; '`-separated lists within this one document only. `code_element_name` is NULL on element rows. The names are element detail inside the document, never its location: since ETL ADR 0008 an opaque DXL identifier for `Code` (an event, LotusScript section, entry sub, sub / function name, or raw `code[1]`), otherwise the host element's name (`button[1]`, a field name); older builds may repeat the document name or show `globals[1]`. |
 | `block_in_ancestor`, `block_in_latest` | boolean | Is the block in the ancestor / in the family's newest version? `block_in_latest` NULL = newest version unresolved. |
 | `verdict` | text | Finding rows — see below. |
 | `detail_masked` | boolean | Trial only — identity on this row is withheld, not absent. |

@@ -18,8 +18,8 @@ related:
   - playbooks/source-code-remediation/classify-template-paths
   - playbooks/source-code-remediation/classify-shared-code-paths
 requires_capability: none
-source: docs/reference/cqx_data_schema_enriched_all_tables.md
-last_reviewed: 2026-07-24
+source: docs/reference/cqx_data_schema_enriched_all_tables.md; element pair = the code inside the document per ETL ADR 0008 (2026-10-01)
+last_reviewed: 2026-10-02
 ---
 
 # cqx_data.design_insight_overview_byrepset
@@ -37,10 +37,10 @@ The per-finding detail table for source-code remediation. One row per finding pe
 | `title_unique` | text | Disambiguated title. |
 | `ruleset_name` | text | Human-readable ruleset name. |
 | `finding_name` | text | Which rule matched. |
-| `design_document_type` | text | Form, View, Agent, Script Library, etc. |
-| `design_document_name` | text | Design element containing the finding. |
-| `code_element_type` | text | Subroutine/function/event-handler type. |
-| `code_element_name` | text | Name of the code element. |
+| `design_document_type` | text | The location's type, one token: `Form`, `View`, `Agent`, `Scriptlibrary`, `Subform`, `Sharedfield`, ... |
+| `design_document_name` | text | The design element holding the finding — the location. |
+| `code_element_type` | text | What holds the code inside that document: `Code` for code directly on the document, in its Globals, or under a simple-action / Java host (ETL ADR 0008); otherwise the host element (`Field`, `Action`, `Column`, `Button`, `Outlineentry`, ...); rarely `Item` for an item such as `$WindowTitle`. Never a location. |
+| `code_element_name` | text | For `Code`: an opaque DXL identifier, such as an event (`queryopen`, `selection`, `onLoad`, ...), LotusScript section (`options`, `declarations`), entry sub (`initialize`, `terminate`), sub / function name, or raw `code[1]`. Otherwise the host's name. Not "the function name". |
 | `notes_noteid` | text | Note ID for Designer navigation. |
 | `designer_link` | text | Deep link to open in Domino Designer. |
 | `insight_id` | text | FK to `cqx_data.design_insight`. |
@@ -62,7 +62,8 @@ The per-finding detail table for source-code remediation. One row per finding pe
 
 Findings for a specific application:
 ```sql
-SELECT finding_name, severity, code_element_type, design_document_name, code_hash_id
+SELECT finding_name, severity, design_document_type, design_document_name,
+  code_element_type, code_element_name, code_hash_id
 FROM cqx_data.design_insight_overview_byrepset
 WHERE replicaid = '<replicaid>' AND ruleset_id = '<ruleset_id>'
 ORDER BY severity_weight DESC
@@ -82,6 +83,8 @@ ORDER BY affected_apps DESC
 
 - Always filter on `ruleset_id`; this table is not pre-scoped the way the summary tables are.
 - `code_hash_id` is the key for shared-code/fix-once analysis (worklist blocks with reach > 1 — see [[schema/tables/modernization-worklist]]; legacy "Category C") and for lookup in [[schema/tables/code-source]].
+- **Location = the design document.** The location of a finding is `design_document_type` + `design_document_name`. The code element pair names the code inside that document: `Code` + an opaque DXL identifier (an event, LotusScript section, entry sub, sub / function name, or the raw `code[1]`) for code directly on the document, in its Globals, or under a simple-action / Java host; otherwise the host element (`Field`, `Action`, `Column`, ...) and its name; rarely `Item` (e.g. `$WindowTitle`). Say "Script Library SetPrevLib, code element CheckAdminAccess"; never "in Code options" as if `Code` were a place, and do not call the name a sub or function unless the code shows it.
+- Since 2026-10-01 (ETL ADR 0008) `code_element_type` no longer takes the values `Scriptlibrary`, `Agent`, `Globals`, `Form`, `View`, `Subform`, `Databasescript`, `Folder`, `Page`, `Note`, `Frameset`: filter document kinds on `design_document_type`. An instance whose ETL predates ADR 0008 still shows the document repeated in the element pair (`Scriptlibrary / SetPrevLib / Scriptlibrary / SetPrevLib`) or `Globals / globals[1]`; read the location from the document pair there too and treat it as an older ETL build, not as an error.
 
 ## Sources
 
