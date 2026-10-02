@@ -26,7 +26,7 @@ Catalog of all wiki pages, grouped by type. Updated on every ingest.
 - [[concepts/nomad-web-mobile-remediation-profile]] - Bound workflow profile for Nomad Web/Mobile remediation
 - [[concepts/notes-64bit-findings-taxonomy]] - Compact classification of Notes 64-bit finding types
 - [[concepts/nomad-web-mobile-findings-taxonomy]] - Compact classification of Nomad Web/Mobile finding types
-- [[concepts/code-block]] - Code block
+- [[concepts/code-block]] - Code block (identical code by content hash; when it is shared through a template and when it is a copy)
 - [[concepts/remediation-category]] - Remediation Category (LEGACY A/B/C/D scheme → vector-route mapping; current vocabulary = the modernization vector routes)
 - [[concepts/notes-64bit-compatibility]] - Notes 64-bit compatibility
 - [[concepts/nomad-web-mobile-compatibility]] - Nomad Web/Mobile compatibility

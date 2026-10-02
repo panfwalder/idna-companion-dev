@@ -18,7 +18,7 @@ related:
   - playbooks/source-code-remediation/classify-template-paths
   - playbooks/source-code-remediation/classify-shared-code-paths
 requires_capability: none
-source: docs/reference/cqx_data_schema_enriched_all_tables.md; element pair = the code inside the document per ETL ADR 0008 (2026-10-01)
+source: docs/reference/cqx_data_schema_enriched_all_tables.md; element pair = the code inside the document per ETL ADR 0008 (2026-10-01); Java file names and host events per ETL ADR 0010 (2026-10-02; live on ifa-dev-02)
 last_reviewed: 2026-10-02
 ---
 
@@ -39,8 +39,8 @@ The per-finding detail table for source-code remediation. One row per finding pe
 | `finding_name` | text | Which rule matched. |
 | `design_document_type` | text | The location's type, one token: `Form`, `View`, `Agent`, `Scriptlibrary`, `Subform`, `Sharedfield`, ... |
 | `design_document_name` | text | The design element holding the finding — the location. |
-| `code_element_type` | text | What holds the code inside that document: `Code` for code directly on the document, in its Globals, or under a simple-action / Java host (ETL ADR 0008); otherwise the host element (`Field`, `Action`, `Column`, `Button`, `Outlineentry`, ...); rarely `Item` for an item such as `$WindowTitle`. Never a location. |
-| `code_element_name` | text | For `Code`: an opaque DXL identifier, such as an event (`queryopen`, `selection`, `onLoad`, ...), LotusScript section (`options`, `declarations`), entry sub (`initialize`, `terminate`), sub / function name, or raw `code[1]`. Otherwise the host's name. Not "the function name". |
+| `code_element_type` | text | What holds the code inside that document: `Code` for code directly on the document, in its Globals, or under a simple-action host (ETL ADR 0008); since ETL ADR 0010 (2026-10-02) `Java` for Java code; otherwise the host element (`Field`, `Action`, `Column`, `Button`, `Outlineentry`, `Pardef`, ...); rarely `Item` for an item such as `$WindowTitle`. Never a location. |
+| `code_element_name` | text | For `Code`: an opaque DXL identifier, such as an event (`queryopen`, `selection`, `onLoad`, ...), LotusScript section (`options`, `declarations`), entry sub (`initialize`, `terminate`), sub / function name, or raw `code[1]`. For `Java` (ETL ADR 0010): the file's base name (`JavaAgent.java`, `Utils.java` without the package path) — not unique across documents. Otherwise the host's name; a host without a name carries its event since ETL ADR 0010 (`pardef[4] > hidewhen`, `button[1] > click`, `imageref[1] > value`) — a composed display string, never split it. Not "the function name". |
 | `notes_noteid` | text | Note ID for Designer navigation. |
 | `designer_link` | text | Deep link to open in Domino Designer. |
 | `insight_id` | text | FK to `cqx_data.design_insight`. |
@@ -83,8 +83,9 @@ ORDER BY affected_apps DESC
 
 - Always filter on `ruleset_id`; this table is not pre-scoped the way the summary tables are.
 - `code_hash_id` is the key for shared-code/fix-once analysis (worklist blocks with reach > 1 — see [[schema/tables/modernization-worklist]]; legacy "Category C") and for lookup in [[schema/tables/code-source]].
-- **Location = the design document.** The location of a finding is `design_document_type` + `design_document_name`. The code element pair names the code inside that document: `Code` + an opaque DXL identifier (an event, LotusScript section, entry sub, sub / function name, or the raw `code[1]`) for code directly on the document, in its Globals, or under a simple-action / Java host; otherwise the host element (`Field`, `Action`, `Column`, ...) and its name; rarely `Item` (e.g. `$WindowTitle`). Say "Script Library SetPrevLib, code element CheckAdminAccess"; never "in Code options" as if `Code` were a place, and do not call the name a sub or function unless the code shows it.
+- **Location = the design document.** The location of a finding is `design_document_type` + `design_document_name`. The code element pair names the code inside that document: `Code` + an opaque DXL identifier (an event, LotusScript section, entry sub, sub / function name, or the raw `code[1]`) for code directly on the document, in its Globals, or under a simple-action host; `Java` + the file's base name for Java code (ETL ADR 0010); otherwise the host element (`Field`, `Action`, `Column`, ...) and its name, with its event appended when the host has no name (`button[1] > click`); rarely `Item` (e.g. `$WindowTitle`). Say "Script Library SetPrevLib, code element CheckAdminAccess" or "Agent (ProcessThumbs), Java file JavaAgent.java"; never "in Code options" as if `Code` were a place, and do not call the name a sub or function unless the code shows it.
 - Since 2026-10-01 (ETL ADR 0008) `code_element_type` no longer takes the values `Scriptlibrary`, `Agent`, `Globals`, `Form`, `View`, `Subform`, `Databasescript`, `Folder`, `Page`, `Note`, `Frameset`: filter document kinds on `design_document_type`. An instance whose ETL predates ADR 0008 still shows the document repeated in the element pair (`Scriptlibrary / SetPrevLib / Scriptlibrary / SetPrevLib`) or `Globals / globals[1]`; read the location from the document pair there too and treat it as an older ETL build, not as an error.
+- Since 2026-10-02 (ETL ADR 0010): `Java` is a type of its own (file base names are not unique across documents — keep the document pair to name one file); `Code / library` means JavaScript script libraries only and `Code / action` simple actions and formula agents, never Java; bare positional names (`pardef[1]`) no longer occur outside `Code / code[1]`, so an exact filter on one returns nothing — the name is a composed display string (`pardef[1] > hidewhen`), never split or parse it. Identical positional hosts in different places of one document stay indistinguishable. On an ETL build before ADR 0010 Java shows as `Code / library|action` and hosts as bare `pardef[4]`; read the location from the document pair there too.
 
 ## Sources
 

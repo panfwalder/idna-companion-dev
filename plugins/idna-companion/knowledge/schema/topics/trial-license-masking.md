@@ -16,7 +16,7 @@ related:
   - schema/topics/similarity
   - concepts/about-modernization-vector
 requires_capability: none
-source: ETL cqx_data_ifa/010_cqx_data.initialize_components_structure.pxsql + dda_dm scripts 280/285/286/288; behavior gated live on dev instances 2026-08-17/18 (ETL repo, plans modernization-trial-license + modernization-trial-refinement); template-lineage views per ETL 010 view definitions and ADRs 0002-0004 (2026-09-24); lineage dossier document grain per ETL ADR 0005 (2026-09-25); element pair = the code inside the document per ETL ADR 0008 (2026-10-01)
+source: ETL cqx_data_ifa/010_cqx_data.initialize_components_structure.pxsql + dda_dm scripts 280/285/286/288; behavior gated live on dev instances 2026-08-17/18 (ETL repo, plans modernization-trial-license + modernization-trial-refinement); template-lineage views per ETL 010 view definitions and ADRs 0002-0004 (2026-09-24); lineage dossier document grain per ETL ADR 0005 (2026-09-25); element pair = the code inside the document per ETL ADR 0008 (2026-10-01); the ETL ADR 0010 element names (Java file base names, host events; trial alias Java n) 2026-10-02
 last_reviewed: 2026-10-02
 ---
 
@@ -35,7 +35,7 @@ iDNA instances on an **evaluation/trial license** (`ia_eval_license` instance pr
 
 Modernization outputs are **computed on real data** — routing values, session structure, all counts, reach, and KPIs are honest. What is masked is *identity detail*:
 
-- In `modernization_vector.items` / `dismissed_items`, the fields `name` / `element_name` become per-app ordinal aliases (the type plus a per-run ordinal: `name` e.g. `Form 2` or `Scriptlibrary 1`, `element_name` e.g. `Code 3` or `Field 1`) and `noteid` / `designer_link` are null — UNLESS the app's replica set is **trial-selected**. `code_hash_id`, `code_hash`, `insight_id`, `finding_name`, `clearance` stay populated everywhere.
+- In `modernization_vector.items` / `dismissed_items`, the fields `name` / `element_name` become per-app ordinal aliases (the type plus a per-run ordinal: `name` e.g. `Form 2` or `Scriptlibrary 1`, `element_name` e.g. `Code 3` or `Field 1`; since ETL ADR 0010 (2026-10-02) `Java n` for Java code, and host ordinals can shift per run where one host carries several events) and `noteid` / `designer_link` are null — UNLESS the app's replica set is **trial-selected**. `code_hash_id`, `code_hash`, `insight_id`, `finding_name`, `clearance` stay populated everywhere.
 - `modernization_vector.detail_masked` (boolean) marks exactly those rows. **Treat `detail_masked = true` as "detail withheld — a full license unlocks it", never as "no work".**
 - `replica_set.is_selected_trial_db` (boolean) marks the trial-selected replica sets (the handful of apps chosen at trial setup; their item detail AND — since M9 — their identity: real title/paths/unique title stay unmasked).
 - Worklist `item_display` / `sample_location` show real document names only when the source replica set is trial-selected; otherwise the same ordinal-alias form.
