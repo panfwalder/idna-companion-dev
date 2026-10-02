@@ -50,7 +50,7 @@ Per-app modernization readiness: the routing verdict ([[concepts/about-moderniza
 | `n_surplus` | integer | Blocks beyond the master's design (residual work). NULL when master unscanned. |
 | `n_shared_items` | integer | Blocks whose hash also occurs on other focus apps (estate-wide reach > 1). |
 | `n_solo_items` | integer | Blocks unique to this app estate-wide (reach = 1). |
-| `master_names` | text[] | Master template(s) the app inherits from. |
+| `master_names` | text[] | Estate-operated master template(s) whose name matches a template name the app declares. NULL when the app declares none or when no master in the estate carries a declared name; the declared names are on `replica_set.templates_inherits_from`. NULL does not mean "does not inherit". |
 | `master_scanned` | boolean | Primary master's design collected? `false` → coverage columns NULL, qualifier `/unscanned_master_template`. |
 | `most_similar_template`, `most_similar_pct` | text, numeric | Best similarity target for investigate routes. |
 | `ancestor_name`, `ancestor_kind`, `ancestor_similarity` | text, text, numeric | The master's standard ancestor (`standard_estate` / `standard_shipped`) and its similarity — populated exactly on `template/rebase_ancestor` rows, NULL elsewhere (see [[schema/tables/template-ancestry]]). |
@@ -101,7 +101,7 @@ Anything else — a missing key, a value outside the two vocabularies, a tuple n
 ## HCL-shipped code in non-lineage apps (ETL ADR 0006)
 
 - A block whose exact code ships in the current HCL template version is a **note, not work**, in every home: inherited in lineage master homes, a **verbatim copy** elsewhere (`occurrence_state = 'hcl_current'`). It changes only when it is re-copied.
-- A non-lineage app is `ready/with_notes` when all its active items are current HCL template code and none is a diverging copy of such code (a diverging copy is review work; ETL ADR 0007 D-6). Its display reads "Ready - N note(s): verbatim copies of current HCL template code - no fix to author" — never "maintained by HCL" (the app does not inherit from HCL).
+- A non-lineage app is `ready/with_notes` when all its active items are current HCL template code and none is a diverging copy of such code (a diverging copy is review work; ETL ADR 0007 D-6). Its display reads "Ready - N note(s): verbatim copies of current HCL template code - no fix to author" — never "maintained by HCL" (the app is outside an estate-operated HCL lineage).
 - On the direct route the display may end "; K in current HCL code": K of the app's blocks are such notes.
 - The origin note per block (template family and versions, name-free): [[schema/tables/code-block-hcl-origin]], joined by `code_hash`.
 

@@ -17,8 +17,8 @@ related:
   - howtos/query-modernization-views
   - schema/tables/code-block-hcl-origin
 requires_capability: none
-source: ETL dda_dm/scheduled/285_dda_dm.modernization_vector.update.sql (routing CASE) + ADR 0001, 0002, 0003, 0006 (HCL-origin classification), 0007 (occurrence state, readiness amendment) (iDNA_Applications_ETL docs/decisions) + product-owner design dialogue 2026-07-08; displays checked live 2026-10-01
-last_reviewed: 2026-10-01
+source: ETL dda_dm/scheduled/285_dda_dm.modernization_vector.update.sql (routing CASE) + ADR 0001, 0002, 0003, 0006 (HCL-origin classification), 0007 (occurrence state, readiness amendment) (iDNA_Applications_ETL docs/decisions) + product-owner design dialogue 2026-07-08; displays checked live 2026-10-01; Companion plan code-block-eval-fixes Part E (G5, 2026-10-02)
+last_reviewed: 2026-10-02
 ---
 
 # Modernization Vector
@@ -51,8 +51,8 @@ direct/remediate_code
 `modernization_vector_display` carries the user-facing sentence for each value. Examples:
 - *"Remediate master X: 5 of 8 blocks clear with the master; 2 diverging (refresh would overwrite — review first)"*
 - *"Rebase master X onto Y lineage (97% similar): 12 of 14 blocks clear with the update (3 via re-applied delta fix); 1 to verify after the update; 1 HCL-owned note(s)"*
-- *"Ready - 3 note(s): findings in HCL-shipped code (current template version), maintained by HCL"* (an app that inherits from HCL: the lineage verdict)
-- *"Ready - 1 note(s): verbatim copies of current HCL template code - no fix to author"* (an app that does not inherit from HCL: verbatim copies)
+- *"Ready - 3 note(s): findings in HCL-shipped code (current template version), maintained by HCL"* (an app on an estate-operated HCL lineage: the lineage verdict)
+- *"Ready - 1 note(s): verbatim copies of current HCL template code - no fix to author"* (an app outside an estate-operated HCL lineage: verbatim copies)
 - *"Direct remediation: 107 blocks (13 shared with other apps, 94 unique); 1 in current HCL code"* (1 of the blocks is a verbatim copy of current HCL code — a note, not work)
 
 Recognize and reuse those words — do not invent parallel phrasing.
@@ -65,8 +65,8 @@ The routing is a **relationship decision tree, not a scoring function** — beca
 
 1. **No findings for the target → `ready`.** Short-circuits before any relationship logic.
 2. **Every active fix item is HCL-owned → `ready/with_notes`.** Two cases, one state (ETL ADRs 0003, 0006, 0007):
-   - **Inherited (lineage).** The app inherits from a standard master or a standard-lineage fork, and ALL its active fix items persist in the current HCL template version by the lineage verdict (`n_hcl_notes = n_fix_items`). The display says "maintained by HCL". An app with any block that the update clears still routes to its upgrade/rebase session.
-   - **Verbatim copies (no lineage).** The app does not inherit from HCL, but someone copied HCL template code into it: all its active items are current HCL template code and none is a diverging copy of such code (a diverging copy is review work; ETL ADR 0007 D-6). The display says "verbatim copies of current HCL template code - no fix to author" — never "maintained by HCL". A copy changes only when it is re-copied from a current template.
+   - **Inherited (lineage).** The app is on an estate-operated HCL lineage (it inherits from an estate-operated standard master or a standard-lineage fork), and ALL its active fix items persist in the current HCL template version by the lineage verdict (`n_hcl_notes = n_fix_items`). The display says "maintained by HCL". An app with any block that the update clears still routes to its upgrade/rebase session.
+   - **Verbatim copies (no estate-operated HCL lineage).** The app is outside an estate-operated HCL lineage (it may still declare an HCL template name that no estate-operated master carries), but someone copied HCL template code into it: all its active items are current HCL template code and none is a diverging copy of such code (a diverging copy is review work; ETL ADR 0007 D-6). The display says "verbatim copies of current HCL template code - no fix to author" — never "maintained by HCL". A copy changes only when it is re-copied from a current template.
 
    Either way: nothing a session could achieve — a terminal state: `session_kind = 'ready'`, no anchor, never in the plan or worklist. `n_cleared_after_update` tells the cases apart: non-NULL on the lineage case, NULL on the verbatim-copy case.
 3. **"Who's your master?"** The app inherits from an estate-operated master template — three-way on the master's lineage ([[concepts/about-template-lineage]]):
@@ -74,11 +74,13 @@ The routing is a **relationship decision tree, not a scoring function** — beca
    - the master carries its own name but its design derives from a standard ancestor ([[schema/tables/template-ancestry]]) → `template/rebase_ancestor`: replace the design with the current version of the ancestor lineage, then re-apply the customizations;
    - otherwise → `template/remediate_master` — fix the master once, a refresh clears the inheriting apps.
    Templates carry a Notes estate; *fix multipliers first, then leftovers*.
-4. **No master link, but design-similar to a classifiable template** (at or above the configured design-cluster threshold `ai_similarity_cluster_threshold`, default 95) → `template/investigate_inheritance` — `/similar_master` (template operated in the estate) or `/similar_standard` (name-recognized only). **Estate-operated beats standard-recognized**: a renamed standard carrying customizations is a customer asset — the customizations are precisely what needs the work.
-5. **No template relation, but design-family peers exist** (≥1 kept peer) → `template/unify_similar` — similar-but-unlinked apps are a *missed multiplier*: candidates to unify under one new shared master (see [[concepts/design-families]]). The trigger is the **design relationship alone** — unify does NOT imply the peers carry the same finding hashes (a unify app's blocks can be entirely solo; similarity tolerates code drift, hashes don't).
+4. **No estate-operated master, but design-similar to a classifiable template** (at or above the configured design-cluster threshold `ai_similarity_cluster_threshold`, default 95) → `template/investigate_inheritance` — `/similar_master` (template operated in the estate) or `/similar_standard` (name-recognized only). **Estate-operated beats standard-recognized**: a renamed standard carrying customizations is a customer asset — the customizations are precisely what needs the work.
+5. **No estate-operated master and no qualifying similarity to a classifiable template, but design-family peers exist** (≥1 kept peer) → `template/unify_similar` — similar-but-unlinked apps are a *missed multiplier*: candidates to unify under one new shared master (see [[concepts/design-families]]). The trigger is the **design relationship alone** — unify does NOT imply the peers carry the same finding hashes (a unify app's blocks can be entirely solo; similarity tolerates code drift, hashes don't).
 6. **Otherwise → `direct/remediate_code`** — a genuine one-off.
 
 The primary master is the most-covering scanned template (scanned preferred, alphabetical tiebreak); coverage is **primary-master-scoped** on purpose — the question is "does *my* master's session clear me", not "does any template anywhere contain this hash".
+
+**Declared is not operated.** Step 3 matches the template names an app declares (`replica_set.templates_inherits_from`) against the master templates iDNA finds in the estate; `master_names` lists the matches. An app on steps 4-6 has no match, but it can still declare an inheritance that no estate-operated master carries - for example a declared `StdR11Blog_ifaV11` with no database in the estate acting as that master. An app is **on an estate-operated HCL lineage** when its declared template name matches an estate-operated master and that master is an HCL standard or derives from one (`template/upgrade_standard`, `template/rebase_ancestor`, or a lineage `ready/with_notes`). A declaration alone is not an operative lineage: say "declares X, but iDNA finds no estate-operated master for it", never "does not inherit from a template". `qualify_app_analysis` returns the declared names (`layers.template_inheritance.templates_inherits_from`); its `ride_along_pattern` `none` means declared names with no master path. Say "maintained by HCL" only for a covered `persists_hcl_owned` occurrence on an estate-operated HCL lineage; every `hcl_current` occurrence without that verdict, including surplus code on a lineage route, is a verbatim copy.
 
 ## Qualifiers are risk communication (worst-wins)
 
@@ -111,7 +113,7 @@ For master-linked apps, each finding block is classified against the primary mas
 
 For these routes, quote the display's "N of M blocks clear with the update", not raw coverage.
 
-**Outside the lineage routes, current HCL code is a note too** (ETL ADR 0006). A block whose exact code ships in the current HCL template version is a verbatim copy wherever the app does not inherit it: `n_hcl_notes` counts those blocks on every route, and the worklist counts their occurrences as `n_hcl_current`, never as work. The block's origin (template family, Notes versions, current catalog version) is in [[schema/tables/code-block-hcl-origin]].
+**Outside the lineage routes, current HCL code is a note too** (ETL ADR 0006). A block whose exact code ships in the current HCL template version is a verbatim copy wherever no lineage verdict covers it (including in an app that declares an HCL template no estate-operated master carries): `n_hcl_notes` counts those blocks on every route outside the lineage routes (on `upgrade_standard` / `rebase_ancestor` it counts only the covered verdict notes, so a surplus copy there is not in `n_hcl_notes`), and the worklist counts their occurrences as `n_hcl_current` on every route, never as work. The block's origin (template family, Notes versions, current catalog version) is in [[schema/tables/code-block-hcl-origin]].
 
 **Per-block labels come from the ETL** (ETL ADR 0007): each item carries its `occurrence_state` and `verdict`, and the label follows from route × state × verdict (see [[schema/tables/modernization-vector]]) — never re-derive it from `clearance`.
 
@@ -154,6 +156,6 @@ decisions) — never invent an actor or date for them.
 ## Answer-shape rules for this topic
 
 - **Aggregate through the template lens.** "Which apps are affected" answers group by route/session (master cohorts, standard upgrades, ancestor rebases, unify families, one-offs) — never a flat N-app finding list. A Notes developer expects help leveraging their template environment; a flat list loses credibility instantly.
-- **`ready/with_notes` counts as ready.** Report it as "ready, with N note(s) on HCL-shipped code" — "maintained by HCL" only for an app that inherits from HCL; for verbatim copies say "verbatim copies of current HCL template code, no fix to author". Never as not-ready, never as a session, never as work to do.
+- **`ready/with_notes` counts as ready.** Report it as "ready, with N note(s) on HCL-shipped code" — "maintained by HCL" only when the notes come from the lineage verdict (covered `persists_hcl_owned` occurrences on an estate-operated HCL lineage); for verbatim copies say "verbatim copies of current HCL template code, no fix to author". Never as not-ready, never as a session, never as work to do.
 - **Advisory on sequencing, firm on risks.** Recommend orderings with their rationale ("the plan ranks X first because it clears 29 apps"); never soften risk warnings.
 - **Every number must reconcile.** When a user doubts a figure, offer the reconciliation path (see [[howtos/query-modernization-views]]).

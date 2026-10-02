@@ -16,7 +16,7 @@ related:
   - schema/tables/code-block-hcl-origin
 requires_capability: none
 source: iDNA_Applications_ETL docs/decisions ADR 0002 (ancestry + rebase route), ADR 0003 (verdict-aware worklist, ready/with_notes), ADR 0004 (session steps), ADR 0006 (HCL-origin classification: verbatim copies), ADR 0007 (readiness amendment); ETL scripts 225/226/285/286/288/289
-last_reviewed: 2026-10-01
+last_reviewed: 2026-10-02
 ---
 
 # Template Lineage (Ancestry, Rebase, Update Fate, Session Steps)
@@ -55,7 +55,7 @@ iDNA helps customers get THEIR work done; it is not a tool for identifying bugs 
 - **`ready`** — no active findings for the target.
 - **`ready/with_notes`** — every active fix item is HCL-shipped code present in the current template version. The app is READY; the findings stay visible as notes. Never presented as a session or as work — it never enters the plan or the worklist. Two cases, one display each:
   - **inherited** (a lineage app; every item `persists_hcl_owned`): the notes are maintained by HCL. Display: "Ready - N note(s): findings in HCL-shipped code (current template version), maintained by HCL".
-  - **verbatim copies** (an app that does not inherit from HCL, ETL ADR 0006): all its active items are current HCL template code and none is a diverging copy of such code (a diverging copy is review work; ETL ADR 0007 D-6). Display: "Ready - N note(s): verbatim copies of current HCL template code - no fix to author" — never "maintained by HCL"; a copy changes only when it is re-copied.
+  - **verbatim copies** (an app outside an estate-operated HCL lineage, ETL ADR 0006): all its active items are current HCL template code and none is a diverging copy of such code (a diverging copy is review work; ETL ADR 0007 D-6). Display: "Ready - N note(s): verbatim copies of current HCL template code - no fix to author" — never "maintained by HCL"; a copy changes only when it is re-copied.
 
   Otherwise generic by design: no per-cause variants, no confidence percentages.
 - **a work route** — a session that makes the app green.
@@ -80,6 +80,6 @@ Steps are guidance only: no completion state, never "edit the standard code".
   - If the dossier returns no `steps` field (an older MCP build): privileged sessions query `cqx_data.modernization_session_steps` directly; restricted sessions present the procedure shape from this page, together with the dossier's work rows.
 - **"What did we customize?" / "What survives the update?" for one master:** `modernization_lineage_overview` gives the counts (by master name, or by an app on a rebase / upgrade route or a with-notes app whose notes come from a lineage verdict); drill into one count with `modernization_lineage_dossier`, using exactly the values the overview shows. Any profile.
   - If these tools are absent (an older MCP build): privileged sessions query the two lineage views; restricted sessions answer from this page and say that lineage detail is not available in this session.
-- **Never** tell a customer to edit a standard template's code; never present `hcl_owned` or `cleared_by_update` rows as work. That holds for verbatim copies of current HCL code in apps outside any lineage too: they are `hcl_owned` notes with their origin ([[schema/tables/code-block-hcl-origin]]), never hand-edit work. Do not call them "maintained by HCL": the app does not inherit from HCL.
+- **Never** tell a customer to edit a standard template's code; never present `hcl_owned` or `cleared_by_update` rows as work. That holds for verbatim copies of current HCL code in apps outside an estate-operated HCL lineage too: they are `hcl_owned` notes with their origin ([[schema/tables/code-block-hcl-origin]]), never hand-edit work. Do not call them "maintained by HCL": the app is outside an estate-operated HCL lineage. When HCL-owned code fails on the target - inherited or copied - the review and containment steps are in [[schema/tables/code-block-hcl-origin]].
 - Keep the mode-B honesty. Against a shipped reference only, say "all-custom code elements (possibly new or fully rewritten)", not "fork-only elements".
 - The fixing happens outside iDNA, by the customer's developer in Domino Designer; iDNA locates and quantifies the work.

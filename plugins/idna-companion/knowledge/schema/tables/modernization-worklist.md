@@ -18,7 +18,7 @@ related:
   - schema/tables/code-block-hcl-origin
 requires_capability: none
 source: ETL cqx_data_ifa/010_cqx_data.initialize_components_structure.pxsql (views) over dda_dm.modernization_worklist (ETL script 288); types verified against live instance 2026-07-23; trial masking gated live 2026-08-18; verdict-aware work kinds, inherited_standard scope, reach identity (ETL ADR 0003) and step_kind (ETL ADR 0004) checked live 2026-09-24; HCL-origin classification (ETL ADR 0006: hcl_owned scope and work kind, n_hcl_current identity, the six trailing columns) checked live 2026-09-29
-last_reviewed: 2026-10-01
+last_reviewed: 2026-10-02
 ---
 
 # cqx_data.modernization_worklist (+ `_by_session`)
@@ -108,7 +108,7 @@ LIMIT 20
 - **`scope` ≠ reach split.** `cross_session` means the block spans session HOMES; reach means it sits on several APPS. A reach-3 block whose three carriers form one unify session is `scope = 'session'`. Never explain one with the other.
 - **Session-home identity is the PAIR `(session_kind, anchor)`**, not the anchor text: an estate master name can simultaneously be a master-track anchor and an investigate anchor — two distinct homes; `n_sessions` counts pairs. Never join or filter on anchor text alone.
 - **`scan_first` is not work.** Coverage under an unscanned master is unknown — presenting those occurrences as fixable work (or as cleared) is wrong in both directions. The identity keeps the books honest.
-- **`cleared_by_update` and `hcl_owned` rows are not work either.** On rebase/upgrade sessions most block rows are informational; the session's real work is the template operation plus re-applying customizations (see [[concepts/about-template-lineage]]). `hcl_owned` rows also appear in direct, investigate, unify and remediate_master sessions: verbatim copies of current HCL code — notes, not fixes. Never present them as fixes to author, and never call a verbatim copy "maintained by HCL": the app does not inherit from HCL.
+- **`cleared_by_update` and `hcl_owned` rows are not work either.** On rebase/upgrade sessions most block rows are informational; the session's real work is the template operation plus re-applying customizations (see [[concepts/about-template-lineage]]). `hcl_owned` rows also appear in direct, investigate, unify and remediate_master sessions: verbatim copies of current HCL code — notes, not fixes. Never present them as fixes to author, and never call a verbatim copy "maintained by HCL": in these sessions the app is outside an estate-operated HCL lineage, and a surplus copy in a rebase / upgrade session has no lineage verdict either.
 - **An older-only `hcl_origin` is a caution, not a note.** "Older HCL ..." code is not current HCL code, so it is not `hcl_owned`; where it is work, the note asks the developer to compare with the current HCL version before hand-fixing.
 - **Worklist `reach` counts KEPT apps only.** The vector's shared/solo counts use estate-wide reach across ALL focus apps *including sunset* — two deliberately different scopes; don't reconcile one against the other without accounting for sunset carriers.
 - Ranking is reach-first by design (2026-07-09): the earlier masters-first order let blocks in dormant template variants outrank high-payoff blocks.
