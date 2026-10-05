@@ -22,9 +22,10 @@ related:
   - schema/tables/design-insights-summary-notes64bit
   - schema/tables/design-insights-summary-nomadwebmobile
   - schema/tables/replica-set
+  - schema/topics/trial-license-masking
 requires_capability: none
-source: CoCo_Playbook_64bit_Migration_Consulting.docx (manual method) + modernization-vector-integration phase-2 rewrite (consume-first)
-last_reviewed: 2026-07-24
+source: CoCo_Playbook_64bit_Migration_Consulting.docx (manual method) + modernization-vector-integration phase-2 rewrite (consume-first); the trial exception and the units per docs/plans/active/mcp-trial-awareness (2026-10-05)
+last_reviewed: 2026-10-05
 ---
 
 # Assess Source-Code Remediation Exposure
@@ -43,7 +44,15 @@ Use when the customer needs the first scoped answer about a compatibility target
 - Readiness is per-target: name the ruleset every answer applies to.
 - Close overview answers by offering the drill-down (route lists, session dossier, worklist).
 
-**Exposure (finding volume and severity):** "how many findings, how severe, which apps carry the most". Answer from the exposure tools — `exposure_summary` for the aggregate, `most_affected_apps` for the named working set with usage context. This is the right lens for severity questions and for sizing the problem; it is the WRONG lens for readiness questions (a raw finding wall says nothing about which single session clears what).
+**Exposure (finding volume and severity):** "how many findings, how severe, which apps carry the most". Answer from the exposure tools — `exposure_summary` for the aggregate, `most_affected_apps` for the named working set with usage context. This is the right lens for severity questions and for sizing the problem; it is the WRONG lens for readiness questions (a raw finding wall says nothing about which single session clears what). Their totals are occurrences (one row per rule x code block x location); `affected_applications` counts distinct applications.
+
+## On a trial license — the unavailable-source exception
+
+When `get_idna_session` reports `license: "trial"`, the exposure lens depends on the iDNA build ([[schema/topics/trial-license-masking]]):
+
+- **Older trial builds:** the finding views are empty, so the exposure tools return zero. A zero on trial is unconfirmed, never an all-clear; when kept apps still show not-ready verdicts or active blocks for the same target in the modernization tools, next to a zero finding count for that target, the finding source is unavailable — say that the estate's finding exposure is unavailable, not that there are no findings. Kept-app readiness from `modernization_plan_overview` may follow as a separately labelled fallback, with its target, cohort (kept focus apps) and unit (apps, blocks after suppressions) — never presented as the requested estate exposure.
+- **Builds with the trial findings surface:** the exposure tools report the estate's affected-app and occurrence counts, masked applications included, for the bound target. Explain that masked finding detail (`detail_masked`) is withheld ("detail withheld - a full license unlocks it"); the counts stand without a name-bearing drill-down.
+- A genuine zero that the data establishes independently remains a genuine zero.
 
 ## Goal
 
@@ -92,6 +101,8 @@ LIMIT 20
 ```
 
 Bind `<summary_table>` from the resolved target profile ([[concepts/compatibility-ruleset-routing]]).
+
+These queries count findings (rule x code block pairs per app) from the summary views; `exposure_summary` counts occurrences from the byrepset view. Label the unit, and do not compare or add the two as one number.
 
 ## What to tell the customer
 

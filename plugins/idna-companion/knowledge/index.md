@@ -46,7 +46,7 @@ Catalog of all wiki pages, grouped by type. Updated on every ingest.
 - [[schema/tables/dbviews-used]] - `cqx_data.dbviews_used` (used views per DB instance; view-index usage)
 - [[schema/tables/design-insights-summary-notes64bit]] - `cqx_data.design_insights_summary_notes64bit`
 - [[schema/tables/design-insights-summary-nomadwebmobile]] - `cqx_data.design_insights_summary_nomadwebmobile`
-- [[schema/tables/design-insight-overview-byrepset]] - `cqx_data.design_insight_overview_byrepset` (finding detail)
+- [[schema/tables/design-insight-overview-byrepset]] - `cqx_data.design_insight_overview_byrepset` (finding detail, one row per occurrence; masked rows on trial)
 - [[schema/tables/code-source]] - `cqx_data.code_source` (code block source text)
 - [[schema/tables/department]] - `cqx_data.department` (org hierarchy)
 - [[schema/tables/location]] - `cqx_data.location` (location hierarchy)
@@ -84,7 +84,7 @@ Catalog of all wiki pages, grouped by type. Updated on every ingest.
 - [[schema/topics/template-inheritance]] - Template inheritance across tables
 - [[schema/topics/complexity]] - Complexity columns across tables (computed family, volumes, manual field)
 - [[schema/topics/similarity]] - Design similarity columns across tables (clusters, standard-template detection)
-- [[schema/topics/trial-license-masking]] - What trial licenses mask across cqx_data (pseudonyms, detail_masked, `Master n` aliases)
+- [[schema/topics/trial-license-masking]] - What trial licenses mask across cqx_data (pseudonyms, detail_masked, `Master n` aliases), the MCP trial flag, finding rows on trial, and the occurrence / finding / block units
 - [[schema/topics/department-and-location]] - Department/location table families and pairing
 
 ## Playbooks
@@ -99,7 +99,7 @@ Catalog of all wiki pages, grouped by type. Updated on every ingest.
 ### Source-Code Remediation
 
 - [[playbooks/source-code-remediation/remediation-routing]] - Routing map for compatibility-oriented source-code remediation work
-- [[playbooks/source-code-remediation/assess-exposure]] - Readiness split vs. exposure volume: which lens answers "how ready / what breaks" vs. "how big / how severe"
+- [[playbooks/source-code-remediation/assess-exposure]] - Readiness split vs. exposure volume: which lens answers "how ready / what breaks" vs. "how big / how severe"; the trial exception when the finding source is unavailable
 - [[playbooks/source-code-remediation/triage-working-set]] - Business overlays + lifecycle scope cuts on the precomputed plan
 - [[playbooks/source-code-remediation/classify-template-paths]] - Template-based remediation paths (vector routes: remediate_master / upgrade_standard / investigate)
 - [[playbooks/source-code-remediation/classify-shared-code-paths]] - Shared-code (fix-once) vs. unique remediation via the worklist

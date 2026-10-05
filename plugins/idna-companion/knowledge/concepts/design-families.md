@@ -11,15 +11,15 @@ related:
   - concepts/about-template-inheritance
   - schema/tables/modernization-vector
 requires_capability: none
-source: ETL dda_dm/scheduled/284_dda_dm.modernization_design_families.update.sql + ADR 0001 (iDNA_Applications_ETL docs/decisions)
-last_reviewed: 2026-07-23
+source: ETL dda_dm/scheduled/284_dda_dm.design_families.update.sql + ADR 0001 (iDNA_Applications_ETL docs/decisions); the cluster threshold ai_similarity_cluster_threshold (default 95: ETL 050 / 053 / 285 fallback and the legacy product docs; ifa-dev-02 runs 85) checked 2026-10-05
+last_reviewed: 2026-10-05
 ---
 
 # Design Families
 
 ## What they are
 
-A **design family** is a transitive connected component over iDNA's design-similarity clusters (see [[concepts/design-similarity]]): if A is ≥85% design-similar to B and B to C, then {A, B, C} form one family — even if A and C were never directly compared. Families are computed for **all focus replica sets** (any lifecycle) and surface on `cqx_data.modernization_vector` as `design_family_id`, the `design_family` replicaid array, and the peer counts (`peers_keep_modernize`, `peers_keep_qualify`, `peers_sunset`).
+A **design family** is a transitive connected component over iDNA's design-similarity clusters (see [[concepts/design-similarity]]): if A is design-similar to B at or above the configured cluster threshold (`ai_similarity_cluster_threshold`, default 95; an instance can lower it) and B to C, then {A, B, C} form one family — even if A and C were never directly compared. Families are computed for **all focus replica sets** (any lifecycle) and surface on `cqx_data.modernization_vector` as `design_family_id`, the `design_family` replicaid array, and the peer counts (`peers_keep_modernize`, `peers_keep_qualify`, `peers_sunset`).
 
 ## Why they exist (the missed multiplier)
 
@@ -29,7 +29,7 @@ The decision itself is a human one: locate where the family members diverge (blo
 
 ## Similarity is not hash identity (the drift trap)
 
-Family membership is **design similarity** at ≥85% cluster grain — it tolerates code drift. Code-block hashes do not: drifted variants of the same logical script have *different* hashes, so "design similar" does **not** imply "one patch applies across the family". A family member can show shared/solo counts of 8/0 while its sibling shows 4/4 — the sibling carries block *versions* nobody else has (drift → different hash → solo). When family numbers "feel weird", reconcile per block hash; the columns measure estate-wide patch potential, not family commonality.
+Family membership is **design similarity** at cluster grain (the configured threshold) — it tolerates code drift. Code-block hashes do not: drifted variants of the same logical script have *different* hashes, so "design similar" does **not** imply "one patch applies across the family". A family member can show shared/solo counts of 8/0 while its sibling shows 4/4 — the sibling carries block *versions* nobody else has (drift → different hash → solo). When family numbers "feel weird", reconcile per block hash; the columns measure estate-wide patch potential, not family commonality.
 
 ## Sunset peers
 

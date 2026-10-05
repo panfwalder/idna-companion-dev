@@ -13,9 +13,10 @@ related:
   - concepts/remediation-classification
   - concepts/compatibility-ruleset-routing
   - concepts/document-age-timestamps
+  - schema/topics/trial-license-masking
 requires_capability: none
-source: app-lifecycle-playbook-rewrite cycle 2; pseudo-interfaces contract
-last_reviewed: 2026-07-04
+source: app-lifecycle-playbook-rewrite cycle 2; pseudo-interfaces contract; trial counts and the qualify_app_analysis trial note per docs/plans/active/mcp-trial-awareness and the ETL trial-findings-surface hand-off (final contract, 2026-10-05)
+last_reviewed: 2026-10-05
 ---
 
 # Use the application-lifecycle MCP tools
@@ -85,6 +86,8 @@ Tools return **pattern IDs**, not prose; the consultant-facing sentence is compo
 - `archival_instance_pick` is the DB-instance-grain pick for `sunset/archive`.
 - `qualify_app_analysis` is the heavyweight multi-layer diagnosis for the `keep/qualify` residual.
 - `stakeholder_cohort` is the standalone department/location cohort for one app (same shape as the qualify cohort layer), used for `sunset/archive` context and standalone "who depends on this app?" questions.
+- **Finding counts are findings, not occurrences.** The keep-side tools read the insights summary views, whose counts are rule x code block pairs per app; the exposure tools count occurrences (one row per location), and the modernization tools count blocks. Never sum or substitute them ([[schema/topics/trial-license-masking]], Counting units).
+- **Trial licenses (MCP builds with the trial flag, 2026-10):** when `license: "trial"`, `keep_candidates`, `keep_disposition` and `qualify_app_analysis` carry the trial note. On older trial builds their finding counts read 0 for every app — unavailable, not "no findings"; builds with the trial findings surface carry the full-license numbers. `qualify_app_analysis` adds a verdict note when `keep_no_action` rests on a zero summary-finding count (full depth, not declining or too new, no ride-along): treat that verdict as unconfirmed unless the finding source's coverage is established, and use `modernization_for_app` separately for each bound precomputed target to describe readiness and active work (its `n_fix_items` does not confirm a zero summary-finding count). When `license` is absent the trial state is unknown, not "full license".
 
 ## Fallback rule
 

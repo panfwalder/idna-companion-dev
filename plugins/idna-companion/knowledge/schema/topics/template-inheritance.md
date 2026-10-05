@@ -13,8 +13,8 @@ related:
   - schema/tables/replica-set
   - schema/tables/database
 requires_capability: none
-source: docs/reference/cqx_data_schema_enriched_all_tables.md
-last_reviewed: 2026-08-18
+source: docs/reference/cqx_data_schema_enriched_all_tables.md; the declared-link gloss per code-block-eval-fixes Part E / PE-4 (option b) and mcp-trial-awareness EX-11, 2026-10-05
+last_reviewed: 2026-10-05
 ---
 
 # Template Inheritance in the Schema
@@ -29,7 +29,7 @@ A cross-table guide for working with template inheritance data. The information 
 
 | Column | Type | Meaning |
 |---|---|---|
-| `templates_inherits_from` | text[] | Explicit template link(s). Non-null indicates a clean association. |
+| `templates_inherits_from` | text[] | Declared template link(s). A clean association only when an estate-operated master carries the name. |
 | `templates_inherits_from_count` | integer | Count of explicit parent-template associations. |
 | `templates_acts_as_master` | text[] | Template names this replica set acts as master for. |
 | `most_similar_template_name_newest_design` | text[] | iDNA-detected similar template when explicit link is missing. |

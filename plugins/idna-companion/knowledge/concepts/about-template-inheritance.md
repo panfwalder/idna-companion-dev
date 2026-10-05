@@ -13,8 +13,8 @@ related:
   - schema/topics/template-inheritance
   - schema/topics/similarity
 requires_capability: none
-source: CoCo Copilot server/knowledge/foundation_domain_knowledge.md
-last_reviewed: 2026-07-24
+source: CoCo Copilot server/knowledge/foundation_domain_knowledge.md; the declared-link gloss per code-block-eval-fixes Part E / PE-4 (option b) and mcp-trial-awareness EX-11, 2026-10-05
+last_reviewed: 2026-10-05
 ---
 
 # Template Inheritance
@@ -25,8 +25,8 @@ Databases in Notes/Domino can inherit their design from a **master template**. W
 
 iDNA identifies two states of inheritance:
 
-- **Clean association** — an explicit template link is set. Design refresh works automatically.
-- **Broken association** — the explicit link is missing (often because a developer disconnected it to prevent accidental overwrites), but iDNA's similarity analysis still detects the relationship.
+- **Clean association** — an explicit template link is set and a master with that name is operated in the estate. When design refresh runs, it can update elements still linked to that template and not protected from refresh; the declared link alone is not a block-coverage verdict.
+- **Broken association** — the explicit link is missing (often because a developer disconnected it to prevent accidental overwrites), or it names a master the estate does not operate, but iDNA's similarity analysis still detects the relationship.
 
 ## Why it matters
 
@@ -36,7 +36,7 @@ Clean associations are the lowest-effort remediation path — the modernization 
 
 At the **replica-set level** (see [[schema/tables/replica-set]]) these columns are arrays — a single replica set can have instances inheriting from different templates:
 
-- `templates_inherits_from` (text[]) — explicit template link (clean association).
+- `templates_inherits_from` (text[]) — the declared template link; a clean association only when an estate-operated master carries the name.
 - `most_similar_template_name_newest_design` (text[]) — iDNA-detected match when explicit link is missing (broken association).
 - `most_similar_template_similarity_newest_design` (numeric) — similarity score; higher is stronger.
 - `design_is_similar_to_standard_template` (boolean) — quick flag for HCL standard template derivation.

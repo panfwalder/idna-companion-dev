@@ -32,8 +32,8 @@ related:
   - schema/tables/repset-activity-summary-per-user
   - howtos/identify-content-creators-and-consumers
 requires_capability: none
-source: docs/reference/cqx_data_schema_enriched_all_tables.md
-last_reviewed: 2026-07-23
+source: docs/reference/cqx_data_schema_enriched_all_tables.md; the declared-link gloss per code-block-eval-fixes Part E / PE-4 (option b) and mcp-trial-awareness EX-11, 2026-10-05
+last_reviewed: 2026-10-05
 ---
 
 # cqx_data.replica_set
@@ -77,7 +77,7 @@ One row per replica set, i.e. one row per distinct application in the environmen
 | `modernization_vector_nomad` | text | Modernization readiness headline for the Nomad Web/Mobile target. NULL unless a kept focus app. |
 | `modernization_vector_nomad_display` | text | User-facing sentence for the Nomad vector. |
 | `templates_inherits_from_count` | integer | Count of explicit parent-template associations. |
-| `templates_inherits_from` | text[] | Explicit template link(s). Non-null indicates clean template association. |
+| `templates_inherits_from` | text[] | Declared template link(s). A clean association only when an estate-operated master carries the name. |
 | `templates_acts_as_master` | text[] | Template names this replica set acts as master for. |
 | `most_similar_template_name_newest_design` | text[] | iDNA-detected similar template when explicit link is missing. |
 | `most_similar_template_similarity_newest_design` | numeric | Similarity score for the newest design. |

@@ -13,14 +13,14 @@ related:
   - schema/tables/design-insight-overview-bydb
 requires_capability: none
 source: docs/reference/database-complexity-reviewed.md
-last_reviewed: 2026-06-15
+last_reviewed: 2026-10-05
 ---
 
 # Design Similarity
 
 ## What it is
 
-iDNA compares the design of analysed databases and groups those that resemble each other. From the similarity scores it builds **clusters** (databases within a configurable similarity threshold — default ≥ 85%; sub-clusters are 100%-identical design), evaluates **template candidates** inside each cluster, and where a candidate is recognised as an HCL **standard template**, flags that relation. This is how iDNA surfaces template lineage even when explicit inheritance has been removed — the design DNA is still detectable.
+iDNA compares the design of analysed databases and groups those that resemble each other. From the similarity scores it builds **clusters** (databases within the configurable similarity threshold `ai_similarity_cluster_threshold` — default 95%, an instance can lower it; sub-clusters are 100%-identical design), evaluates **template candidates** inside each cluster, and where a candidate is recognised as an HCL **standard template**, flags that relation. This is how iDNA surfaces template lineage even when explicit inheritance has been removed — the design DNA is still detectable.
 
 ## Scope of this page
 
