@@ -16,9 +16,10 @@ related:
   - schema/tables/template-ancestry
   - howtos/query-modernization-views
   - schema/tables/code-block-hcl-origin
+  - howtos/use-source-code-remediation-mcp-tools
 requires_capability: none
-source: ETL dda_dm/scheduled/285_dda_dm.modernization_vector.update.sql (routing CASE) + ADR 0001, 0002, 0003, 0006 (HCL-origin classification), 0007 (occurrence state, readiness amendment) (iDNA_Applications_ETL docs/decisions) + product-owner design dialogue 2026-07-08; displays checked live 2026-10-01; Companion plan code-block-eval-fixes Part E (G5, 2026-10-02)
-last_reviewed: 2026-10-02
+source: ETL dda_dm/scheduled/285_dda_dm.modernization_vector.update.sql (routing CASE) + ADR 0001, 0002, 0003, 0006 (HCL-origin classification), 0007 (occurrence state, readiness amendment) (iDNA_Applications_ETL docs/decisions) + product-owner design dialogue 2026-07-08; displays checked live 2026-10-01; Companion plan code-block-eval-fixes Part E (G5, 2026-10-02); the not-ready split by route (`readiness.not_ready_by_route`) per docs/plans/active/plan-overview-route-split (2026-10-06)
+last_reviewed: 2026-10-06
 ---
 
 # Modernization Vector
@@ -155,7 +156,7 @@ decisions) — never invent an actor or date for them.
 
 ## Answer-shape rules for this topic
 
-- **Aggregate through the template lens.** "Which apps are affected" answers group by route/session (master cohorts, standard upgrades, ancestor rebases, unify families, one-offs) — never a flat N-app finding list. A Notes developer expects help leveraging their template environment; a flat list loses credibility instantly.
+- **Aggregate through the template lens.** "Which apps are affected" answers group by route/session (master cohorts, standard upgrades, ancestor rebases, unify families, one-offs) — never a flat N-app finding list. A Notes developer expects help leveraging their template environment; a flat list loses credibility instantly. The readiness split by fix route is `readiness.not_ready_by_route` on `modernization_plan_overview` when present; see [[howtos/use-source-code-remediation-mcp-tools]] otherwise.
 - **`ready/with_notes` counts as ready.** Report it as "ready, with N note(s) on HCL-shipped code" — "maintained by HCL" only when the notes come from the lineage verdict (covered `persists_hcl_owned` occurrences on an estate-operated HCL lineage); for verbatim copies say "verbatim copies of current HCL template code, no fix to author". Never as not-ready, never as a session, never as work to do.
 - **Advisory on sequencing, firm on risks.** Recommend orderings with their rationale ("the plan ranks X first because it clears 29 apps"); never soften risk warnings.
 - **Every number must reconcile.** When a user doubts a figure, offer the reconciliation path (see [[howtos/query-modernization-views]]).

@@ -16,8 +16,8 @@ related:
   - schema/tables/modernization-lineage-dossier
   - schema/tables/modernization-session-steps
 requires_capability: none
-source: modernization-vector-integration plan (verified queries, ifa test instance 2026-07-09/23); template-lineage views and the revised reach identity (ETL ADRs 0002-0004) verified live 2026-09-24; the n_hcl_current identity term (ETL ADR 0006) verified live 2026-09-30
-last_reviewed: 2026-10-01
+source: modernization-vector-integration plan (verified queries, ifa test instance 2026-07-09/23); template-lineage views and the revised reach identity (ETL ADRs 0002-0004) verified live 2026-09-24; the n_hcl_current identity term (ETL ADR 0006) verified live 2026-09-30; the not-ready split by route (`readiness.not_ready_by_route`) per docs/plans/active/plan-overview-route-split (2026-10-06)
+last_reviewed: 2026-10-06
 ---
 
 # How to query the modernization views
@@ -31,7 +31,7 @@ Query mechanics only — for what the values *mean*, read [[concepts/about-moder
 | Question shape | Tool (any profile) | View (privileged SQL) |
 |---|---|---|
 | "Is app X ready for target Y? What kind of fix?" | `modernization_for_app` | `modernization_vector` (per-app row) |
-| "Which apps aren't ready?" / readiness split + KPI | `modernization_plan_overview` | `modernization_vector` grouped by vector value |
+| "Which apps aren't ready?" / readiness split + KPI | `modernization_plan_overview` (the split by route: `readiness.not_ready_by_route`) | `modernization_vector` grouped by vector value (or by `session_kind` for the route split) |
 | "Where do we start? What pays off most?" | `modernization_plan_overview` | `modernization_plan` ordered by `item_rank` |
 | "Which blocks do we fix once and reapply?" | `modernization_plan_overview` (top blocks) | `modernization_worklist` ordered by `item_rank` |
 | "What exactly do I do in session X?" | `modernization_session_dossier` (work rows) | `modernization_worklist_by_session` filtered by (`session_kind`, `session_anchor`) |
@@ -41,6 +41,8 @@ Query mechanics only — for what the values *mean*, read [[concepts/about-moder
 | Quick per-app headline (built-in targets only) | `modernization_for_app` | `replica_set.modernization_vector_notes64bit` / `..._nomad` |
 
 The session steps (ETL ADR 0004) come through `modernization_session_dossier` (`steps`; on an older MCP build without that field, query the view in privileged sessions). The two lineage views (`template_ancestry`, `modernization_lineage_dossier`; ETL ADRs 0002–0003, 0005) come through `modernization_lineage_overview` (counts) and `modernization_lineage_dossier` (the drill-down) in any profile; privileged `execute_sql` stays the custom-slice fallback. On an older MCP build without those tools, `execute_sql` is the only path; restricted sessions then answer from [[concepts/about-template-lineage]] and say that lineage detail is not available in this session.
+
+**The readiness split by route.** AI assistants: when `readiness.not_ready_by_route` is present, use it for the route totals. When it is absent, request the same target with `top_n: 100`, `include_top_blocks: false`, and no `session_kind` filter, then sum `n_apps` per `session_kind`. These are counts of apps assigned to the returned plan sessions; a truncated session list gives partial counts. On older MCP builds without `n_ready_with_notes`, the KPI can also count ready-with-notes apps as not ready even though they have no session: preserve the older-KPI caveat and do not claim the session totals reconcile with that KPI. Privileged sessions can use the documented vector query when the field is absent; restricted sessions state the limitation. Judge session completeness by the session count against `top_n`, not by the envelope's `truncated` flag, which also covers the top blocks. Do not reconstruct app usage per route from `uad_90d_cleared`; it covers only the apps a session turns green.
 
 ## Rule 1: ALWAYS filter by ruleset
 
@@ -64,6 +66,20 @@ SELECT (modernization_search LIKE 'ready/%') AS is_ready, count(*) AS apps
 FROM cqx_data.modernization_vector
 WHERE ruleset_id = '<ruleset_id>'
 GROUP BY 1
+```
+
+The not-ready split by route (the query behind `readiness.not_ready_by_route`; group by `session_kind`, not by the full vector value, which splits investigate by its suffix):
+
+```sql
+SELECT session_kind,
+       count(*) AS n_apps,
+       count(*) FILTER (WHERE COALESCE(user_access_days_last90d, 0) > 0) AS n_apps_used_90d,
+       COALESCE(sum(user_access_days_last90d), 0) AS user_access_days_last90d
+FROM cqx_data.modernization_vector
+WHERE ruleset_id = '<ruleset_id>'
+  AND COALESCE(modernization_vector, '') NOT IN ('ready', 'ready/with_notes')
+GROUP BY session_kind
+ORDER BY count(*) DESC, session_kind NULLS LAST
 ```
 
 ## Rule 3: query `items` defensively

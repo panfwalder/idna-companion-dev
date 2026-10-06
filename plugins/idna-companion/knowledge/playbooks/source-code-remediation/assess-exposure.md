@@ -24,8 +24,8 @@ related:
   - schema/tables/replica-set
   - schema/topics/trial-license-masking
 requires_capability: none
-source: CoCo_Playbook_64bit_Migration_Consulting.docx (manual method) + modernization-vector-integration phase-2 rewrite (consume-first); the trial exception and the units per docs/plans/active/mcp-trial-awareness (2026-10-05)
-last_reviewed: 2026-10-05
+source: CoCo_Playbook_64bit_Migration_Consulting.docx (manual method) + modernization-vector-integration phase-2 rewrite (consume-first); the trial exception and the units per docs/plans/active/mcp-trial-awareness (2026-10-05); the not-ready split by route (`readiness.not_ready_by_route`) per docs/plans/active/plan-overview-route-split (2026-10-06)
+last_reviewed: 2026-10-06
 ---
 
 # Assess Source-Code Remediation Exposure
@@ -36,7 +36,7 @@ Use when the customer needs the first scoped answer about a compatibility target
 
 ## The two lenses
 
-**Readiness (per-app verdict):** "what apps will break on 64-bit clients", "which apps aren't Nomad-ready", "how ready are we". Answer from the precomputed modernization vector — the readiness split (n ready of n kept focus apps) grouped by fix route, via `modernization_plan_overview` (KPI header + session queue) or `modernization_for_app` (one app). Rules that always apply:
+**Readiness (per-app verdict):** "what apps will break on 64-bit clients", "which apps aren't Nomad-ready", "how ready are we". Answer from the precomputed modernization vector — the readiness split (n ready of n kept focus apps) grouped by fix route, via `modernization_plan_overview` (KPI header, the not-ready split by route in `readiness.not_ready_by_route` when present, and the session queue; see [[howtos/use-source-code-remediation-mcp-tools]] otherwise) or `modernization_for_app` (one app). Rules that always apply:
 
 - Aggregate through the template lens (routes/sessions) — never a flat affected-app list.
 - Findings measure the presence of non-portable code, not guaranteed breakage; a well-maintained app can carry findings for runtime-guarded desktop-only features.

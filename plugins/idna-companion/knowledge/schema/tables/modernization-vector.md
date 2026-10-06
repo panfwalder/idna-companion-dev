@@ -17,9 +17,10 @@ related:
   - schema/tables/modernization-lineage-dossier
   - howtos/query-modernization-views
   - schema/tables/code-block-hcl-origin
+  - howtos/use-source-code-remediation-mcp-tools
 requires_capability: none
-source: ETL cqx_data_ifa/010_cqx_data.initialize_components_structure.pxsql (view) over dda_dm.modernization_vector (ETL script 285); types verified against live instance 2026-07-23; dismissed columns verified live 2026-07-24; trial masking + detail_masked gated live on dev instances 2026-08-17/18; lineage columns (ETL ADRs 0002/0003) verified live 2026-09-24; n_hcl_notes on every row and the non-lineage ready/with_notes case (ETL ADR 0006) checked live 2026-09-29; item keys occurrence_state / verdict and the three-input contract (ETL ADR 0007) checked live 2026-09-30; element pair = the code inside the document per ETL ADR 0008 (2026-10-01); the ETL ADR 0010 element names (Java file base names, host events; trial alias Java n) 2026-10-02
-last_reviewed: 2026-10-02
+source: ETL cqx_data_ifa/010_cqx_data.initialize_components_structure.pxsql (view) over dda_dm.modernization_vector (ETL script 285); types verified against live instance 2026-07-23; dismissed columns verified live 2026-07-24; trial masking + detail_masked gated live on dev instances 2026-08-17/18; lineage columns (ETL ADRs 0002/0003) verified live 2026-09-24; n_hcl_notes on every row and the non-lineage ready/with_notes case (ETL ADR 0006) checked live 2026-09-29; item keys occurrence_state / verdict and the three-input contract (ETL ADR 0007) checked live 2026-09-30; element pair = the code inside the document per ETL ADR 0008 (2026-10-01); the ETL ADR 0010 element names (Java file base names, host events; trial alias Java n) 2026-10-02; the not-ready split by route (`readiness.not_ready_by_route`) per docs/plans/active/plan-overview-route-split (2026-10-06)
+last_reviewed: 2026-10-06
 ---
 
 # cqx_data.modernization_vector
@@ -123,6 +124,8 @@ Admins can declare finding-grain false positives in the instance config
 - Coverage columns (`n_covered_by_master`/`n_diverging`/`n_surplus`) are **NULL when the master is unscanned** — unknown, not zero. The consultant action is *scan the master* (place it on a Domino server iDNA scans), not *celebrate zero divergence*.
 
 ## Typical use
+
+The readiness split by fix route is `readiness.not_ready_by_route` on `modernization_plan_overview` when present (any profile, no SQL); see [[howtos/use-source-code-remediation-mcp-tools]] otherwise. The queries below are the privileged / custom-slice path.
 
 Readiness split for one target (`ready/with_notes` counts as ready):
 ```sql
