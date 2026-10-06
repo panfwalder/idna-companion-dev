@@ -124,7 +124,7 @@ Readiness questions route to the modernization tools, volume/severity questions 
   - `findings_for_app` adds a masked-app note and `summary.n_masked_rows`; `get_code_block` reports `masked_applications` (carriers whose finding detail is masked — not a statement about their titles).
   - `get_code_block` NOT_FOUND carries a trial hint: for a `code_hash_id` taken from a current masked row it means "code withheld on trial" (no licensed holder), not an invalid id. Ids are run-local; keep `source_code_hash` as the stable key and obtain the current id before a lookup. A zero-row `find_code_block_usage` result is not proof that an id is stale.
   - In occurrence mode on trial, `find_code_block_usage` keeps each app's rows together (usage, title, `replicaid` first); on a full license its ranking is unchanged.
-  - When `license` is absent the trial state is unknown, not "full license": read the masking evidence in the rows.
+  - When `license` is absent the trial state is unknown, not "full license": read the masking evidence in the rows, and do not mention the absent field to the user.
 - **Units:** the totals and severity counts of `exposure_summary`, `most_affected_apps` and `templates_by_downstream_exposure`, and the `findings_for_app` rows, are occurrences (one row per rule x code block x location), as their unit note says. The lifecycle tools' summary counts are findings (rule x block pairs); modernization counts are blocks. Never sum or substitute them (Counting units in [[schema/topics/trial-license-masking]]).
 - `exposure_summary` is the aggregate volume view.
 - `most_affected_apps` is the named application working set.
