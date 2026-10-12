@@ -16,9 +16,10 @@ related:
   - concepts/about-template-lineage
   - howtos/query-modernization-views
   - schema/tables/code-block-hcl-origin
+  - concepts/modernization-dashboard-labels
 requires_capability: none
 source: ETL cqx_data_ifa/010_cqx_data.initialize_components_structure.pxsql (views) over dda_dm.modernization_worklist (ETL script 288); types verified against live instance 2026-07-23; trial masking gated live 2026-08-18; verdict-aware work kinds, inherited_standard scope, reach identity (ETL ADR 0003) and step_kind (ETL ADR 0004) checked live 2026-09-24; HCL-origin classification (ETL ADR 0006: hcl_owned scope and work kind, n_hcl_current identity, the six trailing columns) checked live 2026-09-29
-last_reviewed: 2026-10-02
+last_reviewed: 2026-10-12
 ---
 
 # cqx_data.modernization_worklist (+ `_by_session`)
@@ -59,6 +60,8 @@ last_reviewed: 2026-10-02
 
 One row per (session home, block): `ruleset_id`, `ruleset_name`, `session_anchor`, `session_kind`, `code_hash`, `code_hash_id`, `item_display`, `item_rank`, `scope`, **`work_kind`**, `block_verdict`, `has_review`, `authored_in`, `authored_session_kind`, `reach`, `severity_weight`, — appended (ETL ADR 0004) — **`step_kind`**, and — appended last (ETL ADR 0006) — `is_hcl_current` (per home), `hcl_in_current` (per block) and `hcl_origin` (the worklist's origin note).
 
+`has_review` (per home): this home has a diverging occurrence of the block, a `review` site; the Work List shows it as Code Diverging from Master.
+
 `work_kind` per row (ETL ADR 0003):
 
 - `author` — the fix is written here (or the master target is fixed here). Rebase masters author only custom blocks; upgrade masters never author.
@@ -68,6 +71,8 @@ One row per (session home, block): `ruleset_id`, `ruleset_name`, `session_anchor
 - `cleared_by_update` — informational: the template upgrade/rebase removes this block, no hand work
 - `verify_update` — a re-applied or unknown-fate block: check it after the update
 - `hcl_owned` — the block's exact code is in the current shipped HCL template version: inherited in lineage master homes (the dossier verdict) or a verbatim copy in every other home (ETL ADR 0006). HCL's to own, no code fix to author; a copy changes only when it is re-copied. Appears in every session kind.
+
+The dashboards' labels for the work kinds and scopes: [[concepts/modernization-dashboard-labels]].
 
 `step_kind` groups the row under its step in [[schema/tables/modernization-session-steps]]:
 - investigate/unify sessions: every row → `investigate`, `hcl_owned` rows included — the step's `n_items` EXCLUDES those rows and its text names them, so the row count exceeds `n_items`;

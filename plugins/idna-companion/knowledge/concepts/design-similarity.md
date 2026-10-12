@@ -11,6 +11,7 @@ related:
   - schema/topics/template-inheritance
   - schema/tables/replica-set
   - schema/tables/design-insight-overview-bydb
+  - howtos/find-design-dashboards
 requires_capability: none
 source: docs/reference/database-complexity-reviewed.md
 last_reviewed: 2026-10-05

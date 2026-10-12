@@ -16,10 +16,12 @@ related:
   - schema/tables/template-ancestry
   - howtos/query-modernization-views
   - schema/tables/code-block-hcl-origin
+  - schema/topics/insights-overview-exclude
   - howtos/use-source-code-remediation-mcp-tools
+  - concepts/modernization-dashboard-labels
 requires_capability: none
-source: ETL dda_dm/scheduled/285_dda_dm.modernization_vector.update.sql (routing CASE) + ADR 0001, 0002, 0003, 0006 (HCL-origin classification), 0007 (occurrence state, readiness amendment) (iDNA_Applications_ETL docs/decisions) + product-owner design dialogue 2026-07-08; displays checked live 2026-10-01; Companion plan code-block-eval-fixes Part E (G5, 2026-10-02); the not-ready split by route (`readiness.not_ready_by_route`) per docs/plans/active/plan-overview-route-split (2026-10-06)
-last_reviewed: 2026-10-06
+source: ETL dda_dm/scheduled/285_dda_dm.modernization_vector.update.sql (routing CASE) + ADR 0001, 0002, 0003, 0006 (HCL-origin classification), 0007 (occurrence state, readiness amendment) (iDNA_Applications_ETL docs/decisions) + product-owner design dialogue 2026-07-08; displays checked live 2026-10-01; Companion plan code-block-eval-fixes Part E (G5, 2026-10-02); the not-ready split by route (`readiness.not_ready_by_route`) per docs/plans/active/plan-overview-route-split (2026-10-06); excluded apps read `ready` per ETL 285 and ETL ADR 0012 (2026-10-07)
+last_reviewed: 2026-10-12
 ---
 
 # Modernization Vector
@@ -58,13 +60,15 @@ direct/remediate_code
 
 Recognize and reuse those words — do not invent parallel phrasing.
 
+The iDNA dashboards show these values under readable labels (for example Rebase Master Template for `template/rebase_ancestor`, Ready (No Fix Needed) for both ready states); [[concepts/modernization-dashboard-labels]] maps every label to its value.
+
 **Three app states** (ETL ADR 0003): `ready`, `ready/with_notes`, or a work route. `ready/with_notes` IS ready — count it as ready in every readiness answer (see [[concepts/about-template-lineage]]).
 
 ## How routing works (and why)
 
 The routing is a **relationship decision tree, not a scoring function** — because that is how a Notes developer triages an estate. Findings decide only *ready vs. not ready*; everything after that is a question about relationships:
 
-1. **No findings for the target → `ready`.** Short-circuits before any relationship logic.
+1. **No findings for the target → `ready`.** Short-circuits before any relationship logic. This includes a kept app whose design reference the customer excluded from the insights analysis ("Insights Overview Exclude"): it has no finding rows, so it reads "Ready: no findings for this target" although its code is not part of iDNA's findings analysis. Only the flag tells it apart from a clean app ([[schema/topics/insights-overview-exclude]]).
 2. **Every active fix item is HCL-owned → `ready/with_notes`.** Two cases, one state (ETL ADRs 0003, 0006, 0007):
    - **Inherited (lineage).** The app is on an estate-operated HCL lineage (it inherits from an estate-operated standard master or a standard-lineage fork), and ALL its active fix items persist in the current HCL template version by the lineage verdict (`n_hcl_notes = n_fix_items`). The display says "maintained by HCL". An app with any block that the update clears still routes to its upgrade/rebase session.
    - **Verbatim copies (no estate-operated HCL lineage).** The app is outside an estate-operated HCL lineage (it may still declare an HCL template name that no estate-operated master carries), but someone copied HCL template code into it: all its active items are current HCL template code and none is a diverging copy of such code (a diverging copy is review work; ETL ADR 0007 D-6). The display says "verbatim copies of current HCL template code - no fix to author" — never "maintained by HCL". A copy changes only when it is re-copied from a current template.
@@ -88,7 +92,7 @@ The primary master is the most-covering scanned template (scanned preferred, alp
 The `remediate_master`/`upgrade_standard`/`rebase_ancestor` qualifiers are warnings a consultant would voice, in escalating order (`unscanned_master_template` > `diverging_code_blocks` > `surplus_code_blocks` — the worst present is displayed). `rebase_ancestor` never carries `/unscanned_master_template`: ancestry presupposes a scanned master.
 
 - **`/unscanned_master_template`** — *coverage unknown*: the master's design was never collected. The first action is a scan, not a fix — ask the Domino admin to place the master on a server iDNA scans. Coverage columns are NULL here (unknown, not zero).
-- **`/diverging_code_blocks`** — *data-loss risk*: the app carries a local variant of an element the master also has. **A template refresh overwrites diverging blocks — review them before any refresh.** This warning is firm, always; it is the single most important risk statement in the feature.
+- **`/diverging_code_blocks`** — *data-loss risk*: the app carries a local variant of an element the master also has. **A template refresh overwrites diverging blocks — review them before any refresh.** This warning is firm, always; it is the single most important risk statement in the feature. The dashboards call this work Resolve Divergence.
 - **`/surplus_code_blocks`** — *residual work*: blocks beyond the master's design; the master's session alone won't turn this app fully green.
 
 ## Standard-template recognition and the three labels

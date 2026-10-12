@@ -20,9 +20,12 @@ related:
   - concepts/document-age-timestamps
   - concepts/focus-db
   - schema/tables/replica-set
+  - howtos/find-catalog-dashboards
+  - howtos/find-app-lifecycle-dashboards
+  - howtos/find-design-dashboards
 requires_capability: none
 source:
-last_reviewed: 2026-06-19
+last_reviewed: 2026-10-09
 ---
 
 # Keep Funnel — Modernize or Qualify
@@ -72,8 +75,8 @@ When offering which app to drill into after a ranked `keep_candidates` return, f
 
 There is no curated "Modernization Candidates" dashboard equivalent to Consolidation Potential. Visual companions to the tools:
 
-- **Database Catalog** (`{{idna_server}}/#/catalog`) and **Replica Set Catalog** (`{{idna_server}}/#/masterlistreplicasets`) — highly filterable across usage tiers, design information, content age, and findings.
-- **Department/Location Activity by Replica Set** (`{{idna_server}}/metabase/dashboard/10000012`) — per-app stakeholder surface; used by qualify (Section 4) and historic-pattern investigation.
+- **Databases** (Catalog › Databases, `{{idna_server}}/#/catalog`) and **Replica Sets** (Catalog › Replica Sets, `{{idna_server}}/#/masterlistreplicasets`) — highly filterable across usage tiers, design information, content age, and findings.
+- **Department/Location Activity Lookup** (App Lifecycle › Department/Location Activity Lookup, `{{idna_server}}/#/dashboard/10000012`) — per-app stakeholder surface; used by qualify (Section 4) and historic-pattern investigation.
 
 ## Section 3 — `keep/modernize` disposition
 
@@ -104,7 +107,7 @@ The *"no source-code access"* and *"none-yet"* cases produce operationally ident
 
 ### Reference dashboard for the hand-off
 
-**Insights Findings by Code Element in Database** (`{{idna_server}}/metabase/dashboard/10000036`) — visual companion, filterable by Database, Server, Ruleset, Insight, and Code Hash ID. The remediation playbook owns the deeper analysis.
+**Insights Findings by Code Element in Database** (Design › Insights Findings by Code Element in Database, `{{idna_server}}/#/dashboard/10000036`) — visual companion, filterable by Database, Server, Ruleset, Insight, and Code Hash ID. The remediation playbook owns the deeper analysis.
 
 ## Section 4 — `keep/qualify` per-app work
 
@@ -128,7 +131,7 @@ For apps with zero/near-zero 90d usage that weren't classified Consolidation Pot
 | `recommended_output_pattern` | Meaning |
 |---|---|
 | `modernize_alongside_template` | Inherits from a master template that is itself being modernized — ride along at near-zero net effort. See [[concepts/about-template-inheritance]]. |
-| `declining_toward_sunset` | Historically heavy, recently zero — re-evaluate next consolidation pass. If you suspect periodic / seasonal use rather than decline, verify via the Department/Location Activity by Replica Set dashboard (`{{idna_server}}/metabase/dashboard/10000012`). |
+| `declining_toward_sunset` | Historically heavy, recently zero — re-evaluate next consolidation pass. If you suspect periodic / seasonal use rather than decline, verify via the Department/Location Activity Lookup dashboard (App Lifecycle › Department/Location Activity Lookup, `{{idna_server}}/#/dashboard/10000012`). |
 | `too_new_to_classify` | Short recorded history — keep, re-evaluate next consolidation pass. |
 | `unclassified_dormant` | Neither declining nor too-new — needs consultant review. |
 | `keep_no_action` | Flat usage, no findings cost to weigh, no migration risk — keep, no action. |

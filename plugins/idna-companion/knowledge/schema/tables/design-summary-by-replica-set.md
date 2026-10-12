@@ -10,8 +10,8 @@ related:
   - concepts/database-complexity
   - schema/topics/complexity
 requires_capability: none
-source: docs/reference/cqx_data_schema_enriched_all_tables.md
-last_reviewed: 2026-06-15
+source: docs/reference/cqx_data_schema_enriched_all_tables.md; the insights NULL / sentinel cases per ETL ADR 0012 (2026-10-07)
+last_reviewed: 2026-10-07
 ---
 
 # cqx_data.design_summary_by_replica_set
@@ -28,7 +28,7 @@ Per-replica-set design and complexity metrics, including the **per-language code
 | `database_id_design_reference` | bigint | Instance whose design is used as the reference for the set. |
 | `complexity` | text | Design-complexity label (same family as `replica_set.design_complexity`). |
 | `complexity_score` | bigint | Numeric design-complexity score. |
-| `insights_score` | bigint | Aggregate code-insights score. |
+| `insights_score` | bigint | Aggregate code-insights score. NULL when the app has no insights result: no code analysed (`insights_summary` NULL), no findings, or (on ETL builds with ETL ADR 0012) its design reference is excluded from the analysis (both `insights_summary` `{"insights_score": -1}`) ([[schema/topics/insights-overview-exclude]]). |
 | `formula_elements` / `formula_loc` | integer / bigint | Formula-language element count and lines of code. |
 | `lotusscript_elements` / `lotusscript_loc` | integer / bigint | LotusScript element count and LOC. |
 | `javascript_elements` / `javascript_loc` | integer / bigint | JavaScript element count and LOC. |

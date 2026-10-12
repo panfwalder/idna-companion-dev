@@ -16,9 +16,11 @@ related:
   - schema/tables/design-summary-by-replica-set
   - schema/topics/complexity
   - glossary/business-critical
+  - howtos/find-design-dashboards
+  - howtos/find-overview-dashboards
 requires_capability: none
 source: docs/reference/database-complexity-reviewed.md
-last_reviewed: 2026-06-22
+last_reviewed: 2026-10-09
 ---
 
 # Database Complexity
@@ -68,7 +70,7 @@ The computed score is the `design_complexity_*` family. The columns `complexity_
 ## Where it appears in the product
 
 - Design → Complexity — `{{idna_server}}/#/complexity`: ranked complexity index of focus DBs, with standard-template reference lines for orientation.
-- Remediation Overview — `{{idna_server}}/metabase/dashboard/10000005`: user activity plotted against design complexity (the coarse tier behind `remediation_classification`).
+- Overview → Remediation Overview — `{{idna_server}}/#/dashboard/10000005`: user activity plotted against design complexity (the coarse tier behind `remediation_classification`).
 
 ## Related
 

@@ -12,6 +12,7 @@ related:
   - schema/topics/trial-license-masking
   - concepts/about-modernization-plan
   - howtos/query-modernization-views
+  - concepts/modernization-dashboard-labels
 requires_capability: none
 source: ETL cqx_data_ifa/010 (view + COMMENT) over dda_dm.modernization_session_steps (create 031, ETL script 289); ETL ADR 0004; column types verified against the live instance 2026-09-24; HCL-origin step changes (ETL ADR 0006: review_hcl_notes in direct / remediate_master, the verify counts, the investigate exclusion) checked live 2026-10-01
 last_reviewed: 2026-10-01

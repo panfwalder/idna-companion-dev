@@ -15,8 +15,8 @@ related:
   - concepts/document-age-timestamps
   - schema/topics/trial-license-masking
 requires_capability: none
-source: app-lifecycle-playbook-rewrite cycle 2; pseudo-interfaces contract; trial counts and the qualify_app_analysis trial note per docs/plans/active/mcp-trial-awareness and the ETL trial-findings-surface hand-off (final contract, 2026-10-05)
-last_reviewed: 2026-10-05
+source: app-lifecycle-playbook-rewrite cycle 2; pseudo-interfaces contract; trial counts and the qualify_app_analysis trial note per docs/plans/active/mcp-trial-awareness and the ETL trial-findings-surface hand-off (final contract, 2026-10-05); the "Insights Overview Exclude" pointer per ETL ADR 0012 (2026-10-07)
+last_reviewed: 2026-10-07
 ---
 
 # Use the application-lifecycle MCP tools
@@ -87,6 +87,7 @@ Tools return **pattern IDs**, not prose; the consultant-facing sentence is compo
 - `qualify_app_analysis` is the heavyweight multi-layer diagnosis for the `keep/qualify` residual.
 - `stakeholder_cohort` is the standalone department/location cohort for one app (same shape as the qualify cohort layer), used for `sunset/archive` context and standalone "who depends on this app?" questions.
 - **Finding counts are findings, not occurrences.** The keep-side tools read the insights summary views, whose counts are rule x code block pairs per app; the exposure tools count occurrences (one row per location), and the modernization tools count blocks. Never sum or substitute them ([[schema/topics/trial-license-masking]], Counting units).
+- **A zero finding count can mean "excluded", not "clean".** On ETL builds with ETL ADR 0012, an app whose design reference carries "Insights Overview Exclude" reads 0 findings in the keep-side tools, and `qualify_app_analysis` can then recommend `keep_no_action`. Check the flag before presenting such an app as clean ([[schema/topics/insights-overview-exclude]]).
 - **Trial licenses (MCP builds with the trial flag, 2026-10):** when `license: "trial"`, `keep_candidates`, `keep_disposition` and `qualify_app_analysis` carry the trial note. On older trial builds their finding counts read 0 for every app — unavailable, not "no findings"; builds with the trial findings surface carry the full-license numbers. `qualify_app_analysis` adds a verdict note when `keep_no_action` rests on a zero summary-finding count (full depth, not declining or too new, no ride-along): treat that verdict as unconfirmed unless the finding source's coverage is established, and use `modernization_for_app` separately for each bound precomputed target to describe readiness and active work (its `n_fix_items` does not confirm a zero summary-finding count). When `license` is absent the trial state is unknown, not "full license"; do not mention the absent field to the user.
 
 ## Fallback rule

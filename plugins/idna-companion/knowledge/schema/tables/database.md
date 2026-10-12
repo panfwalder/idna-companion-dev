@@ -17,9 +17,10 @@ related:
   - schema/tables/replica-set
   - schema/tables/usage-sessions
   - schema/tables/dbviews-used
+  - howtos/find-catalog-dashboards
 requires_capability: none
-source: docs/reference/cqx_data_schema_enriched_all_tables.md
-last_reviewed: 2026-06-22
+source: docs/reference/cqx_data_schema_enriched_all_tables.md; the insights NULL / sentinel cases per ETL ADR 0012 (2026-10-07)
+last_reviewed: 2026-10-09
 ---
 
 # cqx_data.database
@@ -44,7 +45,7 @@ One row per licensed database instance: the per-server, per-file view of NSF/NTF
 | `documentcount` | bigint | Document count for the instance. |
 | `design_complexity_score` | numeric | **Per-instance design-complexity score — this is the source grain for complexity** (the replica-set value inherits the reference instance's score, not a sum). See [[concepts/database-complexity]]. |
 | `design_rank` | bigint | Rank of this instance by design complexity. |
-| `insights_score` | numeric | Per-instance code-insights score. |
+| `insights_score` | numeric | Per-instance code-insights score. NULL when the instance has no insights result: no code analysed, no findings, or (on ETL builds with ETL ADR 0012) the instance is excluded from the analysis ([[schema/topics/insights-overview-exclude]]). |
 | `similarity_score` | numeric | Per-instance design-similarity score. |
 | `complexity_estimation` | text | **Manually-entered** planning estimate (customer-annotation block, sibling of `effort_estimation`/`cost_estimation`), *not* the computed `design_complexity_score`. |
 | `is_focus_db` | boolean | Focus flag for application/mail-in instances. |
@@ -53,7 +54,7 @@ One row per licensed database instance: the per-server, per-file view of NSF/NTF
 | `template_acts_as_master` | text | If set, this database serves as a master template. |
 | `usage_summary` | jsonb | JSON summary blob for usage metrics. |
 | `design_summary` | jsonb | JSON summary blob for design metrics. |
-| `insights_summary` | jsonb | JSON summary blob for code-insight metrics. |
+| `insights_summary` | jsonb | JSON summary blob for code-insight metrics; `{"insights_score": -1}` when the instance has analysed code but no insights result (no findings, or, on ETL builds with ETL ADR 0012, excluded); NULL when no code was analysed. |
 | `custom_properties` | jsonb | JSON blob of custom DB properties. |
 | `status` | text | Lifecycle/status field from portfolio governance. |
 | `disposition` | text | Disposition / target-state field. |
@@ -80,7 +81,7 @@ One row per licensed database instance: the per-server, per-file view of NSF/NTF
 
 ### Visual surface
 
-For one specific instance, the iDNA per-DB-instance detail component surfaces virtually all collected information at `{{idna_server}}/#/replicadetails/<database_id>`. Useful as a drill-down whenever analysis lands on a particular `database_id` — for example after an archival-instance pick or a replication-divergence finding. No equivalent detail page exists for replica sets; for application-level visual entry use the Replica Set Catalog at `{{idna_server}}/#/masterlistreplicasets`.
+For one specific instance, the iDNA per-DB-instance detail component surfaces virtually all collected information at `{{idna_server}}/#/replicadetails/<database_id>`. Useful as a drill-down whenever analysis lands on a particular `database_id` — for example after an archival-instance pick or a replication-divergence finding. No equivalent detail page exists for replica sets; for application-level visual entry use Catalog › Replica Sets at `{{idna_server}}/#/masterlistreplicasets`.
 
 ## Notes and caveats
 

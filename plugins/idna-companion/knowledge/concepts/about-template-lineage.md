@@ -14,9 +14,10 @@ related:
   - concepts/design-similarity
   - schema/tables/modernization-worklist
   - schema/tables/code-block-hcl-origin
+  - concepts/modernization-dashboard-labels
 requires_capability: none
 source: iDNA_Applications_ETL docs/decisions ADR 0002 (ancestry + rebase route), ADR 0003 (verdict-aware worklist, ready/with_notes), ADR 0004 (session steps), ADR 0006 (HCL-origin classification: verbatim copies), ADR 0007 (readiness amendment); ETL scripts 225/226/285/286/288/289
-last_reviewed: 2026-10-02
+last_reviewed: 2026-10-12
 ---
 
 # Template Lineage (Ancestry, Rebase, Update Fate, Session Steps)
@@ -75,6 +76,7 @@ Steps are guidance only: no completion state, never "edit the standard code".
 
 ## How to use this in answers
 
+- The Template Lineage dashboard's labels (Delta Type, Compared Ancestor, the verdicts, the ancestor columns) are mapped in [[concepts/modernization-dashboard-labels]].
 - **"What do I do in this session?" for a rebase or upgrade session:** lead with the procedure (session steps), then the block work beneath each step.
   - Any session: `modernization_session_dossier` returns the steps (`steps`) and the work rows in procedure order, each row naming its step.
   - If the dossier returns no `steps` field (an older MCP build): privileged sessions query `cqx_data.modernization_session_steps` directly; restricted sessions present the procedure shape from this page, together with the dossier's work rows.

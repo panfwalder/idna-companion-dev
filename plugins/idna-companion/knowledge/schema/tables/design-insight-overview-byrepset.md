@@ -18,9 +18,10 @@ related:
   - playbooks/source-code-remediation/classify-template-paths
   - playbooks/source-code-remediation/classify-shared-code-paths
   - schema/topics/trial-license-masking
+  - schema/topics/insights-overview-exclude
 requires_capability: none
-source: docs/reference/cqx_data_schema_enriched_all_tables.md; element pair = the code inside the document per ETL ADR 0008 (2026-10-01); Java file names and host events per ETL ADR 0010 (2026-10-02; live on ifa-dev-02); trial rows per the ETL trial-findings-surface hand-off (ETL ADR 0011, final contract 2026-10-05)
-last_reviewed: 2026-10-05
+source: docs/reference/cqx_data_schema_enriched_all_tables.md; element pair = the code inside the document per ETL ADR 0008 (2026-10-01); Java file names and host events per ETL ADR 0010 (2026-10-02; live on ifa-dev-02); trial rows per the ETL trial-findings-surface hand-off (ETL ADR 0011, final contract 2026-10-05); the exclusion per ETL ADR 0012 (2026-10-07)
+last_reviewed: 2026-10-07
 ---
 
 # cqx_data.design_insight_overview_byrepset
@@ -84,6 +85,7 @@ ORDER BY affected_apps DESC
 
 - Always filter on `ruleset_id`; this table is not pre-scoped the way the summary tables are.
 - **One row = one occurrence.** `COUNT(*)` counts occurrences, not distinct findings; a distinct finding is a rule x code block pair within one application and target (`COUNT(DISTINCT (insight_id, code_hash_id))` per app). The insights summary views count findings in that sense — never sum or mix the two sources.
+- **Excluded databases have no rows.** A database flagged "Insights Overview Exclude" (on the instance, or on its replica set; on a trial license a replica-set flag counts only on ETL builds with ETL ADR 0012) is left out. When it is the app's design reference the app has no rows here, which looks the same as an app without findings; only the flag tells them apart ([[schema/topics/insights-overview-exclude]]).
 - **On a trial license** the content depends on the build ([[schema/topics/trial-license-masking]]): older builds return no rows; builds with the trial findings surface return detail rows for fully trial-selected replica sets and masked rows for every other focus replica set, so counts cover the whole estate. Row rule: `database_id_design_reference IS NULL` = masked. Masked rows of non-selected apps share the title `*** Trial License ***` (before the first completed nightly run of the trial-findings ETL every app is masked, and the selected apps keep their real title); masked rows carry aliases `<type> <n>` in `design_document_name` / `code_element_name` (scoped to one app, ruleset and type within one ETL run) and NULL `notes_noteid` / `designer_link`. Identify apps by `replicaid` and order by it as the last key, since masked apps share a title; never join or group on the alias names across apps or rulesets.
 - `code_hash_id` is the key for shared-code/fix-once analysis (worklist blocks with reach > 1 — see [[schema/tables/modernization-worklist]]; legacy "Category C") and for lookup in [[schema/tables/code-source]].
 - **Location = the design document.** The location of a finding is `design_document_type` + `design_document_name`. The code element pair names the code inside that document: `Code` + an opaque DXL identifier (an event, LotusScript section, entry sub, sub / function name, or the raw `code[1]`) for code directly on the document, in its Globals, or under a simple-action host; `Java` + the file's base name for Java code (ETL ADR 0010); otherwise the host element (`Field`, `Action`, `Column`, ...) and its name, with its event appended when the host has no name (`button[1] > click`); rarely `Item` (e.g. `$WindowTitle`). Say "Script Library SetPrevLib, code element CheckAdminAccess" or "Agent (ProcessThumbs), Java file JavaAgent.java"; never "in Code options" as if `Code` were a place, and do not call the name a sub or function unless the code shows it.

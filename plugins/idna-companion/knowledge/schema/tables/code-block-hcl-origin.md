@@ -10,6 +10,7 @@ related:
   - schema/tables/modernization-lineage-dossier
   - concepts/about-modernization-vector
   - concepts/about-template-lineage
+  - concepts/modernization-dashboard-labels
 requires_capability: none
 source: ETL cqx_data_ifa/010_cqx_data.initialize_components_structure.pxsql (view + COMMENT) over dda_dm.code_block_hcl_origin (ETL script 224); ETL ADRs 0006 and 0007; column types and row counts verified against the live instance 2026-10-01; Companion plan code-block-eval-fixes Part E (G6, 2026-10-02); HCL Domino Designer 14 help: "Refreshing a design", "Preventing design changes"
 last_reviewed: 2026-10-02

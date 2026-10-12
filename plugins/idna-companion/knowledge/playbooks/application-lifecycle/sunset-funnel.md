@@ -17,9 +17,11 @@ related:
   - schema/tables/replica-set
   - schema/tables/database-content-retention-summary
   - schema/tables/database-content-retention
+  - howtos/find-catalog-dashboards
+  - howtos/find-content-dashboards
 requires_capability: none
 source:
-last_reviewed: 2026-07-04
+last_reviewed: 2026-10-09
 ---
 
 # Sunset Funnel — Delete or Archive
@@ -43,7 +45,7 @@ The sunset gate is the `sunset/*` prefix of `lifecycle_vector` at replica-set gr
 
 > **Qualify rows block disposal:** a `sunset/qualify/*` app is a sunset candidate whose delete-vs-archive decision is **blocked** — no retention config (`missing_retention_config`), conflicting retention config (`conflict_retention`), or divergent replicas (`conflict_replication`). The tool does not recommend delete or archive for these; the consultant resolves the named issue first.
 
-iDNA's curated **Consolidation Potential** dashboard (`{{idna_server}}/metabase/dashboard/10000017`) is the consultant's visual companion — it shows the same candidate cohort. `lifecycle_vector` is the partition rule; the dashboard is for visual confirmation.
+iDNA's curated **Consolidation Potential** dashboard (Catalog › Consolidation Potential, `{{idna_server}}/#/dashboard/10000017`) is the consultant's visual companion — it shows the same candidate cohort. `lifecycle_vector` is the partition rule; the dashboard is for visual confirmation.
 
 ## Section 2 — Delete-vs-archive split
 
@@ -89,7 +91,7 @@ Content-age data is scan-derived (typically every second Saturday). The same sca
 - **Critical for `sunset/delete`:** a stale/failed scan means the content-age signal may no longer reflect reality. Flag the candidate and request a fresh scan rather than acting on outdated data. The operational consequence of acting on stale data here is *"delete an app that shouldn't be deleted."*
 - **Less critical for `sunset/archive`:** those documents are retained regardless; stale data leads to *"archive,"* not *"delete incorrectly."*
 
-The **Retention Catalog** dashboard (`{{idna_server}}/metabase/dashboard/10000040`) is the visual companion for scan status (`Collection Status`, `Scan Time`).
+The **Retention Catalog** dashboard (Content › Retention Catalog, `{{idna_server}}/#/dashboard/10000040`) is the visual companion for scan status (`Collection Status`, `Scan Time`).
 
 ### Stakeholder cohort for sunset/archive
 
@@ -129,8 +131,8 @@ For `sunset/archive` cases, surface the stakeholder cohort before committing —
 
 Visual companions to the tools (not the decision mechanism):
 
-- **Consolidation Potential** (`{{idna_server}}/metabase/dashboard/10000017`) — sunset candidate cohort.
-- **Retention Catalog** (`{{idna_server}}/metabase/dashboard/10000040`) — retention properties, `Collection Status`, `Scan Time` per DB.
+- **Consolidation Potential** (Catalog › Consolidation Potential, `{{idna_server}}/#/dashboard/10000017`) — sunset candidate cohort.
+- **Retention Catalog** (Content › Retention Catalog, `{{idna_server}}/#/dashboard/10000040`) — retention properties, `Collection Status`, `Scan Time` per DB.
 
 ## Sources
 

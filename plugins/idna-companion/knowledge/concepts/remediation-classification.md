@@ -12,9 +12,10 @@ related:
   - playbooks/source-code-remediation/triage-working-set
   - playbooks/application-lifecycle/lifecycle-routing
   - concepts/lifecycle-vector
+  - howtos/find-overview-dashboards
 requires_capability: none
 source: CoCo Copilot server/knowledge/foundation_domain_knowledge.md + CoCo_Playbook_64bit_Migration_Consulting.docx + Remediation Overview dashboard ({{idna_server}}/metabase/dashboard/10000005) and product-owner input
-last_reviewed: 2026-06-12
+last_reviewed: 2026-10-09
 ---
 
 # Remediation Classification
@@ -23,7 +24,7 @@ last_reviewed: 2026-06-12
 
 iDNA's application-level triage signal. The column `remediation_classification` on `cqx_data.replica_set` assigns each application a category from a rough combination of two dimensions: **user activity** and **design complexity** (`design_complexity_score`).
 
-It is surfaced to customers via the Remediation Overview dashboard (`{{idna_server}}/metabase/dashboard/10000005`), where applications are plotted on user activity (x) against design complexity (y). The intent is to give a customer facing a blank page a starting point for triage — not a definitive judgement. Every value here is a rough estimation.
+It is surfaced to customers via the Remediation Overview dashboard (Overview › Remediation Overview, `{{idna_server}}/#/dashboard/10000005`), where applications are plotted on user activity (x) against design complexity (y). The intent is to give a customer facing a blank page a starting point for triage — not a definitive judgement. Every value here is a rough estimation.
 
 ## Key value: Consolidation Potential
 

@@ -12,6 +12,7 @@ related:
   - schema/topics/template-inheritance
   - schema/topics/trial-license-masking
   - concepts/about-modernization-vector
+  - concepts/modernization-dashboard-labels
 requires_capability: none
 source: ETL cqx_data_ifa/010 (view + COMMENT) over dda_dm.template_ancestry (create 029, ETL script 225); ETL ADRs 0002 and 0003; column types verified against the live instance 2026-09-24
 last_reviewed: 2026-09-25

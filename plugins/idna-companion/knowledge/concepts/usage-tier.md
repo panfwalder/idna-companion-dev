@@ -11,9 +11,10 @@ related:
   - schema/tables/replica-set
   - concepts/lifecycle-vector
   - concepts/usage-time-windows
+  - howtos/find-usage-dashboards
 requires_capability: none
 source: iDNA Usage Category KPIs dashboard (metabase/dashboard/10000010)
-last_reviewed: 2026-06-15
+last_reviewed: 2026-10-09
 ---
 
 # Usage Tier
@@ -22,7 +23,7 @@ last_reviewed: 2026-06-15
 
 iDNA assigns each replica set a **usage tier** — a qualitative grade of how heavily the application is being used over a given time window. Tiers are computed from access-day counts (see [[concepts/user-access-days]]) bucketed into six labels.
 
-The bucket cut-offs are **not fixed numbers**: iDNA derives them from UAD **percentiles within each customer's own environment**, so "High" for a 50k-user estate is a very different access-day count than "High" for a 100-user estate. There is therefore no static threshold table — the per-category reference values for a given environment are shown on the **Usage Category KPIs** dashboard (`{{idna_server}}/metabase/dashboard/10000010`).
+The bucket cut-offs are **not fixed numbers**: iDNA derives them from UAD **percentiles within each customer's own environment**, so "High" for a 50k-user estate is a very different access-day count than "High" for a 100-user estate. There is therefore no static threshold table — the per-category reference values for a given environment are shown on the **Usage Category KPIs** dashboard (Usage › Usage Category KPIs, `{{idna_server}}/#/dashboard/10000010`).
 
 ## The six tier labels
 
@@ -77,4 +78,4 @@ An older `usage_category_simplified` column may still appear in the schema for b
 
 ## Sources
 
-iDNA usage-tier computation (UAD percentiles, computed per environment). The **Usage Category KPIs** dashboard (`{{idna_server}}/metabase/dashboard/10000010`) is the reference surface for the actual per-category values; cut-offs are environment-relative, so no static threshold table exists.
+iDNA usage-tier computation (UAD percentiles, computed per environment). The **Usage Category KPIs** dashboard (Usage › Usage Category KPIs, `{{idna_server}}/#/dashboard/10000010`) is the reference surface for the actual per-category values; cut-offs are environment-relative, so no static threshold table exists.

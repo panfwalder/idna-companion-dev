@@ -37,6 +37,8 @@ Legacy wording below may still mention phase-oriented playbooks from the CoCo sc
 
 **Playbooks and howtos.** A playbook page requiring a reusable analysis *links out* to a `howto` rather than duplicating the analysis inline. Howtos are owned once, referenced many times.
 
+**Dashboard catalog howtos.** The catalog pages (`howtos/find-*-dashboards`, one per Portal section) use an entry-list body — one entry per dashboard or Portal page — instead of the howto template's Question / Approach / Procedure shape.
+
 Playbook structure should follow **agent task boundaries** and **decision boundaries**, not inherited source-document chaptering unless that chaptering is clearly the best retrieval structure.
 
 Good playbook pages are keyed to things like:
@@ -82,6 +84,7 @@ tags: []              # controlled, namespaced (see Tag namespaces)
 related: []           # stable IDs of related pages; primary graph mechanism
 requires_capability:  # access capability needed to view this page; default: none
 source:               # optional: origin of the knowledge (free text or citation)
+kbase_sources: []     # optional: kbase page basenames (without .md) this page was distilled from
 last_reviewed:        # YYYY-MM-DD
 ```
 
@@ -90,6 +93,7 @@ last_reviewed:        # YYYY-MM-DD
 - `status: draft` until a primary authoritative source has shaped the page. CoCo-derived pages start `draft`.
 - `related:` lists the pages this one depends on or extends. Obsidian includes frontmatter links in the graph.
 - `source:` free text; cite the origin when knowledge came from a specific document.
+- `kbase_sources:` dev-time provenance, ignored at runtime: the pages of the product-docs vault (`kbase/`) whose content this page distills. Required on every page that carries such content (ADR 0015); `scripts/wiki-lint.py` checks that each entry resolves.
 
 ## Sensitivity (`requires_capability`)
 
@@ -123,7 +127,7 @@ The capability name (`mcp_unrestricted`) and the Postgres role name (`cqx_role_m
 Controlled tags only. Namespaces:
 
 - `domain/...` — e.g., `domain/notes`, `domain/domino`, `domain/idna`, `domain/panagenda`
-- `topic/...` — e.g., `topic/64bit`, `topic/nomad`, `topic/consolidation`, `topic/usage`, `topic/modernization`, `topic/regulatory`, `topic/content-age`
+- `topic/...` — e.g., `topic/64bit`, `topic/nomad`, `topic/consolidation`, `topic/usage`, `topic/modernization`, `topic/regulatory`, `topic/content-age`, `topic/dashboards`
 - `audience/...` — e.g., `audience/consultant`, `audience/customer`
 
 Do not use `type/...` or `status/...` tags — those are dedicated frontmatter fields.
@@ -134,12 +138,15 @@ Do not use `type/...` or `status/...` tags — those are dedicated frontmatter f
 - **Inline `[[wiki-links]]`** only where the reference is naturally part of the sentence — e.g., a playbook step that says *"Assess usage per application — see [[howtos/find-most-used-applications]]."* Wiki-link target must be the page's `id:` (i.e., the path relative to `knowledge/` without `.md`).
 - **External URLs:** standard markdown `[text](https://...)`.
 - **Never** use standard markdown links for inter-wiki references — they don't create graph edges.
-- **iDNA host URLs use the `{{idna_server}}` placeholder.** Three URL shapes appear:
-  - **Metabase dashboards** — `{{idna_server}}/metabase/dashboard/<id>` (e.g. `10000017`).
-  - **iDNA advanced components** — `{{idna_server}}/#/<route>` (e.g. `/#/catalog` for the Database Catalog, `/#/masterlistreplicasets` for the Replica Set Catalog).
+- **iDNA host URLs use the `{{idna_server}}` placeholder.** Links are **Portal-first**: a dashboard or Portal page is named by its Portal label with its navigation path, and linked by its Portal route. A name-only mention (no link) uses the Portal label. URL shapes:
+  - **Portal-embedded Metabase dashboards** — `{{idna_server}}/#/dashboard/<id>` (e.g. Catalog › Consolidation Potential, `{{idna_server}}/#/dashboard/10000017`). The Start Page is `{{idna_server}}/#/mbhome`.
+  - **Native Portal pages** — `{{idna_server}}/#/<route>` (e.g. Catalog › Databases, `/#/catalog`; Catalog › Replica Sets, `/#/masterlistreplicasets`).
+  - **Metabase-only dashboards** (not in the Portal menu) — `{{idna_server}}/metabase/dashboard/<id>`, with the note that the dashboard opens in Metabase and depends on the user's Metabase access.
   - **Per-DB-instance details** — `{{idna_server}}/#/replicadetails/<database_id>`. Detailed view of virtually all collected information for one DB instance. Use as a drill-down whenever analysis lands on a specific `database_id` (e.g. archival-instance pick, replication-divergence investigation, per-instance content-age review). **No replica-set equivalent exists today.**
 
   Do not assume every iDNA link is a Metabase dashboard.
+
+  **Host substitution in answers.** Substitute `{{idna_server}}` with `dashboard_base_url` from `get_idna_session` when it is present. Otherwise show the path with the placeholder and say that it stands for the customer's iDNA host. `source:` lines keep their provenance as written.
 
 ## ID strategy
 

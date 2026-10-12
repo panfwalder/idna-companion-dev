@@ -9,6 +9,7 @@ related:
   - schema/tables/database-content-retention-summary
   - playbooks/application-lifecycle/sunset-funnel
   - playbooks/application-lifecycle/keep-funnel
+  - howtos/find-content-dashboards
 requires_capability: none
 source:
 last_reviewed: 2026-05-21

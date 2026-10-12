@@ -17,9 +17,10 @@ related:
   - howtos/analyze-usage-by-department
   - howtos/identify-content-creators-and-consumers
   - howtos/attribute-usage-aggregate-only
+  - howtos/find-app-lifecycle-dashboards
 requires_capability: none
 source:
-last_reviewed: 2026-05-21
+last_reviewed: 2026-10-09
 ---
 
 # Stakeholder Cohort — Who Depends on This Application
@@ -52,7 +53,7 @@ See [[concepts/regulatory-usage-constraints]] for the mode framing and the MCP-s
 - **Standalone, and for `sunset/archive` cohort context** — call **`stakeholder_cohort(replicaid)`**. It returns `top_departments`, `top_locations`, and a `cohort_shape` for one app, callable regardless of lifecycle bucket. This is the tool for *"who depends on this app?"* / *"which departments use it?"* and for adding stakeholder context before committing a `sunset/archive` decision.
 - **In the keep/qualify path** — the same cohort is already a layer of `qualify_app_analysis` (`layers.stakeholder_cohort`, identical shape); read that layer rather than making a second call when you are already running the qualify analysis.
 
-See [[howtos/use-application-lifecycle-mcp-tools]] for the tool map. Both surfaces operate at department/location grain on `cqx_data.usage_cube_repset_vs_department` / `cqx_data.usage_cube_repset_vs_location` — both restricted-safe. See [[schema/topics/department-and-location]] for the cube structure. The **Department/Location Activity by Replica Set** dashboard (`{{idna_server}}/metabase/dashboard/10000012`) is the visual companion.
+See [[howtos/use-application-lifecycle-mcp-tools]] for the tool map. Both surfaces operate at department/location grain on `cqx_data.usage_cube_repset_vs_department` / `cqx_data.usage_cube_repset_vs_location` — both restricted-safe. See [[schema/topics/department-and-location]] for the cube structure. The **Department/Location Activity Lookup** dashboard (App Lifecycle › Department/Location Activity Lookup, `{{idna_server}}/#/dashboard/10000012`) is the visual companion.
 
 ## Reading `cohort_shape`
 

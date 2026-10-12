@@ -13,6 +13,7 @@ related:
   - concepts/about-template-lineage
   - schema/topics/trial-license-masking
   - howtos/query-modernization-views
+  - concepts/modernization-dashboard-labels
 requires_capability: none
 source: ETL cqx_data_ifa/010_cqx_data.initialize_components_structure.pxsql (view) over dda_dm.modernization_plan (ETL script 286); types verified against live instance 2026-07-23; trial anchor aliasing gated live 2026-08-18; lineage session kinds and the split green predicate (ETL ADRs 0002/0003) checked live 2026-09-24
 last_reviewed: 2026-09-24

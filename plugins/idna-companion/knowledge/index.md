@@ -17,6 +17,7 @@ Catalog of all wiki pages, grouped by type. Updated on every ingest.
 - [[concepts/lifecycle-vector]] - Lifecycle Vector (ETL-computed lifecycle bucket: `direction/disposition/reason`)
 - [[concepts/about-modernization-vector]] - Modernization Vector — READINESS: "what apps will break on 64-bit clients", "which apps aren't Nomad-ready" (per-target readiness split + fix routing)
 - [[concepts/about-modernization-plan]] - Modernization Plan — "where do we start", "what pays off most", session worksheets (session queue + block worklist)
+- [[concepts/modernization-dashboard-labels]] - Modernization Dashboard Labels — "what does Resolve Divergence / Rebase Master Template / Ready (No Fix Needed) mean": every label on the modernization dashboards mapped to its value and the explaining page
 - [[concepts/about-template-lineage]] - Template Lineage — detached forks of standard templates, rebase vs upgrade, "what did we customize / what survives the update", ready with notes (HCL-owned findings), the step-by-step session procedure
 - [[concepts/design-families]] - Design Families (similarity components; unify-under-one-master candidates)
 - [[concepts/database-complexity]] - Database Complexity (weighted design/code score, how to read it)
@@ -86,6 +87,7 @@ Catalog of all wiki pages, grouped by type. Updated on every ingest.
 - [[schema/topics/similarity]] - Design similarity columns across tables (clusters, standard-template detection)
 - [[schema/topics/trial-license-masking]] - What trial licenses mask across cqx_data (pseudonyms, detail_masked, `Master n` aliases), the MCP trial flag, finding rows on trial, and the occurrence / finding / block units
 - [[schema/topics/department-and-location]] - Department/location table families and pairing
+- [[schema/topics/insights-overview-exclude]] - Databases excluded from the insights analysis ("Insights Overview Exclude"): they look like apps without findings or `ready`; how to tell, and how to say it
 
 ## Playbooks
 
@@ -125,6 +127,15 @@ Catalog of all wiki pages, grouped by type. Updated on every ingest.
 - [[howtos/query-modernization-views]] - Query mechanics for the modernization views (ruleset filter, prefix search, items, reach sources)
 - [[howtos/analyze-usage-over-custom-window]] - Custom-window usage via the usage_over_window tool + weekly-table SQL (restricted-safe)
 - [[howtos/analyze-raw-user-activity]] - Per-user activity at daily grain from any angle, via user_activity_over_window + the raw pattern (permissive only)
+
+### Dashboards
+
+- [[howtos/find-overview-dashboards]] - Where to see estate status, scope and licensing: Start Page, Status Dashboard, Environment Overview, Inventory, Scope Focus Funnel, Remediation Overview, User Licensing Optimization, Deny Access Group Memberships
+- [[howtos/find-usage-dashboards]] - Where to see application and user activity, departments and locations, Notes client vs. web use: User Activity Overview, User Activity Overview (Focus DBs), User Activity Lookup, User Activity Drill-down, Department / Location Overview, Department Activity, Location Activity, Usage Category KPIs, Notes Client Usage, Web Browser Usage, Web vs. Client Usage, Sessions vs. Complexity, Usage Pattern Similarity
+- [[howtos/find-app-lifecycle-dashboards]] - Where to see lifecycle vectors, modernization readiness and planning, template customizations and stakeholders: Inventory History, Lifecycle Overview, Modernization Readiness, Modernization Overview, Modernization Planning, Modernization Overview by Work Session, Template Lineage (dashboard), Modernization Session Work List, Department/Location Activity Lookup, Top User Lookup, App Activity Drill-down, Application Insights
+- [[howtos/find-catalog-dashboards]] - Where to browse databases, replica sets, servers, ACLs and consolidation candidates: Databases, Application Details (per instance), Replica Sets, Replica Sets (Filterable), Servers, Discrepancies, Consolidation Potential, Database ACL Search, Profile Documents
+- [[howtos/find-design-dashboards]] - Where to see design complexity, similarity, code findings and custom code searches: Complexity, Source Code, Similarity, Insights, Insights Findings by Code Element in Database, Insights Findings by Unique Code Block, Code Block Overview, Agent List Search, Code Search (Custom Insights), Code Search Results Overview, Manage (Custom Insights)
+- [[howtos/find-content-dashboards]] - Where to see content age and data retention: Retention Overview, Retention Catalog, Data Retention Analysis
 
 ## Support documents
 

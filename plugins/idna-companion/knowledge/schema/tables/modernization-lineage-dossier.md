@@ -13,6 +13,7 @@ related:
   - schema/topics/trial-license-masking
   - concepts/about-modernization-vector
   - schema/tables/code-block-hcl-origin
+  - concepts/modernization-dashboard-labels
 requires_capability: none
 source: ETL cqx_data_ifa/010 (view + COMMENT) over dda_dm.modernization_lineage_dossier (create 030, ETL script 226); ETL ADRs 0002, 0003 and 0005 (design-document grain); column list and types verified against the live instance 2026-09-25; the persists_hcl_owned refinement from the shipped catalog (ETL ADR 0006) checked 2026-10-01; element pair = the code inside the document per ETL ADR 0008 (2026-10-01); the ETL ADR 0010 element names (Java file base names, host events; trial alias Java n) 2026-10-02
 last_reviewed: 2026-10-02

@@ -18,9 +18,10 @@ related:
   - howtos/query-modernization-views
   - schema/tables/code-block-hcl-origin
   - howtos/use-source-code-remediation-mcp-tools
+  - concepts/modernization-dashboard-labels
 requires_capability: none
 source: ETL cqx_data_ifa/010_cqx_data.initialize_components_structure.pxsql (view) over dda_dm.modernization_vector (ETL script 285); types verified against live instance 2026-07-23; dismissed columns verified live 2026-07-24; trial masking + detail_masked gated live on dev instances 2026-08-17/18; lineage columns (ETL ADRs 0002/0003) verified live 2026-09-24; n_hcl_notes on every row and the non-lineage ready/with_notes case (ETL ADR 0006) checked live 2026-09-29; item keys occurrence_state / verdict and the three-input contract (ETL ADR 0007) checked live 2026-09-30; element pair = the code inside the document per ETL ADR 0008 (2026-10-01); the ETL ADR 0010 element names (Java file base names, host events; trial alias Java n) 2026-10-02; the not-ready split by route (`readiness.not_ready_by_route`) per docs/plans/active/plan-overview-route-split (2026-10-06)
-last_reviewed: 2026-10-06
+last_reviewed: 2026-10-12
 ---
 
 # cqx_data.modernization_vector
@@ -57,7 +58,7 @@ Per-app modernization readiness: the routing verdict ([[concepts/about-moderniza
 | `ancestor_name`, `ancestor_kind`, `ancestor_similarity` | text, text, numeric | The master's standard ancestor (`standard_estate` / `standard_shipped`) and its similarity — populated exactly on `template/rebase_ancestor` rows, NULL elsewhere (see [[schema/tables/template-ancestry]]). |
 | `n_cleared_after_update` | integer | Lineage routes (`upgrade_standard`, `rebase_ancestor`, and a `ready/with_notes` app whose notes come from a lineage verdict): covered blocks the template update clears, incl. custom blocks cleared via a re-applied delta fix. NULL on other routes — also on a non-lineage `ready/with_notes` app (verbatim copies of current HCL code), so it is the lineage marker. |
 | `n_hcl_notes` | integer | Every row with active items (ETL ADR 0006; formerly NULL outside the lineage routes). Lineage routes: covered blocks that persist in the current HCL template version (HCL-owned notes, by the lineage verdict). Other routes: fix items whose exact code is current shipped HCL code (verbatim copies). `n_hcl_notes = n_fix_items` is what makes a lineage app `ready/with_notes`; for a non-lineage app see "HCL-shipped code in non-lineage apps" below. |
-| `design_family_id` | integer | Family key (see [[concepts/design-families]]). |
+| `design_family_id` | integer | Family key: the smallest similarity-cluster id in the family (see [[concepts/design-families]]). The dashboards show it as Design Family ID and, in the Modernization Overview Sankey, as Design Family #n. |
 | `design_family` | text[] | ALL family member replicaids — **including sunset apps**. |
 | `design_family_peers`, `peers_keep_modernize`, `peers_keep_qualify`, `peers_sunset` | integer | Peer counts by lifecycle. |
 | `user_access_days_last90d`, `user_access_days_last365d` | integer | Usage context. |

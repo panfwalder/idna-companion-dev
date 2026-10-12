@@ -13,9 +13,10 @@ related:
   - schema/tables/modernization-session-steps
   - howtos/query-modernization-views
   - schema/tables/code-block-hcl-origin
+  - concepts/modernization-dashboard-labels
 requires_capability: none
 source: ETL dda_dm/scheduled/286 (plan) + 288 (worklist) + 289 (session steps) + ADR 0001 amendments 2026-07-10/11, ADR 0002, 0003, 0004, 0006 (HCL-origin classification) (iDNA_Applications_ETL docs/decisions) + product-owner design dialogue 2026-07-08
-last_reviewed: 2026-10-01
+last_reviewed: 2026-10-12
 ---
 
 # Modernization Plan (Sessions and the Worklist)
@@ -58,6 +59,8 @@ Every code fix at block grain, per ruleset ([[schema/tables/modernization-workli
 - **Notes in every session kind:** `hcl_owned` — the block's exact code is in the current shipped HCL template version: inherited in lineage master homes (the dossier verdict), a verbatim copy in every other home (ETL ADR 0006). HCL's to own, no code fix to author; a copy changes only when it is re-copied. Each such block carries `hcl_origin`, the name-free origin note (template family, Notes versions, current catalog version) — quote it when the user asks where the code comes from.
 
 Blocks no sitting owns have no `authored_in`: `scope = 'inherited_standard'` (resolved entirely by template upgrades/rebases) or `scope = 'hcl_owned'` (the code is current HCL template code; any diverging copies still to review are named in `item_display`). Occurrences of current HCL code outside lineage master coverage count in the worklist identity as `n_hcl_current`, never as work.
+
+The dashboards label the work kinds and scopes (for example Resolve Divergence for `review`, Scan Template First for `scan_first`, Cross-Session for `cross_session`); see [[concepts/modernization-dashboard-labels]].
 
 ## Session steps: the order of work
 
