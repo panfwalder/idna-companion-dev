@@ -8,9 +8,10 @@ related:
   - howtos/analyze-usage-by-department
   - concepts/regulatory-usage-constraints
   - schema/topics/department-and-location
+  - howtos/find-app-lifecycle-dashboards
 requires_capability: none
 source:
-last_reviewed: 2026-05-04
+last_reviewed: 2026-10-12
 ---
 
 # Attribute application usage at aggregate grain only
@@ -70,6 +71,10 @@ Use `cqx_data.usage_cube_department_activity_history` (weekly per-department UAD
 - **`user_access_days`** combines users x days at the cube grain — see [[concepts/user-access-days]].
 - **Masked-name rows** still carry real usage counts; only the department/location name is pseudonymized below iDNA's threshold. Report the usage, but state that the cohort cannot be attributed to a named org unit — a masked name is not zero usage and not a missing row. See [[schema/topics/department-and-location]].
 - **`last_access` without `last_access_user`** is the strict-safe recency signal at this grain. The user-attributed last-access columns (`last_accessed_user`, `last_write_user` on `replica_set` / `usage_summary_by_database`) must not be queried under strict mode.
+
+## Product surface for "who are the top users?"
+
+When the question asks for an application's top users and the session cannot answer per user, state the gap first, then give the aggregate answer at department and location grain: in a restricted session through `stakeholder_cohort` or the `usage_over_window` cross mode (the SQL variants above need `execute_sql`, which is privileged-only). After that, you may name the product surface: App Lifecycle › Top User Lookup (`{{idna_server}}/#/dashboard/10000015`), which shows the most active users of one application, ranked by several usage measures; access depends on your Metabase permissions. See [[howtos/find-app-lifecycle-dashboards]]. The pointer never replaces the gap statement or the aggregate answer. In such a session, a question about a named individual gets a clean refusal: no aggregate answer, no pointer, and no filter recipe for a person.
 
 ## What drops out under strict mode
 

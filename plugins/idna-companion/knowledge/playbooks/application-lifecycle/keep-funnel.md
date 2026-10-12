@@ -25,14 +25,14 @@ related:
   - howtos/find-design-dashboards
 requires_capability: none
 source:
-last_reviewed: 2026-10-09
+last_reviewed: 2026-10-12
 ---
 
 # Keep Funnel — Modernize or Qualify
 
 > **Preflight:** before walking this funnel, confirm the data-currency check in [[playbooks/application-lifecycle/lifecycle-routing]] passes. Stale usage / classification data invalidates the partition that brought apps here.
 
-Apps in this funnel carry a `keep/*` `lifecycle_vector` — they are not sunset candidates. The funnel splits them into `keep/modernize` (worth investing in) and `keep/qualify/usage_low` (residual; per-app diagnosis required); a config/replication conflict surfaces as a `/conflict_*` qualifier on either side (resolve it before relying on the disposition). See [[concepts/lifecycle-vector]].
+Apps in this funnel carry a `keep/*` `lifecycle_vector` — they are not sunset candidates: the funnel holds every focus app NOT classified `remediation_classification = 'Consolidation Potential'`, iDNA's sunset gate. The funnel splits them into `keep/modernize` (worth investing in) and `keep/qualify/usage_low` (residual; per-app diagnosis required); a config/replication conflict surfaces as a `/conflict_*` qualifier on either side (resolve it before relying on the disposition). See [[concepts/lifecycle-vector]].
 
 This funnel runs on the semantic lifecycle MCP tools, which read the ETL-computed `lifecycle_vector` and add the workflow layer. The base bucket is also a degraded SQL fallback if the MCP is down. See [[howtos/use-application-lifecycle-mcp-tools]] for the full tool map and chaining.
 
@@ -148,6 +148,8 @@ For apps with zero/near-zero 90d usage that weren't classified Consolidation Pot
 | `null` | No template inheritance recorded. |
 
 ## Section 5 — Output
+
+Name the cohort first: the keep funnel is every focus app outside the Consolidation Potential gate. An application with any use in the last 90 days, or with Low or higher usage across its recorded history, arrives here however old it is (`keep/modernize` when its 90-day usage is Medium or higher), never in the sunset funnel.
 
 Target-state annotated per app. For each app in the keep funnel:
 
