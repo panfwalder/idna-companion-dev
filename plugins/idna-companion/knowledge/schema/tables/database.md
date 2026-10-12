@@ -18,9 +18,10 @@ related:
   - schema/tables/usage-sessions
   - schema/tables/dbviews-used
   - howtos/find-catalog-dashboards
+  - howtos/find-app-lifecycle-dashboards
 requires_capability: none
 source: docs/reference/cqx_data_schema_enriched_all_tables.md; the insights NULL / sentinel cases per ETL ADR 0012 (2026-10-07)
-last_reviewed: 2026-10-09
+last_reviewed: 2026-10-12
 ---
 
 # cqx_data.database
@@ -81,7 +82,7 @@ One row per licensed database instance: the per-server, per-file view of NSF/NTF
 
 ### Visual surface
 
-For one specific instance, the iDNA per-DB-instance detail component surfaces virtually all collected information at `{{idna_server}}/#/replicadetails/<database_id>`. Useful as a drill-down whenever analysis lands on a particular `database_id` — for example after an archival-instance pick or a replication-divergence finding. No equivalent detail page exists for replica sets; for application-level visual entry use Catalog › Replica Sets at `{{idna_server}}/#/masterlistreplicasets`.
+For one specific instance, the iDNA per-DB-instance detail component surfaces virtually all collected information at `{{idna_server}}/#/replicadetails/<database_id>`. Useful as a drill-down whenever analysis lands on a particular `database_id` — for example after an archival-instance pick or a replication-divergence finding. For one replica set, the closest counterpart is Application Insights, a Metabase-only dashboard (`{{idna_server}}/metabase/dashboard/10000044`; it opens in Metabase and depends on the user's Metabase access); a replica set's title in Catalog › Replica Sets (`{{idna_server}}/#/masterlistreplicasets`) opens it.
 
 ## Notes and caveats
 

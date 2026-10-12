@@ -16,7 +16,7 @@ related:
   - schema/topics/trial-license-masking
 requires_capability: none
 source: app-lifecycle-playbook-rewrite cycle 2; pseudo-interfaces contract; trial counts and the qualify_app_analysis trial note per docs/plans/active/mcp-trial-awareness and the ETL trial-findings-surface hand-off (final contract, 2026-10-05); the "Insights Overview Exclude" pointer per ETL ADR 0012 (2026-10-07)
-last_reviewed: 2026-10-07
+last_reviewed: 2026-10-12
 ---
 
 # Use the application-lifecycle MCP tools
@@ -48,7 +48,7 @@ Lifecycle work runs on the semantic lifecycle MCP tools. The **base** lifecycle 
 
 ## Chaining (typical consolidation walkthrough)
 
-1. `get_idna_session` — preflight; pull `dashboard_base_url` for link substitution (tools return fully-substituted drilldown URLs).
+1. `get_idna_session` — preflight; pull `dashboard_base_url` for link substitution (tools return substituted drill-down URLs; without a `dashboard_base_url` they carry the `{{idna_server}}` placeholder).
 2. `lifecycle_exposure_summary({ focus_only: true })` — scope the estate.
 3. Customer chooses sunset or keep direction. *(For a modernization-prep question, work both ends inward instead of forcing one direction — see [[playbooks/application-lifecycle/lifecycle-routing]]: lead the keep-end and offer sunset as rollout-scope reduction.)*
 4. **Sunset branch:** `sunset_candidates` → (AskUserQuestion) → `sunset_disposition(replicaid)` → for `sunset/archive` with >1 instance, `archival_instance_pick(replicaid)`.

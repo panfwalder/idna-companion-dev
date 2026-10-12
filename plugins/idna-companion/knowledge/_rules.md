@@ -142,7 +142,7 @@ Do not use `type/...` or `status/...` tags — those are dedicated frontmatter f
   - **Portal-embedded Metabase dashboards** — `{{idna_server}}/#/dashboard/<id>` (e.g. Catalog › Consolidation Potential, `{{idna_server}}/#/dashboard/10000017`). The Start Page is `{{idna_server}}/#/mbhome`.
   - **Native Portal pages** — `{{idna_server}}/#/<route>` (e.g. Catalog › Databases, `/#/catalog`; Catalog › Replica Sets, `/#/masterlistreplicasets`).
   - **Metabase-only dashboards** (not in the Portal menu) — `{{idna_server}}/metabase/dashboard/<id>`, with the note that the dashboard opens in Metabase and depends on the user's Metabase access.
-  - **Per-DB-instance details** — `{{idna_server}}/#/replicadetails/<database_id>`. Detailed view of virtually all collected information for one DB instance. Use as a drill-down whenever analysis lands on a specific `database_id` (e.g. archival-instance pick, replication-divergence investigation, per-instance content-age review). **No replica-set equivalent exists today.**
+  - **Per-DB-instance details** — `{{idna_server}}/#/replicadetails/<database_id>`. Detailed view of virtually all collected information for one DB instance. Use as a drill-down whenever analysis lands on a specific `database_id` (e.g. archival-instance pick, replication-divergence investigation, per-instance content-age review). For one replica set, the closest counterpart is the Metabase-only Application Insights dashboard (`{{idna_server}}/metabase/dashboard/10000044`; it opens in Metabase and depends on the user's Metabase access), opened from a replica set's title in Catalog › Replica Sets: that replica set's details, usage, replicas and code findings, not the full per-instance record.
 
   Do not assume every iDNA link is a Metabase dashboard.
 
