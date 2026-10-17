@@ -5,6 +5,13 @@ plugin that grounds Notes/Domino estate analysis (usage, modernization, source-c
 application lifecycle) in a curated knowledge wiki, powered by [panagenda iDNA
 Applications](https://www.panagenda.com/products/idna-applications/) data.
 
+**Test channel.** This repository carries builds for testing before release. Customers install
+from the official repository, [panagenda/idna-companion](https://github.com/panagenda/idna-companion).
+Both repositories use the marketplace name `panagenda`; GitHub Copilot and Claude Code register a
+marketplace by that name, so they hold only one of the two. To switch, remove this marketplace and
+its plugin first, as described under "Switching from an earlier installation" in the official
+repository's README.
+
 This repository is a plugin **marketplace** in the Claude plugin format
 (`.claude-plugin/marketplace.json`), which is read natively by Cowork, Claude Code, GitHub
 Copilot, and OpenAI Codex. One repo serves all of them.
@@ -14,6 +21,8 @@ Copilot, and OpenAI Codex. One repo serves all of them.
 | | `panagenda` | `idna-companion` |
 
 ## Install
+
+Installing or using the plugin is subject to its license ([plugins/idna-companion/LICENSE](plugins/idna-companion/LICENSE)).
 
 ### Cowork
 
@@ -55,6 +64,15 @@ The Companion needs its plugin files - the persona and the knowledge wiki - next
 They are not available to the skill in claude.ai Chat, so the Companion would answer there
 without its wiki. Use Cowork, Claude Code, GitHub Copilot or OpenAI Codex.
 
+## Model choice
+
+In GitHub Copilot and OpenAI Codex you choose the AI model per session. The Companion's
+restricted-mode discipline - which analysis paths it offers and explains - is strongest on the
+most capable models; smaller models follow it less reliably. Organisations that operate under a
+restricted posture should standardise on the strongest available model for Companion sessions.
+Access to live data is enforced by your iDNA Applications appliance and does not depend on the
+model.
+
 ## Live data (optional)
 
 The plugin's knowledge wiki works standalone. For live estate data, connect the read-only iDNA
@@ -65,7 +83,7 @@ Companion answers from the wiki in restricted mode and says so.
 ## Updating
 
 Marketplace-based installs receive updates from this repository: use your client's marketplace
-**Update** action (Cowork), `copilot plugin update` (Copilot), or reinstall from the refreshed
+**Update** action (Cowork), `copilot plugin marketplace update panagenda`, then `copilot plugin update idna-companion@panagenda` (Copilot CLI), or reinstall from the refreshed
 marketplace.
 
 ## Contents
