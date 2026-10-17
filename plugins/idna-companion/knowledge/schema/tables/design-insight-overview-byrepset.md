@@ -20,7 +20,7 @@ related:
   - schema/topics/trial-license-masking
   - schema/topics/insights-overview-exclude
 requires_capability: none
-source: docs/reference/cqx_data_schema_enriched_all_tables.md; element pair = the code inside the document per ETL ADR 0008 (2026-10-01); Java file names and host events per ETL ADR 0010 (2026-10-02; live on ifa-dev-02); trial rows per the ETL trial-findings-surface hand-off (ETL ADR 0011, final contract 2026-10-05); the exclusion per ETL ADR 0012 (2026-10-07)
+source: docs/reference/cqx_data_schema_enriched_all_tables.md; element pair = the code inside the document per ETL ADR 0008 (2026-10-01); Java file names and host events per ETL ADR 0010 (2026-10-02; live on the panagenda test instance); trial rows per the ETL trial-findings-surface hand-off (ETL ADR 0011, final contract 2026-10-05); the exclusion per ETL ADR 0012 (2026-10-07)
 last_reviewed: 2026-10-07
 ---
 

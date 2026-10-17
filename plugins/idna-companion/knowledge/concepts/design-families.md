@@ -12,7 +12,7 @@ related:
   - schema/tables/modernization-vector
   - concepts/modernization-dashboard-labels
 requires_capability: none
-source: ETL dda_dm/scheduled/284_dda_dm.design_families.update.sql + ADR 0001 (iDNA_Applications_ETL docs/decisions); the cluster threshold ai_similarity_cluster_threshold (default 95: ETL 050 / 053 / 285 fallback and the legacy product docs; ifa-dev-02 runs 85) checked 2026-10-05
+source: ETL dda_dm/scheduled/284_dda_dm.design_families.update.sql + ADR 0001 (iDNA_Applications_ETL docs/decisions); the cluster threshold ai_similarity_cluster_threshold (default 95: ETL 050 / 053 / 285 fallback and the legacy product docs; the panagenda test instance runs 85) checked 2026-10-05
 last_reviewed: 2026-10-05
 ---
 

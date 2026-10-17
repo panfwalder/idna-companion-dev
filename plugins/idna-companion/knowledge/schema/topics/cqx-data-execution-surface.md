@@ -58,5 +58,5 @@ That means freshness questions usually trace to upstream refresh state rather th
 
 ## Sources
 
-- ETL/code wiki architecture page: `C:\Users\fwalder\Documents\panagenda\git\iDNA_Applications_ETL\obsidian\code-wiki\architecture\cqx-data.md`
-- ETL/code wiki overview: `C:\Users\fwalder\Documents\panagenda\git\iDNA_Applications_ETL\CLAUDE.md`
+- ETL/code wiki architecture page: iDNA_Applications_ETL `obsidian/code-wiki/architecture/cqx-data.md`
+- ETL/code wiki overview: iDNA_Applications_ETL `CLAUDE.md`
