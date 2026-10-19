@@ -17,9 +17,11 @@ related:
   - playbooks/source-code-remediation/remediation-routing
   - playbooks/source-code-remediation/assess-exposure
   - playbooks/source-code-remediation/classify-shared-code-paths
+  - concepts/insights-and-rulesets
+  - howtos/find-code-patterns
 requires_capability: none
 source: CoCo_Playbook_64bit_Migration_Consulting.docx + CoCo Copilot server/knowledge/ref_migration_nomadweb.md + docs/reference/cqx_data_schema_enriched_all_tables.md
-last_reviewed: 2026-07-23
+last_reviewed: 2026-10-18
 ---
 
 # Compatibility Ruleset Routing
@@ -27,6 +29,8 @@ last_reviewed: 2026-07-23
 ## What it is
 
 The routing rule for compatibility-oriented source-code remediation work: choose the target ruleset first, then run the shared remediation workflow with the matching summary table and ruleset identifier.
+
+The two targets below are 2 of the 9 rulesets iDNA ships ([[concepts/insights-and-rulesets]]). The other rulesets have no target profile; their findings are read through [[howtos/find-code-patterns]], and the MCP finding tools take their `ruleset_id` as well.
 
 ## Core rule
 

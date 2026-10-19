@@ -23,7 +23,7 @@ related:
   - schema/topics/template-inheritance
 requires_capability: none
 source: CoCo_Playbook_64bit_Migration_Consulting.docx (manual method) + modernization-vector-integration phase-2 rewrite (consume-first); non-lineage ready/with_notes (ETL ADRs 0006 / 0007) 2026-10-01; Companion plan code-block-eval-fixes Part E (G5, 2026-10-02)
-last_reviewed: 2026-10-02
+last_reviewed: 2026-10-18
 ---
 
 # Classify Template-Based Remediation Paths
@@ -65,7 +65,7 @@ Template linkage does not automatically mean the target problem is solved by a r
 - Is the customer willing to validate and possibly re-establish broken template relationships?
 - Are there known customizations that make template refresh risky? (The diverging-block review answers this with evidence.)
 
-## Manual fallback — custom rulesets / what-if analysis
+## Manual fallback — rulesets outside the precompute (shipped or custom) / what-if analysis
 
 The pre-vector method classified Category A (clean template association) and Category B (broken link, strong similarity) by hand — the mapping to vector routes is on [[concepts/remediation-category]]. For rulesets outside the precompute (privileged sessions):
 

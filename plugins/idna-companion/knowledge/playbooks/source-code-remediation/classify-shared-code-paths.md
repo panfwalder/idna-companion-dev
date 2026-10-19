@@ -25,7 +25,7 @@ related:
   - schema/tables/replica-set
 requires_capability: none
 source: CoCo_Playbook_64bit_Migration_Consulting.docx (manual method) + modernization-vector-integration phase-2 rewrite (consume-first); hcl_owned scope and the n_hcl_current identity term (ETL ADR 0006) 2026-10-01; element pair = the code inside the document per ETL ADR 0008 (2026-10-01)
-last_reviewed: 2026-10-02
+last_reviewed: 2026-10-18
 ---
 
 # Classify Shared-Code and Unique Remediation Paths
@@ -58,7 +58,7 @@ Shared code only helps if the remediation strategy itself is reusable. Notes 64-
 - Prioritize the highest-impact shared fixes first, even across many applications?
 - Any critical applications to use as anchors when interpreting shared-code opportunities?
 
-## Manual fallback — custom rulesets / what-if analysis
+## Manual fallback — rulesets outside the precompute (shipped or custom) / what-if analysis
 
 For rulesets outside the precompute (privileged sessions):
 

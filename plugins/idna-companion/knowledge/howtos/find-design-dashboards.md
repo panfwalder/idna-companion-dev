@@ -10,6 +10,8 @@ related:
   - concepts/code-block
   - playbooks/source-code-remediation/assess-exposure
   - playbooks/source-code-remediation/remediation-routing
+  - concepts/shipped-insight-catalog
+  - howtos/find-code-patterns
 requires_capability: none
 source: Portal and Metabase inventory, iDNA 3.5.0, 2026-09-08
 kbase_sources:
@@ -27,7 +29,7 @@ kbase_sources:
   - portal-insights-findings-by-unique-code-block
   - portal-similarity
   - portal-source-code
-last_reviewed: 2026-10-09
+last_reviewed: 2026-10-18
 ---
 
 # Find the Design and Custom Insights dashboards and pages
@@ -55,14 +57,14 @@ This page covers two Portal sections. The Design section shows the application e
 ### Insights
 
 - **Where:** Design › Insights, `{{idna_server}}/#/insights`.
-- **What you get:** a treemap of the Insights findings across the focus databases, grouped by ruleset (for example Notes 64bit Readiness or Nomad Web/iOS/Android Compatibility) and finding; tile area reflects how many findings there are, color reflects severity. Four key figures (analyzed designs, databases with findings, total findings, highest insight score) frame the chart, and from a finding you can drill down to the databases and code elements behind it.
-- **Fits questions like:** which 64-bit or Nomad compatibility findings does our estate have? Which rulesets produce the most findings? How many databases have findings at all?
+- **What you get:** a treemap of the Insights findings across the focus databases, grouped by ruleset (the shipped rulesets are listed in [[concepts/shipped-insight-catalog]]; custom ones appear alongside) and finding; tile area reflects how many findings there are, color reflects severity. Four key figures (analyzed designs, databases with findings, total findings, highest insight score) frame the chart, and from a finding you can drill down to the databases and code elements behind it.
+- **Fits questions like:** which 64-bit or Nomad compatibility findings does our estate have? Which rulesets produce the most findings? How many databases have findings at all? Does iDNA already flag a pattern such as hardcoded IP addresses, and where? (Recipe: [[howtos/find-code-patterns]].)
 
 ### Insights Findings by Code Element in Database
 
 - **Where:** Design › Insights Findings by Code Element in Database, `{{idna_server}}/#/dashboard/10000036`.
 - **What you get:** a table of the Insights findings in the focus databases, listed by code element and database; you can filter by Database, Server, Ruleset, Insight and Code Hash ID. Without a filter the list can be slow to load, and the complete list can be exported from the Metabase view (Explore).
-- **Fits questions like:** which code elements in this database have findings? Where in the focus databases does a particular insight occur? Can I get the full list of findings as an export?
+- **Fits questions like:** which code elements in this database have findings? Where in the focus databases does a particular insight occur, for example Hardcoded IP Addresses (insight names: [[concepts/shipped-insight-catalog]])? Can I get the full list of findings as an export?
 
 ### Insights Findings by Unique Code Block
 
@@ -86,7 +88,7 @@ This page covers two Portal sections. The Design section shows the application e
 
 - **Where:** Custom Insights › Code Search, `{{idna_server}}/#/codesearch`.
 - **What you get:** a search of the source code iDNA collected from the focus databases, as plain text, whole words or a regular expression, with matches listed per code block together with database, design element and matching line. A search expression can be saved as a Custom Insights pattern.
-- **Fits questions like:** which of our applications use a particular LotusScript class or function? Where does a particular API call appear in our code? Can I check what a search expression matches before saving it as a pattern?
+- **Fits questions like:** which of our applications use a particular LotusScript class or function? Where does a particular API call appear in our code? Can I check what a search expression matches before saving it as a pattern? Check [[concepts/shipped-insight-catalog]] first: a shipped insight may already detect the pattern.
 
 ### Code Search Results Overview
 
@@ -98,4 +100,4 @@ This page covers two Portal sections. The Design section shows the application e
 
 - **Where:** Custom Insights › Manage, `{{idna_server}}/#/custominsights`.
 - **What you get:** the place where Rulesets, Insights and Patterns are maintained, one tab each: a ruleset groups insights, and insights are found through patterns, which are code search expressions. The rulesets panagenda ships are read-only and can be changed as a copy; your own can be created, copied, exported and imported, and edits reach the Insights results with the next design analysis run.
-- **Fits questions like:** can we add Insights rules for code patterns specific to our organization? Which rulesets ship with iDNA? Can we adjust a ruleset that panagenda ships?
+- **Fits questions like:** can we add Insights rules for code patterns specific to our organization? Which rulesets ship with iDNA (listed in [[concepts/shipped-insight-catalog]])? Can we adjust a ruleset that panagenda ships?

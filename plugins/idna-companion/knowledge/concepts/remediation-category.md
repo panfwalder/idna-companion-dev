@@ -14,14 +14,14 @@ related:
   - playbooks/source-code-remediation/build-remediation-plan
 requires_capability: none
 source: CoCo_Playbook_64bit_Migration_Consulting.docx; vector-route mapping per the ETL modernization precompute
-last_reviewed: 2026-07-24
+last_reviewed: 2026-10-18
 ---
 
 # Remediation Category (legacy A/B/C/D → vector-route mapping)
 
 ## What it is
 
-The **historical, manual** four-part classification of how an application with compatibility findings should be fixed, from the pre-vector consulting method. **The operating vocabulary today is the modernization vector's route set** ([[concepts/about-modernization-vector]]) — the ETL precomputes what this scheme derived by hand. This page stays as the mapping between the two, and as the vocabulary of the manual fallback method (custom rulesets / what-if analysis).
+The **historical, manual** four-part classification of how an application with compatibility findings should be fixed, from the pre-vector consulting method. **The operating vocabulary today is the modernization vector's route set** ([[concepts/about-modernization-vector]]) — the ETL precomputes what this scheme derived by hand. This page stays as the mapping between the two, and as the vocabulary of the manual fallback method (rulesets outside the precompute, shipped or custom / what-if analysis).
 
 ## The mapping
 

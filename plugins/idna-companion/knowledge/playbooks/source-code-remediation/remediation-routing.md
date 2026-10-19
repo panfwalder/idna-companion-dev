@@ -26,7 +26,7 @@ related:
   - playbooks/application-lifecycle/lifecycle-routing
 requires_capability: none
 source: CoCo_Playbook_64bit_Migration_Consulting.docx (manual method) + modernization-vector-integration phase-2 rewrite (consume-first)
-last_reviewed: 2026-07-24
+last_reviewed: 2026-10-18
 ---
 
 # Source-Code Remediation Playbook Overview
@@ -75,7 +75,7 @@ Do not treat all findings as generic "code fixes." After target routing, classif
 - [[concepts/compatibility-ruleset-routing]] — bind the target before anything else
 - the target profiles and findings taxonomies (64-bit and Nomad)
 
-## Manual fallback — custom rulesets / what-if analysis
+## Manual fallback — rulesets outside the precompute (shipped or custom) / what-if analysis
 
 The original consulting method — a narrowing funnel of quantify exposure → triage → classify by cheapest path (the A/B/C/D scheme, see [[concepts/remediation-category]]) → sequence — remains valid when the target ruleset is NOT in the modernization precompute, or for ad-hoc what-if analysis. The manual steps live in the fallback sections of the task pages ([[playbooks/source-code-remediation/assess-exposure]], [[playbooks/source-code-remediation/triage-working-set]], [[playbooks/source-code-remediation/classify-template-paths]], [[playbooks/source-code-remediation/classify-shared-code-paths]], [[playbooks/source-code-remediation/build-remediation-plan]]). The core discipline holds either way: do not jump straight from findings to code fixes.
 

@@ -10,9 +10,10 @@ related:
   - schema/tables/design-insights-summary-nomadwebmobile
   - schema/tables/design-insight-overview-byrepset
   - playbooks/source-code-remediation/remediation-routing
+  - concepts/shipped-insight-catalog
 requires_capability: none
 source: docs/reference/nomad-migration-technical-reviewed.md + docs/reference/_research/2026-04-17-compatibility/idna-finding-taxonomy.md
-last_reviewed: 2026-07-23
+last_reviewed: 2026-10-18
 ---
 
 # Nomad Web/Mobile Findings Taxonomy
@@ -62,6 +63,27 @@ The stock HCL mail template itself carries a body of genuine Nomad findings (LS2
 - Patterns execute as PostgreSQL regular expressions (ARE dialect) via case-insensitive matching (`~*`).
 - An insight matches a code block only when **ALL of its topics** match (AND); patterns within a topic are OR.
 - `count_findings` on the insight summaries equals the number of matched code blocks; historical numbers for multi-topic insights were inflated by a join defect fixed in the 2026-07 revision and dropped when the fix deployed.
+
+## Insight names in iDNA
+
+The 16 insights of the Nomad Web, iOS, Android Compatibility ruleset as iDNA names them (`finding_name` in the finding tools and views), with their shipped default severity; the full catalog is [[concepts/shipped-insight-catalog]].
+
+- ActivateApp (Very High)
+- Chdir (Medium)
+- CreateObject (Very High)
+- Date/Time (Medium)
+- Declare function (Very High)
+- Edit/Find (Nomad Android Only) (Medium)
+- Get/Set FileAttribute (Medium)
+- GetObject (Very High)
+- LS2J (unsupported in Nomad) (Very High)
+- Lock/Unlock (Very High)
+- LotusScript Extensions (UseLSX) (Medium)
+- NotesHTTPRequest (Nomad Web Only) (Medium)
+- NotesHTTPRequest unsupported methods (Nomad Web Only) (High)
+- OSLoadProgram (Nomad iOS Only) (Medium)
+- SendKeys (Medium)
+- Shell Commands (Medium)
 
 ## Use in the workflow
 

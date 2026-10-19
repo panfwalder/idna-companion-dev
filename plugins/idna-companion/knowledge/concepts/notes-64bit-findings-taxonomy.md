@@ -10,9 +10,10 @@ related:
   - schema/tables/design-insights-summary-notes64bit
   - schema/tables/design-insight-overview-byrepset
   - playbooks/source-code-remediation/remediation-routing
+  - concepts/shipped-insight-catalog
 requires_capability: none
 source: docs/reference/64bit-migration-technical-reviewed.md + docs/reference/_research/2026-04-17-compatibility/idna-finding-taxonomy.md
-last_reviewed: 2026-07-23
+last_reviewed: 2026-10-18
 ---
 
 # Notes 64-bit Findings Taxonomy
@@ -53,6 +54,28 @@ Compact classification of Notes 64-bit findings for agent retrieval and remediat
 - Patterns execute as PostgreSQL regular expressions (ARE dialect) via case-insensitive matching (`~*`) — casing concerns about individual rules (e.g. `loadlibrary`) do not apply.
 - An insight matches a code block only when **ALL of its topics** match (AND); patterns within a topic are OR.
 - `count_findings` on the insight summaries equals the number of matched code blocks; historical numbers for multi-topic insights (notably the 2017 mail insights) were inflated by a join defect fixed in the 2026-07 revision and dropped when the fix deployed.
+
+## Insight names in iDNA
+
+The 17 insights of the Notes 64bit Readiness ruleset as iDNA names them (`finding_name` in the finding tools and views), with their shipped default severity; the full catalog is [[concepts/shipped-insight-catalog]].
+
+- Contains 'win' or 'windows' (Medium)
+- Contains /32 without /64 (Medium)
+- Contains OS Architecture or Name (Medium)
+- GetAllEntriesByKey (mixed 32/64 compile-runtime risk) (Low)
+- Missing Java EE/CORBA classes (Java 17 / Notes 14) (High)
+- Missing V12 Java classes (High)
+- Missing V14 Java classes (High)
+- References Program Files (x86) (Medium)
+- References platform string 'Windows/32' (High)
+- Use of CreateObject (Medium)
+- Use of Declare Function accepts or returns long (Medium)
+- Use of Declare Function that returns long (Very High)
+- Use of EmbedObject (Medium)
+- Use of RegQueryValue (Medium)
+- Use of isDefined (High)
+- Use of loadlibrary (Medium)
+- Use of type block with long/string (Medium)
 
 ## Use in the workflow
 

@@ -23,7 +23,7 @@ kbase_sources:
   - portal-profile-documents
   - portal-replica-sets
   - portal-servers
-last_reviewed: 2026-10-09
+last_reviewed: 2026-10-18
 ---
 
 # Find the Catalog dashboards and pages
@@ -33,7 +33,7 @@ The Catalog section of the Portal is the inventory of the estate: the database i
 ### Databases
 
 - **Where:** Catalog › Databases, `{{idna_server}}/#/catalog`.
-- **What you get:** a grid with one row per database instance, that is per database file on a given server, and switchable column sets such as Usage, Scores, Source Code, Content Age, Insights, Notes 64bit Readiness, Nomad Web/iOS/Android Compatibility, Cloud Readiness and Custom DB Instance properties. You can search across all fields, filter per column and export to CSV or Excel; a database's title opens its Application Details.
+- **What you get:** a grid with one row per database instance, that is per database file on a given server, and switchable column sets, among them Usage, Scores, Source Code, Content Age, Insights, one set per shipped ruleset (Cloud Readiness, Dependencies on other Databases, Mail Dependencies, Nomad Web/iOS/Android Compatibility, Notes 64bit Readiness, Operating System Dependencies, Special Interfaces, Specific Code Findings, Web Design) and Custom DB Instance properties. You can search across all fields, filter per column and export to CSV or Excel; a database's title opens its Application Details.
 - **Fits questions like:** where can I see each database instance with its server, file name and template? Is there a per-database list of 64-bit or Nomad readiness? Can I export the database inventory to Excel?
 
 ### Application Details (per instance)

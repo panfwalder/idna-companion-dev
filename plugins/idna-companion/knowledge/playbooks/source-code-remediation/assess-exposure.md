@@ -25,7 +25,7 @@ related:
   - schema/topics/trial-license-masking
 requires_capability: none
 source: CoCo_Playbook_64bit_Migration_Consulting.docx (manual method) + modernization-vector-integration phase-2 rewrite (consume-first); the trial exception and the units per docs/plans/active/mcp-trial-awareness (2026-10-05); the not-ready split by route (`readiness.not_ready_by_route`) per docs/plans/active/plan-overview-route-split (2026-10-06)
-last_reviewed: 2026-10-06
+last_reviewed: 2026-10-18
 ---
 
 # Assess Source-Code Remediation Exposure
@@ -70,7 +70,7 @@ Convert an intimidating raw count into a picture the customer can reason about �
 - Do you want to scope to Focus applications only? Default: yes.
 - Readiness or volume — which question is actually being asked? (When in doubt for "how bad is it": give the exposure aggregate AND offer the readiness split.)
 
-## Manual fallback — custom rulesets / what-if analysis
+## Manual fallback — rulesets outside the precompute (shipped or custom) / what-if analysis
 
 For a ruleset outside the modernization precompute, the exposure queries run directly (privileged sessions; restricted sessions use the tools above or present the SQL for the customer):
 

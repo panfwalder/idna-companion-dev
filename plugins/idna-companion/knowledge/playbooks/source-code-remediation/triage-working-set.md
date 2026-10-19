@@ -26,7 +26,7 @@ related:
   - concepts/regulatory-usage-constraints
 requires_capability: none
 source: CoCo_Playbook_64bit_Migration_Consulting.docx
-last_reviewed: 2026-07-24
+last_reviewed: 2026-10-18
 ---
 
 # Triage the Source-Code Remediation Working Set
@@ -71,7 +71,7 @@ Note: this rule is at the **application** level. There is a separate, **element-
 - Are there legal, regulatory, or business-retention requirements for low-usage applications?
 - Are there applications that must remain usable even if they are rarely opened?
 
-## Manual fallback — custom rulesets / what-if analysis
+## Manual fallback — rulesets outside the precompute (shipped or custom) / what-if analysis
 
 Bind `<summary_table>` from the resolved target profile.
 

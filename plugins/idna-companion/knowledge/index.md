@@ -23,6 +23,8 @@ Catalog of all wiki pages, grouped by type. Updated on every ingest.
 - [[concepts/database-complexity]] - Database Complexity (weighted design/code score, how to read it)
 - [[concepts/design-similarity]] - Design Similarity (clusters, template candidates, complexity corrector)
 - [[concepts/compatibility-ruleset-routing]] - Bind the target ruleset before using the shared remediation workflow
+- [[concepts/insights-and-rulesets]] - Insights and rulesets: how iDNA flags code patterns (patterns, topics, the 9 shipped rulesets, enabled, identical detections and how to count them)
+- [[concepts/shipped-insight-catalog]] - Shipped insight catalog: "does iDNA already detect X in our code?" (e.g. hardcoded IP addresses, ODBC connections, OLE automation) - every shipped ruleset and insight
 - [[concepts/notes-64bit-remediation-profile]] - Bound workflow profile for Notes 64-bit remediation
 - [[concepts/nomad-web-mobile-remediation-profile]] - Bound workflow profile for Nomad Web/Mobile remediation
 - [[concepts/notes-64bit-findings-taxonomy]] - Compact classification of Notes 64-bit finding types
@@ -48,6 +50,9 @@ Catalog of all wiki pages, grouped by type. Updated on every ingest.
 - [[schema/tables/design-insights-summary-notes64bit]] - `cqx_data.design_insights_summary_notes64bit`
 - [[schema/tables/design-insights-summary-nomadwebmobile]] - `cqx_data.design_insights_summary_nomadwebmobile`
 - [[schema/tables/design-insight-overview-byrepset]] - `cqx_data.design_insight_overview_byrepset` (finding detail, one row per occurrence; masked rows on trial)
+- [[schema/tables/design-insight]] - `cqx_data.design_insight` (live insight catalog: name, severity, custom)
+- [[schema/tables/design-insight-ruleset]] - `cqx_data.design_insight_ruleset` (rulesets; enabled = evaluated)
+- [[schema/tables/design-insight-ruleset-member]] - `cqx_data.design_insight_ruleset_member` (which insight belongs to which ruleset; newer iDNA builds)
 - [[schema/tables/code-source]] - `cqx_data.code_source` (code block source text)
 - [[schema/tables/department]] - `cqx_data.department` (org hierarchy)
 - [[schema/tables/location]] - `cqx_data.location` (location hierarchy)
@@ -121,6 +126,7 @@ Catalog of all wiki pages, grouped by type. Updated on every ingest.
 - [[howtos/analyze-usage-by-department]] - Analyze application usage by department
 - [[howtos/list-master-templates]] - List master templates in the environment
 - [[howtos/use-source-code-remediation-mcp-tools]] - Route remediation questions to the MCP tool surface
+- [[howtos/find-code-patterns]] - "Do we have X in our code?" - existing insights first, where their results are, Code Search when none fits
 - [[howtos/use-application-lifecycle-mcp-tools]] - Route lifecycle / consolidation questions to the MCP tool surface
 - [[howtos/attribute-usage-aggregate-only]] - Strict-mode attribution: department/location rank without per-user detail
 - [[howtos/identify-content-creators-and-consumers]] - Permissive-mode attribution: per-user heavy-user detection and content-creator vs consumer split

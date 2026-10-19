@@ -22,7 +22,7 @@ related:
   - howtos/find-app-lifecycle-dashboards
 requires_capability: none
 source: mcp-server Phase 2 tool surface and remediation playbook mapping; trial-masking surfacing per the 2026-08 MCP build (docs/plans/completed/trial-masking-mcp-consumption); tool output vs. the ETL template-lineage revision (ETL ADRs 0002-0004) checked against the tool code and live data 2026-09-24; HCL-origin follow-up (ETL ADRs 0006 / 0007; docs/plans/completed/hcl-origin-followup) checked against the tool code and live data 2026-10-01; element pair = the code inside the document per ETL ADR 0008 (2026-10-01); Java file names and host events per ETL ADR 0010, the one-block routing line and the get_code_block notes (docs/plans/completed/code-block-eval-fixes) 2026-10-02; the trial flag, trial notes, masked rows and units (docs/plans/active/mcp-trial-awareness; ETL trial-findings-surface hand-off, final contract) checked against the tool code 2026-10-05; the not-ready split by route (`readiness.not_ready_by_route`) per docs/plans/active/plan-overview-route-split (2026-10-06); the "Insights Overview Exclude" pointer per ETL ADR 0012 (2026-10-07)
-last_reviewed: 2026-10-12
+last_reviewed: 2026-10-18
 ---
 
 # Use the source-code-remediation MCP tools
@@ -45,7 +45,7 @@ Use `execute_sql` only when:
 ## Required inputs
 
 - target resolved via [[concepts/compatibility-ruleset-routing]]
-- either a known target shortcut such as Notes 64-bit / Nomad Web/Mobile, or an explicit `ruleset_id`
+- either a known target shortcut such as Notes 64-bit / Nomad Web/Mobile, or an explicit `ruleset_id` - it works for every ruleset, also outside the two targets (the shipped ids are in [[howtos/find-code-patterns]]); the tools aggregate per ruleset and have no per-insight filter; `findings_for_app` rows carry `finding_name`, which equals the insight name in [[concepts/shipped-insight-catalog]]
 - application identifier (`replica_id`) or `code_hash_id` where relevant
 
 ## Routing map

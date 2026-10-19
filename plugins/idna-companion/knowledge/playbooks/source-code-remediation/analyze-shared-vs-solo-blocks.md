@@ -16,7 +16,7 @@ related:
   - concepts/code-block
 requires_capability: none
 source: modernization-vector-integration phase-2 plan §4.10; worked reconciliation example verified live 2026-07-09; the hcl_owned blocks and the n_hcl_current identity term (ETL ADR 0006) 2026-10-01
-last_reviewed: 2026-10-05
+last_reviewed: 2026-10-18
 ---
 
 # Analyze Shared vs. Solo Code Blocks
@@ -47,7 +47,7 @@ Turn per-app shared/solo counts into a concrete authored-once/apply-elsewhere wo
 
 `find_code_block_usage` reach is computed from raw findings; the modernization precompute additionally applies configured false-positive suppressions. With suppressions configured, the tool's reach is an **upper bound** — the ignore-aware numbers are the worklist's `reach` and the vector counts themselves.
 
-## Manual fallback — custom rulesets / what-if analysis
+## Manual fallback — rulesets outside the precompute (shipped or custom) / what-if analysis
 
 For rulesets outside the modernization precompute (or privileged ad-hoc reconciliation), the per-block reach query runs against `design_insight_overview_byrepset` with a `ruleset_id` predicate — see the three-way source choice in [[howtos/query-modernization-views]]. Do not use `code_element` for reconciliation (instance grain, no ruleset scoping); it answers "show me the code", not "how shared is this".
 

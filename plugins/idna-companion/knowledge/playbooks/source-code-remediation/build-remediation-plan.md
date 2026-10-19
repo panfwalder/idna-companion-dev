@@ -28,7 +28,7 @@ related:
   - concepts/database-complexity
 requires_capability: none
 source: CoCo_Playbook_64bit_Migration_Consulting.docx (manual method) + modernization-vector-integration phase-2 rewrite (consume-first); hcl_owned in every session kind (ETL ADR 0006) 2026-10-01
-last_reviewed: 2026-10-01
+last_reviewed: 2026-10-18
 ---
 
 # Build the Source-Code Remediation Plan
@@ -84,7 +84,7 @@ Effort ranges need consulting calibration; provide the framework, ask for assump
 - stated assumptions and unknowns
 - recommendation to re-scan after fixes
 
-## Manual fallback — custom rulesets / what-if analysis
+## Manual fallback — rulesets outside the precompute (shipped or custom) / what-if analysis
 
 For rulesets outside the precompute, the manual category-ordered method applies (A/B/C/D — mapping on [[concepts/remediation-category]]), with the ranking input query (privileged sessions):
 
