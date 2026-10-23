@@ -12,9 +12,10 @@ related:
   - concepts/lifecycle-vector
   - concepts/usage-time-windows
   - howtos/find-usage-dashboards
+  - concepts/remediation-classification
 requires_capability: none
-source: iDNA Usage Category KPIs dashboard (metabase/dashboard/10000010)
-last_reviewed: 2026-10-09
+source: iDNA Usage Category KPIs dashboard (metabase/dashboard/10000010); ETL dda_dm/scheduled/230 (percentile assignment) and 280 (usage_category_simplified)
+last_reviewed: 2026-10-23
 ---
 
 # Usage Tier
@@ -24,6 +25,8 @@ last_reviewed: 2026-10-09
 iDNA assigns each replica set a **usage tier** — a qualitative grade of how heavily the application is being used over a given time window. Tiers are computed from access-day counts (see [[concepts/user-access-days]]) bucketed into six labels.
 
 The bucket cut-offs are **not fixed numbers**: iDNA derives them from UAD **percentiles within each customer's own environment**, so "High" for a 50k-user estate is a very different access-day count than "High" for a 100-user estate. There is therefore no static threshold table — the per-category reference values for a given environment are shown on the **Usage Category KPIs** dashboard (Usage › Usage Category KPIs, `{{idna_server}}/#/dashboard/10000010`).
+
+**How a set gets its label.** For each horizon iDNA takes five reference values: the 97th, 90th, 80th, 65th and 40th percentile of UAD over the focus replica sets with any use in all recorded history. Each replica set gets the label of the reference value its UAD is nearest to (Very High, High, Medium, Low, Very Low in that order; a tie goes to the lower label); 0 UAD is No Usage. If all five values are 0, every set with use in that horizon is Very Low. On a thinly used estate most of those focus sets have 0 UAD in a short horizon, so the lower reference values are all 0 and the labels collapse. Example: with the 97th percentile at 50 UAD and the others at 0, every set above 25 UAD is Very High and every set from 1 to 25 is Very Low; High, Medium and Low do not occur. A jump such as 27 UAD Very High next to 22 UAD Very Low is this rule, not an error.
 
 ## The six tier labels
 
@@ -58,9 +61,9 @@ When a playbook or recommendation refers to *"the usage tier"* or *"Medium usage
 
 This convention was set when the tier computation shifted from the older simplified field to the 90-day-window-based label.
 
-## Continuity note: `usage_category_simplified`
+## `usage_category_simplified` - the classification's usage input
 
-An older `usage_category_simplified` column may still appear in the schema for backward compatibility with existing queries and dashboards. New work should rely on `usage_last90d` instead.
+`usage_category_simplified` is a three-band simplification of `usage_all_time`: `High / Very High`, `Low / Medium` (also when the set had any use in the last 90 days) and `No / Low`. It is not a tier for usage questions - use `usage_last90d` for those - but it is the usage input of [[concepts/remediation-classification]], so read it (or `usage_all_time`) when explaining why an application is, for example, Business Critical with little recent use.
 
 ## Common patterns
 
@@ -78,4 +81,4 @@ An older `usage_category_simplified` column may still appear in the schema for b
 
 ## Sources
 
-iDNA usage-tier computation (UAD percentiles, computed per environment). The **Usage Category KPIs** dashboard (Usage › Usage Category KPIs, `{{idna_server}}/#/dashboard/10000010`) is the reference surface for the actual per-category values; cut-offs are environment-relative, so no static threshold table exists.
+iDNA usage-tier computation (UAD percentiles, computed per environment): ETL `dda_dm/scheduled/230_dda_dm.dbusage_summary_by_replica_set.update.sql` (the percentile reference values and the nearest-value assignment) and `280_dda_dm.ai_replicaset_catalog.update.sql` (`usage_category_simplified`); the collapse observed on the panagenda test instance, 2026-10-23. The **Usage Category KPIs** dashboard (Usage › Usage Category KPIs, `{{idna_server}}/#/dashboard/10000010`) is the reference surface for the actual per-category values; cut-offs are environment-relative, so no static threshold table exists.

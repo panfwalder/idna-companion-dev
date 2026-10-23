@@ -13,16 +13,19 @@ related:
   - playbooks/application-lifecycle/lifecycle-routing
   - concepts/lifecycle-vector
   - howtos/find-overview-dashboards
+  - concepts/usage-tier
 requires_capability: none
-source: CoCo Copilot server/knowledge/foundation_domain_knowledge.md + CoCo_Playbook_64bit_Migration_Consulting.docx + Remediation Overview dashboard ({{idna_server}}/metabase/dashboard/10000005) and product-owner input
-last_reviewed: 2026-10-09
+source: CoCo Copilot server/knowledge/foundation_domain_knowledge.md + CoCo_Playbook_64bit_Migration_Consulting.docx + Remediation Overview dashboard ({{idna_server}}/metabase/dashboard/10000005) and product-owner input; usage input per ETL dda_dm/scheduled/280_dda_dm.ai_replicaset_catalog.update.sql (usage_display_index from usage_all_time, the classification CASE), checked on the panagenda test instance 2026-10-23
+last_reviewed: 2026-10-23
 ---
 
 # Remediation Classification
 
 ## What it is
 
-iDNA's application-level triage signal. The column `remediation_classification` on `cqx_data.replica_set` assigns each application a category from a rough combination of two dimensions: **user activity** and **design complexity** (`design_complexity_score`).
+iDNA's application-level triage signal. The column `remediation_classification` on `cqx_data.replica_set` assigns each application a category from a rough combination of two dimensions: **user activity** and **design complexity** (the tier iDNA derives from `design_complexity_score`).
+
+User activity here is **all-time** usage, not the 90-day tier: the classification reads the three-band `usage_category_simplified` (`High / Very High`, `Low / Medium`, `No / Low`), which iDNA derives from `usage_all_time`, except that any use in the last 90 days lifts a set into `Low / Medium` ([[concepts/usage-tier]]). An application can therefore be `"Business Critical"` and have had no use in the last 90 days; compare `usage_last90d` before calling it active. The classification is set for focus replica sets only (NULL otherwise).
 
 It is surfaced to customers via the Remediation Overview dashboard (Overview › Remediation Overview, `{{idna_server}}/#/dashboard/10000005`), where applications are plotted on user activity (x) against design complexity (y). The intent is to give a customer facing a blank page a starting point for triage — not a definitive judgement. Every value here is a rough estimation.
 
@@ -36,8 +39,8 @@ Applications flagged as Consolidation Potential are strong candidates for retire
 
 ## Secondary classifications
 
-- **`"Business Critical"`** (usage ≥ High, complexity ≥ Medium) - applications with at least high usage and at least medium complexity often turn out to be integral parts of the customer's business processes.
-- **`"Quick Win Candidate"`** (usage ≥ Low, complexity ≤ Low) - candidates for re-development (modernize / migrate) to reach a broad user base: they have usage, and comparatively little effort should be required to re-develop them.
+- **`"Business Critical"`** (all-time usage ≥ High, complexity ≥ Medium) - applications with at least high usage and at least medium complexity often turn out to be integral parts of the customer's business processes.
+- **`"Quick Win Candidate"`** (all-time usage ≥ Low or any use in the last 90 days, complexity ≤ Low) - candidates for re-development (modernize / migrate) to reach a broad user base: they have usage, and comparatively little effort should be required to re-develop them.
 
 ## Other values (mention only)
 

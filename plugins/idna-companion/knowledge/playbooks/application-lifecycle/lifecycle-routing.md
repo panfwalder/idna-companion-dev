@@ -18,10 +18,11 @@ related:
   - concepts/focus-db
   - concepts/remediation-classification
   - concepts/document-age-timestamps
+  - concepts/data-freshness
   - schema/tables/replica-set
 requires_capability: none
 source:
-last_reviewed: 2026-05-21
+last_reviewed: 2026-10-23
 ---
 
 # Application Lifecycle Playbook Overview
@@ -34,11 +35,11 @@ Use when the customer arrives with a lifecycle question — phrases like *"what 
 
 ## Data-currency preflight
 
-Lifecycle bucketing depends on iDNA's usage tiers and `remediation_classification` being current. **Before walking either funnel, check `usage_data_freshness` from `get_idna_session`.** If the most recent `last_accessed` date is older than 7 days, raise this warning to the consultant:
+Lifecycle bucketing depends on iDNA's usage tiers and `remediation_classification` being current. **Before walking either funnel, check `usage_data_freshness` from `get_idna_session`.** A value one to two days behind today is the normal ETL lag ([[concepts/data-freshness]]) and needs no comment. If the most recent `last_accessed` date is older than 7 days, raise this warning to the consultant:
 
-> *iDNA usage data has not been updated in the last 7 days. Lifecycle bucketing depends on current collection data — recommendations may be invalidated. Verify iDNA collection status before proceeding.*
+> *The newest usage activity in iDNA is more than 7 days old (<usage_data_freshness>): either no new data has been processed or no activity was recorded since. Lifecycle bucketing depends on current collection data — recommendations may be invalidated. Verify iDNA collection and ETL status before proceeding.*
 
-**If `usage_data_freshness` is `null`** (no usage data has landed yet — typically a freshly-onboarded tenant), treat it the same as the >7-days warning: lifecycle bucketing depends on data that does not exist yet and recommendations are not trustworthy. Verify iDNA collection has run before proceeding.
+**If `usage_data_freshness` is `null`** (no `last_accessed` date at all — no usage data has landed yet, typically a freshly-onboarded tenant, or on a trial licence none of the selected applications has recorded use), treat it the same as the >7-days warning: lifecycle bucketing depends on data that does not exist yet and recommendations are not trustworthy. Verify iDNA collection has run before proceeding.
 
 The content-age scan-freshness gate in [[playbooks/application-lifecycle/sunset-funnel]] catches one specific staleness case (sunset/delete decisions). This preflight catches the broader case where the bucket partition itself is based on stale inputs.
 

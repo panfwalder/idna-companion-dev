@@ -21,9 +21,10 @@ related:
   - schema/tables/code-block-hcl-origin
   - howtos/find-app-lifecycle-dashboards
   - howtos/navigate-code
+  - howtos/handle-query-timeouts
 requires_capability: none
 source: mcp-server Phase 2 tool surface and remediation playbook mapping; trial-masking surfacing per the 2026-08 MCP build (docs/plans/completed/trial-masking-mcp-consumption); tool output vs. the ETL template-lineage revision (ETL ADRs 0002-0004) checked against the tool code and live data 2026-09-24; HCL-origin follow-up (ETL ADRs 0006 / 0007; docs/plans/completed/hcl-origin-followup) checked against the tool code and live data 2026-10-01; element pair = the code inside the document per ETL ADR 0008 (2026-10-01); Java file names and host events per ETL ADR 0010, the one-block routing line and the get_code_block notes (docs/plans/completed/code-block-eval-fixes) 2026-10-02; the trial flag, trial notes, masked rows and units (docs/plans/active/mcp-trial-awareness; ETL trial-findings-surface hand-off, final contract) checked against the tool code 2026-10-05; the not-ready split by route (`readiness.not_ready_by_route`) per docs/plans/active/plan-overview-route-split (2026-10-06); the "Insights Overview Exclude" pointer per ETL ADR 0012 (2026-10-07); code navigation and `search_code` routing per docs/plans/active/code-navigation (2026-10-22)
-last_reviewed: 2026-10-22
+last_reviewed: 2026-10-23
 ---
 
 # Use the source-code-remediation MCP tools
@@ -134,7 +135,7 @@ Readiness questions route to the modernization tools, volume/severity questions 
 - `most_affected_apps` is the named application working set.
 - `findings_for_app` is the bridge from application scope into concrete finding rows.
 - `prioritize_findings` is the planning lens inside one application.
-- `search_code` (MCP builds with the tool) covers the analysed code of the licensed databases whose design iDNA could parse, focus and non-focus - state the scope in every answer. Zero rows means no literal reference in that code: not proof of absence, and not a statement about findings. For a focus application read the design-reference row. Its holder counts are not the finding tools' reach: `find_code_block_usage` and `get_code_block`'s `affected_applications` count finding-bearing code only. On a build without the tool, a restricted session cannot search code through MCP - Custom Insights › Code Search, or the SQL in [[howtos/navigate-code]] for the customer to run.
+- `search_code` (MCP builds with the tool) covers the analysed code of the licensed databases whose design iDNA could parse; pass `focus_only: true` unless the user asked for all databases or named the application or template (then its `replicaid` alone; the tool's default includes non-focus ones) - state the scope in every answer, and when a Focus-only search finds nothing, or no definition, say so and offer the wider search ([[howtos/navigate-code]]). Zero rows means no literal reference in the searched code (Focus unless widened; the tool's note names all analysed code either way): not proof of absence, and not a statement about findings. For a focus application read the design-reference row. Its holder counts are not the finding tools' reach: `find_code_block_usage` and `get_code_block`'s `affected_applications` count finding-bearing code only. On a build without the tool, a restricted session cannot search code through MCP - Custom Insights › Code Search, or the SQL in [[howtos/navigate-code]] for the customer to run.
 - `get_code_block` and `find_code_block_usage` are the shared-code drilldown pair. Ruleset-bound `find_code_block_usage` reach is raw-finding reach: an upper bound when FP suppressions are configured — the ignore-aware numbers are `modernization_worklist.reach` and the vector counts.
   - **Shared or copied:** identical code in several apps is shared through one source only when an estate-operated master is shown to contain this exact block (the target-bound worklist's `n_masters_containing` / `master_targets`, for_app's coverage); otherwise plan it as copies, fixed per copy or authored once in the session named by `scope` / `authored_in`. Say which case applies ([[concepts/code-block]]).
   - From the 2026-10 MCP build `get_code_block` also returns `hcl_in_current`, `hcl_origin` (`hcl_in_current` true: current HCL code, the HCL note fires; false with an "Older HCL ..." origin: older-only HCL code, work - compare with the current HCL version before hand-fixing; false with a NULL origin: not shipped HCL code; both NULL only when the origin view is unavailable, which a note says) and `affected_kept_applications`, with an HCL note (current HCL code: no customer code fix to author; "maintained by HCL" only for a covered `persists_hcl_owned` lineage occurrence, a verbatim copy otherwise) and, for a block in several apps, a provenance note (copies, or "not proof of one shared source"; `downstream_templates` counts inherited OR similar templates). Relay both; `affected_applications` spans every ruleset and lifecycle state, so sunset carriers are retirement candidates, not fix targets.
@@ -148,7 +149,7 @@ Readiness questions route to the modernization tools, volume/severity questions 
 
 ## Fallback rule
 
-If the MCP server is unavailable, fall back to the wiki's documented SQL patterns in the playbooks and schema pages. The playbooks still define the right sequence even when execution falls back to SQL.
+If the MCP server is unavailable, fall back to the wiki's documented SQL patterns in the playbooks and schema pages. The playbooks still define the right sequence even when execution falls back to SQL. A `TIMEOUT` is not unavailability: [[howtos/handle-query-timeouts]].
 
 ## Sources
 

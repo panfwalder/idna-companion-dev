@@ -32,8 +32,8 @@ related:
   - schema/tables/repset-activity-summary-per-user
   - howtos/identify-content-creators-and-consumers
 requires_capability: none
-source: docs/reference/cqx_data_schema_enriched_all_tables.md; the declared-link gloss per code-block-eval-fixes Part E / PE-4 (option b) and mcp-trial-awareness EX-11, 2026-10-05; `design_insights_score` NULL cases per ETL ADR 0012 (2026-10-07)
-last_reviewed: 2026-10-22
+source: docs/reference/cqx_data_schema_enriched_all_tables.md; the declared-link gloss per code-block-eval-fixes Part E / PE-4 (option b) and mcp-trial-awareness EX-11, 2026-10-05; `design_insights_score` NULL cases per ETL ADR 0012 (2026-10-07); `usage_category_simplified` per ETL dda_dm/scheduled/280 (2026-10-23)
+last_reviewed: 2026-10-23
 ---
 
 # cqx_data.replica_set
@@ -53,7 +53,7 @@ One row per replica set, i.e. one row per distinct application in the environmen
 | `is_focus_db` | boolean | iDNA Focus flag. Default scope filter. See [[concepts/focus-db]]. |
 | `replicas_count` | integer | Number of database instances in the replica set. |
 | `server_names` | text[] | Servers hosting replicas. |
-| `usage_category_simplified` | text | Pre-calculated usage tier (Very High to Very Low). |
+| `usage_category_simplified` | text | Three-band simplification of `usage_all_time`: `High / Very High`, `Low / Medium` (also any use in the last 90 days), `No / Low`. The usage input of `remediation_classification`; for usage questions use `usage_last90d`. See [[concepts/usage-tier]]. |
 | `usage_last7d` | text | Pre-calculated usage tier (Very High to Very Low) in the last 7 days. |
 | `usage_last30d` | text | Pre-calculated usage tier (Very High to Very Low) in the last 30 days. |
 | `usage_last90d` | text | Pre-calculated usage tier (Very High to Very Low) in the last 90 days. |

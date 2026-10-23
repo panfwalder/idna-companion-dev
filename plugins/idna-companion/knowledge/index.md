@@ -35,6 +35,7 @@ Catalog of all wiki pages, grouped by type. Updated on every ingest.
 - [[concepts/nomad-web-mobile-compatibility]] - Nomad Web/Mobile compatibility
 - [[concepts/regulatory-usage-constraints]] - Strict vs permissive usage analysis: AI Act, works council, retention
 - [[concepts/usage-time-windows]] - Canonical buckets vs custom windows: the three-rung ladder, explicit-window rule, comparability guard
+- [[concepts/data-freshness]] - Data freshness: "why is the latest data from two days ago?" — nightly 18:30 ETL processes the previous full day; how to read usage_data_freshness and the 1–2 day lag
 
 ## Schema
 
@@ -130,6 +131,7 @@ Catalog of all wiki pages, grouped by type. Updated on every ingest.
 - [[howtos/use-source-code-remediation-mcp-tools]] - Route remediation questions to the MCP tool surface
 - [[howtos/find-code-patterns]] - "Do we have X in our code?" - existing insights first, where their results are, Code Search when none fits
 - [[howtos/navigate-code]] - Read a design element's code, find who uses a library or function, tell clean code from missing code
+- [[howtos/handle-query-timeouts]] - A query timed out: what the signal means, narrow first, DataMiner for long queries, client and server limits
 - [[howtos/use-application-lifecycle-mcp-tools]] - Route lifecycle / consolidation questions to the MCP tool surface
 - [[howtos/attribute-usage-aggregate-only]] - Strict-mode attribution: department/location rank without per-user detail
 - [[howtos/identify-content-creators-and-consumers]] - Permissive-mode attribution: per-user heavy-user detection and content-creator vs consumer split

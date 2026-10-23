@@ -10,6 +10,7 @@ related:
   - howtos/navigate-code
   - howtos/query-modernization-views
   - schema/topics/trial-license-masking
+  - howtos/handle-query-timeouts
 requires_capability: none
 source: docs/reference/cqx_data_schema_enriched_all_tables.md; ETL cqx_data_ifa 010 view definition; columns, path, speed and trial scope verified live 2026-10-19 / 2026-10-21 (docs/plans/active/code-navigation)
 last_reviewed: 2026-10-22

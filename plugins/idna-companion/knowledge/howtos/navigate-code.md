@@ -14,9 +14,10 @@ related:
   - howtos/find-design-dashboards
   - schema/topics/trial-license-masking
   - schema/topics/insights-overview-exclude
+  - howtos/handle-query-timeouts
 requires_capability: none
 source: cqx_data code views and the MCP tools, recipes measured through execute_sql on the panagenda test instance (2026-10-21); search_code contract per docs/plans/active/mcp-code-search (handover 2026-10-21); docs/plans/active/code-navigation
-last_reviewed: 2026-10-22
+last_reviewed: 2026-10-23
 ---
 
 # Navigate the analysed code
@@ -39,13 +40,13 @@ Match a design document or element by its whole key, case-insensitively and lite
 
 ### Scope
 
-Code questions - where code is, who references it, where something is defined - search all analysed databases, focus and non-focus, because a library often sits only in templates or other non-focus databases. Every recipe returns `is_focus_db`; state the scope and mark which results are Focus. Usage, lifecycle and modernization questions keep the Focus default.
+Code questions - where code is, who references it, where something is defined - search the Focus applications by default, like every other question; include non-focus databases (templates and other databases outside Focus) only when the user asks for them. An application or template the user names is searched as named (its `replicaid`, without `focus_only`), focus or not. State the scope in every answer. A library or a definition often sits only in templates or other non-focus databases: when a Focus-only search finds nothing, or callers but no definition after the text fallback ("Where a function is defined" below - a LotusScript `Use` loads the library from the caller's own database, so a missing definition there is more often the key form than the scope), say that the search covered Focus applications only and offer the wider search (`AskUserQuestion`); do not widen on your own. A zero-row `search_code` pattern search whose note counts blocks matched "before the scope filters" has matches outside Focus; say so when offering the wider search.
 
 ## Procedure
 
-1. **Bind the question:** one application (its `replicaid`; it can have several instances, and only focus replica sets have a design reference) or the estate - all analysed databases, focus and non-focus.
+1. **Bind the question:** one application (its `replicaid`; it can have several instances, and only focus replica sets have a design reference) or the estate - the Focus applications by default; all analysed databases, focus and non-focus, when the user asks.
 
-2. **Privileged session (or SQL for the customer to run).** With `search_code` (MCP builds with the tool), Q-2 and Q-3 are one call each: `design_document` / `code_element` for Q-2, `pattern` for Q-3; the remaining entries of a row come from its entries request (`database_id` + `code_hash`). Q-1..Q-4 stay for what the tool does not return (an application's full `code_text`, the `named_path` drill-down) and for the customer to run.
+2. **Privileged session (or SQL for the customer to run).** With `search_code` (MCP builds with the tool), Q-2 and Q-3 are one call each: `design_document` / `code_element` for Q-2, `pattern` for Q-3, with `focus_only: true` unless the user asked for all databases or named the application or template (then its `replicaid` alone; the tool's own default covers focus and non-focus); the remaining entries of a row come from its entries request (`database_id` + `code_hash`). Q-1..Q-4 stay for what the tool does not return (an application's full `code_text`, the `named_path` drill-down) and for the customer to run.
 
    - **Q-1** code of one design document in one application, every instance, the design reference first:
 
@@ -108,11 +109,13 @@ Code questions - where code is, who references it, where something is defined - 
          d.is_focus_db,
          d.server_name,
          d.file_name
+     HAVING
+         bool_or(d.is_focus_db)
      ORDER BY
          d.title;
      ```
 
-     For one function or event: `lower(e->>'code_element') = lower('code[@event=''<FunctionName>'']')` inside the `EXISTS`; for both, both conditions in the same `EXISTS` (the same entry). If it exceeds the tool's time limit, narrow to one application (Q-1).
+     For one function or event: `lower(e->>'code_element') = lower('code[@event=''<FunctionName>'']')` inside the `EXISTS`; for both, both conditions in the same `EXISTS` (the same entry). If it exceeds the tool's time limit, narrow to one application (Q-1); the other routes are in [[howtos/handle-query-timeouts]].
 
    - **Q-3** who uses a library or calls a function, across the estate - two calls.
 
@@ -150,17 +153,18 @@ Code questions - where code is, who references it, where something is defined - 
          cqx_data.database d ON d.database_id = ces.database_id
      WHERE
          s.code_hash IN ('<code_hash>', '<code_hash>')
+         AND d.is_focus_db
      ORDER BY
          d.title,
          d.server_name,
          d.file_name;
      ```
 
-     One row per database instance and block. Use step 2's `code_hash_id` (the current one) for `get_code_block`. A hash from step 1 with no row in step 2 changed or disappeared in between (a nightly run): run step 1 again. `first_entries` holds up to five summary entries; when `n_entries` is larger, list the rest with the unnest pattern on [[schema/tables/code-element-summary]], filtered by that row's `database_id` and `code_hash_id`. Never select the whole `code_elements` array in an estate-wide search: one row can hold thousands of entries.
+     One row per database instance and block. Use step 2's `code_hash_id` (the current one) for `get_code_block`. With the Focus line, a hash from step 1 without a row in step 2 usually sits only in non-focus databases: if no hash has a row, Focus found nothing - say so and offer the wider search (step 2 without the Focus line). Without the Focus line, a missing hash changed or disappeared in between (a nightly run): run step 1 again. No hash from step 1 means no literal reference in any analysed database - there is no wider search to offer. `first_entries` holds up to five summary entries; when `n_entries` is larger, list the rest with the unnest pattern on [[schema/tables/code-element-summary]], filtered by that row's `database_id` and `code_hash_id`. Never select the whole `code_elements` array in an estate-wide search: one row can hold thousands of entries.
 
-     Step 1 returns at most the tool's row limit: when it reports truncation, count first (`SELECT count(*)` with the same `WHERE`) and narrow the pattern before listing. Do not fold step 1 into step 2 as a subquery or a CTE: through `execute_sql` that form is several times slower and can exceed the tool's time limit. For a function: `WHERE code_text ILIKE '%<FunctionName>(%'`; a function without parameters is called without parentheses (`x=<FunctionName>`), so search the bare name as well (with `search_code`, mode `word`) - a zero result for `<FunctionName>(` alone does not mean no caller. Joining `code_source` to `code_element_summary` without the hash list, or searching `code_element` across the estate, is slower still.
+     Step 1 returns at most the tool's row limit: when it reports truncation, count first (`SELECT count(*)` with the same `WHERE`) and narrow the pattern before listing. Do not fold step 1 into step 2 as a subquery or a CTE: through `execute_sql` that form is several times slower and can exceed the tool's time limit ([[howtos/handle-query-timeouts]]). For a function: `WHERE code_text ILIKE '%<FunctionName>(%'`; a function without parameters is called without parentheses (`x=<FunctionName>`), so search the bare name as well (with `search_code`, mode `word`) - a zero result for `<FunctionName>(` alone does not mean no caller. Joining `code_source` to `code_element_summary` without the hash list, or searching `code_element` across the estate, is slower still.
 
-   - Q-2 and Q-3 return the instance's title, `replicaid`, `server_name` and `file_name` for opening the database in Domino Designer, and `is_focus_db` for the scope. Several rows with one `replicaid` are replicas of one application.
+   - Q-2 (`HAVING bool_or(d.is_focus_db)`) and Q-3 step 2 (`AND d.is_focus_db`) keep the Focus default; drop that filter when the user asks for all analysed databases. In Q-2 keep it as the aggregate in `HAVING`: in `WHERE` - or as a plain `HAVING d.is_focus_db`, which PostgreSQL moves into `WHERE` - it changes the query plan, and the search can exceed the tool's time limit. They return the instance's title, `replicaid`, `server_name` and `file_name` for opening the database in Domino Designer, and `is_focus_db` for the scope. Several rows with one `replicaid` are replicas of one application.
 
    - **Designer link** (optional, full licence): add `LEFT JOIN cqx_data.server srv ON srv.server_id = d.server_id` and select `'notesdesigner://' || srv.host_name || '/' || d.replicaid || '/' || (<entry> ->> 'noteid')` for an entry of `first_entries` (or of the unnested entries). On a trial licence `replicaid` is a pseudonym and the built link does not open; use a finding row's `designer_link` where one exists.
 
@@ -191,14 +195,14 @@ Code questions - where code is, who references it, where something is defined - 
 
 - **An empty finding result is not missing code - and not proof of clean code.** Say "no finding rows were returned by this source and filter". Say "no insight matched" only when all of these hold: the finding source is available for that target (on older trial builds the finding views return nothing although findings exist), the database is in the finding views' scope (a focus replica set's design reference, not flagged "Insights Overview Exclude" ([[schema/topics/insights-overview-exclude]]), inside the parsed set), the ruleset is enabled, and the name is a real name, not a trial alias. Whether the code is stored is a separate question: Q-1 / Q-2 answer it either way. Never say "iDNA does not store it".
 - **Element versus mention.** A text search (Q-3) returns every block that mentions the name - the callers' `Use` lines and calls included. The element itself is found by document or element name (Q-1, Q-2).
-- **Missing from Q-1 / Q-2:** no analysed code under that name in the databases whose design iDNA could parse. Check the name form (alias instead of name, apostrophe not doubled, `[n]` for unnamed documents) and all instances before concluding. A licensed database outside that set can still list code locations in `code_element`: run Q-4 with its `database_id`. Such a database has no finding analysis, and its blocks may have no `code_source` row; say so instead of reporting the code as absent.
+- **Missing from Q-1 / Q-2:** no analysed code under that name in the searched databases (Q-2: the Focus applications by default - say so and offer the wider search). Check the name form (alias instead of name, apostrophe not doubled, `[n]` for unnamed documents) and all instances before concluding. A licensed database whose design iDNA could not parse can still list code locations in `code_element`: run Q-4 with its `database_id`. Such a database has no finding analysis, and its blocks may have no `code_source` row; say so instead of reporting the code as absent.
 - **Where a function is defined.** The `code[@event='<name>']` key names subs and functions only on newer ETL builds and only where the function has its own code segment; a method inside a class sits in the class's `declarations` segment, and older builds key code by document or `globals[1]`. No matching key is therefore not proof that no definition exists. With `search_code`, a `code_element` key search that finds no row returns the same "no matching key is not proof" note. Then search the text: Q-3 step 1 with `'%function <name>(%'`, `'%sub <name>(%'`, or `'%<name>%'` for a parameterless sub; with `search_code`, `mode: 'regex'` and a pattern such as `(sub|function|property (get|set|let))\s+<name>\y` (PostgreSQL regex: `\y` is the word boundary; `\b` is a backspace, not a boundary). Read the candidate blocks with `get_code_block`, and tell definitions (`Function` / `Sub` / `Property` + the name) from mentions before naming the document.
-- **Static references only.** A text search finds literal references: which blocks mention a name, which libraries a block declares with `Use`. Calls assembled at run time (`Evaluate`, `Execute`, agent names in strings, `@Command` arguments) are found only where the literal text appears; same-named subs in different libraries are indistinguishable by text. Zero hits means no literal reference in the analysed code of the licensed databases - not "unused".
+- **Static references only.** A text search finds literal references: which blocks mention a name, which libraries a block declares with `Use`. Calls assembled at run time (`Evaluate`, `Execute`, agent names in strings, `@Command` arguments) are found only where the literal text appears; same-named subs in different libraries are indistinguishable by text. Zero hits means no literal reference in the searched code (the Focus applications unless the user asked for all databases) - not "unused".
 - **Search patterns:** `code_text` keeps case but drops comments, indentation and spaces around punctuation and operators: search with `ILIKE` and without those spaces. In `ILIKE`, `%` and `_` are wildcards and `\` escapes: write `\%`, `\_`, `\\` for the literal characters (`search_code` mode `text` takes the pattern literally). Comments cannot be searched.
 - **Where, not how.** `named_path` (Q-4) shows where an element sits in the document (table, row, cell, field, event), not how it looks; visual formatting is not in iDNA's code views.
 - **Units:** Q-2 counts distinct code blocks per database instance; Q-3 lists blocks per database, each with its number of summary entries (`n_entries`: distinct combinations of design document, code element and note - several raw places can share one entry); Q-4 lists every raw code location, so it can show more places than `n_entries`. `search_code` uses the same entries: for a text search its `n_locations` / `first_locations` are all entries of the block in that database (Q-3's `n_entries` / `first_entries`), for a key search only the entries that match the key; its entries request lists every entry of the (database, block); its Focus field is `is_focus`. Name the unit.
-- **Scope:** Q-1..Q-3 cover the analysed code - the licensed databases whose design iDNA could parse, focus and non-focus; `code_element` (Q-4) also covers licensed databases outside that set; finding counts cover focus replica sets. Report the scope and which results are Focus (`is_focus_db`).
-- **Large estates:** if an estate-wide search exceeds the tool's time limit, narrow it to one application (Q-1) or a more specific pattern.
+- **Scope:** the code views hold the analysed code of the licensed databases whose design iDNA could parse, focus and non-focus; `code_element` (Q-4) also covers licensed databases outside that set; finding counts cover focus replica sets. Searches use the Focus applications unless the user asks for all databases; report the scope, and mark which results are Focus (`is_focus_db`) when non-focus databases are included.
+- **Large estates:** if an estate-wide search exceeds the tool's time limit, narrow it to one application (Q-1) or a more specific pattern; the other routes are in [[howtos/handle-query-timeouts]].
 - **The original text:** `code_text` is normalized; see [[schema/tables/code-source]].
 - **Trial:** the trial licence works per database instance. These views show the licensed instances - selected ones, also in an application that is not fully selected, and non-focus databases licensed by rule - with their real title, server, file and code; unlicensed instances are absent. The application's title in `replica_set` can still read `*** Trial License ***` when not all its instances are selected; that is masking at the application level, not an error. `replicaid` is a pseudonym on trial, the same in every view; built Designer links do not open. Masked finding rows keep their aliases: never recover their names through these views ([[schema/topics/trial-license-masking]]).
 

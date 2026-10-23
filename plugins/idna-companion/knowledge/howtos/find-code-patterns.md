@@ -19,7 +19,7 @@ related:
 requires_capability: none
 source: ETL repo dda_ci/080-085 (shipped ruleset ids, 3df3647); MCP finding tools (ruleset_id override verified on the panagenda test instance, 2026-10-18); cqx_data views per ETL ADR 0013; docs/plans/active/insight-catalog/; search_code routing per docs/plans/active/code-navigation (2026-10-22)
 kbase_sources: [portal-insights, portal-custom-insights-manage, portal-databases]
-last_reviewed: 2026-10-22
+last_reviewed: 2026-10-23
 ---
 
 # Find a code pattern in the estate - existing insights first
@@ -30,7 +30,7 @@ last_reviewed: 2026-10-22
 
 ## Approach
 
-First check whether iDNA already detects X with a shipped or custom insight: its findings exist for every analysed application already. Only when no insight fits, search the code (Custom Insights › Code Search) and, if the pattern is worth keeping, save it as a custom insight.
+First check whether iDNA already detects X with a shipped or custom insight: its findings exist for every analysed focus application already. Only when no insight fits, search the code (Custom Insights › Code Search) and, if the pattern is worth keeping, save it as a custom insight.
 
 ## Data needed
 
@@ -49,7 +49,7 @@ First check whether iDNA already detects X with a shipped or custom insight: its
    - Catalog › Databases (`{{idna_server}}/#/catalog`) with the column set of the insight's ruleset.
    - MCP, any profile: `exposure_summary` / `most_affected_apps` with the ruleset's `ruleset_id` (table below) rank applications by ALL insights of that ruleset, not only this one; `findings_for_app` (replica id + `ruleset_id`) lists one application's findings, each with `finding_name` = the insight name.
    - MCP, privileged: per-insight counts with `execute_sql` (below).
-3. **If no insight fits:** MCP, any profile: `search_code` (mode `regex` for an expression; MCP builds with the tool) - see [[howtos/navigate-code]]. In the iDNA UI, or on a build without the tool: test a regular expression in Custom Insights › Code Search (`{{idna_server}}/#/codesearch`). A useful expression can be saved there as a pattern and assigned to a custom insight in a custom ruleset; its findings appear after the next nightly run.
+3. **If no insight fits:** MCP, any profile: `search_code` (mode `regex` for an expression, `focus_only: true` unless the user asks for all databases or names the application; MCP builds with the tool) - see [[howtos/navigate-code]]. In the iDNA UI, or on a build without the tool: test a regular expression in Custom Insights › Code Search (`{{idna_server}}/#/codesearch`). A useful expression can be saved there as a pattern and assigned to a custom insight in a custom ruleset; its findings appear after the next nightly run.
 
 ### Shipped ruleset ids (identical on every iDNA server that ships the ruleset)
 

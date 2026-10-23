@@ -14,7 +14,7 @@ related:
   - howtos/analyze-usage-over-custom-window
 requires_capability: none
 source: user-activity-time-windows plan (2026-07-27), external audit E3-E5; window-coverage fix (2026-08-24)
-last_reviewed: 2026-08-24
+last_reviewed: 2026-10-23
 ---
 
 # Usage over time windows
@@ -68,7 +68,7 @@ Bucket-first redirection remains correct for vague phrasing ("recently",
 
 **Anti-escalation:** questions rung 1 already answers fully must not invoke
 window machinery. "Has anyone used app X since March?" is a recency question —
-`last_access` / `days_since_last_access` answers it in one lookup.
+`last_accessed` / `last_write_access` on `cqx_data.replica_set` answers it in one lookup.
 
 ## The comparability guard
 

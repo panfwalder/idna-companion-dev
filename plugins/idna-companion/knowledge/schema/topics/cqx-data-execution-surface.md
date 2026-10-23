@@ -12,6 +12,7 @@ related:
   - schema/tables/design-insights-summary-nomadwebmobile
   - schema/topics/department-and-location
   - schema/tables/dbviews-used
+  - howtos/handle-query-timeouts
 requires_capability: none
 source: iDNA_Applications_ETL obsidian/code-wiki/architecture/cqx-data.md
 last_reviewed: 2026-06-22

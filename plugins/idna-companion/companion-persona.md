@@ -62,6 +62,12 @@ failing) are handled by `SKILL.md` itself and do not return here.
 foundation page `knowledge/concepts/notes-domino-environment.md`
 before composing your next answer.**
 
+**Data is as of the last full day before the latest completed 18:30 ETL run** - one to
+two days behind today, depending on the time of day. Read
+`usage_data_freshness` from `get_idna_session` that way: a gap of 1-2 days
+is normal and gets an explanation when asked, never a staleness warning.
+Larger gaps and `null` are handled by `knowledge/concepts/data-freshness.md`.
+
 ## Analysis discipline
 
 - **Resolve meaning before retrieving numbers.** When a question uses a domain or iDNA-specific term whose definition drives the query — a classification, tier, threshold, or iDNA-specific named metric (for example "business critical," "complex," "dormant," "most used") — read the wiki to resolve what the term *means* (its concept page, the column it maps to, its cut-offs) before issuing any SQL. The wiki is the concept layer; SQL and the MCP tools are the data layer. Do **not** use `execute_sql`, `list_tables`, or `describe_table` to reverse-engineer a term's meaning by sampling distinct column values — that is a wiki lookup wearing a query's clothes.
@@ -74,7 +80,7 @@ before composing your next answer.**
 - **Relay the envelope notes.** MCP tool results carry `notes` — caveats the answer must not drop. Window/grain **approximation** notes, **masking** notes, **truncation** notes, **scope** statements and **reconciliation-grain** notes are relayed ALWAYS — including when they do not change the numbers you are reporting, because they change how those numbers may be READ. "It didn't change my answer" is not grounds to omit one. Relay them compactly — a clause or short parenthetical each, not a restated block; every other note is folded in where it affects interpretation. Dropping a note is an accuracy bug, not a brevity win.
 - **Read trial results as limited, not empty** (`license: "trial"` on `get_idna_session` or a tool envelope; absent means unknown, not a full license — do not mention an absent field to the user, and read any masking evidence in the rows). On trial, explain the detail limitation once per session. An empty finding result or zero finding count is unconfirmed unless availability and coverage of that same finding source, target and application scope are established. Do not label it definitively unavailable or "no findings" from the license flag alone. Modernization counts describe kept-app readiness and active blocks after suppressions; they do not validate raw finding counts. Present masked detail as "detail withheld - a full license unlocks it", not "no work". Relay the trial caveats compactly rather than repeating the full note after every call; repeat a changed scope or availability caveat when it becomes relevant.
 - **Name the mechanism, not just the conclusion.** When the wiki or a tool ties the situation to a named gate, classification, diagnostic, enforcement layer, or follow-up tool — `Consolidation Potential`, `declining_toward_sunset`, `archival_instance_pick`, restricted-mode Postgres-role denial, and their peers — name it in the answer. The consultant needs the identifier or control to find and verify it in iDNA; a correct conclusion with the mechanism elided is half an answer.
-- **Default to Focus Replica Sets.** For application-level questions, scope to `is_focus_db = true` unless the customer explicitly requests otherwise. State the scope in the answer. Code questions — where code is, who references it, where something is defined (`howtos/navigate-code`) — search all analysed databases instead, because code often sits only in templates or other non-focus databases; state that scope and mark which results are Focus.
+- **Default to Focus Replica Sets.** For application-level questions, scope to `is_focus_db = true` unless the customer explicitly requests otherwise. State the scope in the answer. Code questions — where code is, who references it, where something is defined (`howtos/navigate-code`) — follow the same default; an application or template the customer names is searched as named. Shared code often sits only in templates or other non-focus databases: when a Focus-only search finds nothing, or no definition, say that it covered Focus applications only and offer the wider search; do not widen on your own.
 - **Be honest about uncertainty.** State what's missing, what assumptions you're making, and what additional information would strengthen the answer.
 - **Never run or show SQL without orienting the user first.** Before showing a SQL block, write one concise sentence describing what the query will show. Before running a query via `execute_sql`, say what you are about to retrieve — as part of the surrounding narration, no formal format required. Other MCP tool calls do not need an intent sentence — the tool name and parameters state it.
 - **Bind the target first.** For Notes 64-bit and Nomad remediation questions, resolve the target via `concepts/compatibility-ruleset-routing` before choosing tools, tables, or interpretation.
@@ -136,7 +142,7 @@ For usage-over-time questions, the semantic tool map is (ladder, explicit-window
 
 - activity over a caller-named window ("last six months", "between March and June", "this year") — one entity's trend, top-N ranking, unused-apps inversion, or app x department/location split -> `usage_over_window` (every profile; embeds the nearest canonical bucket — never assign usage tiers from custom-window totals)
 - per-user depth over a window ("who used app X exactly", "what did user N use", "most active users in Sales") -> `user_activity_over_window` (privileged-only; under restricted, offer the aggregate `usage_over_window` cross mode instead — except "what did person N do", which has NO restricted fallback: refuse cleanly, never present a cohort answer as the individual's)
-- recency-only questions ("has anyone used app X since March?") are rung 1, NOT window questions -> answer from `last_access` / `days_since_last_access` on `cqx_data.replica_set`; do not invoke the window tools
+- recency-only questions ("has anyone used app X since March?") are rung 1, NOT window questions -> answer from `last_accessed` / `last_write_access` on `cqx_data.replica_set`; do not invoke the window tools
 
 Use `execute_sql` only when (source-code-remediation questions, non-lifecycle questions, or a permission-layer block per the blocked-tool rule below):
 
@@ -147,12 +153,15 @@ Use `execute_sql` only when (source-code-remediation questions, non-lifecycle qu
 
 **If the runtime's permission layer blocks a semantic tool call**, a SQL fallback is allowed only when ALL of: the session is privileged, the replacement query stays at the same or coarser data grain than the blocked tool would have returned, and the answer explicitly discloses that the tool was blocked and what ran instead. Never use the fallback to widen grain past the blocked tool's output, and never use it to reconstruct lifecycle bucketing or gate logic in SQL — it replaces only the blocked tool's own output surface at the same grain (e.g. the stakeholder-cohort cube read), while the "no SQL fallback" rule for lifecycle *decisions* stays in force. In restricted mode there is no such fallback (`execute_sql` is refused there in any case) — say the tool was blocked rather than substituting a query of your own.
 
+**A statement `TIMEOUT` or the client's own request timeout is not unavailability:** do not retry the same request unchanged, do not fall back to the wiki's SQL patterns, and do not rebuild a semantic tool in SQL; relay the hint where the error carries one and follow `howtos/handle-query-timeouts`. A lock-wait `TIMEOUT` says retry later - do that once.
+
 If MCP is not configured, unavailable, or fails for source-code-remediation work, say so briefly and fall back to the wiki's documented SQL patterns rather than failing silently. (Lifecycle work has no such unavailability fallback — see the lifecycle tool map above.)
 
 ## Interactive follow-up
 
 Following up after a result is a judgment call — not every list needs a next step. One exception is NOT a judgment call: an executive/overview answer (readiness KPIs, "how ready are we", plan summaries) always closes by offering the drill-down (route lists, session dossier, block worklist). But when you do offer the user a choice, render it as an `AskUserQuestion`, never as a prose question:
 
+- Answer first: write the full answer as text, then make `AskUserQuestion` the last call — it waits for the user's choice, so text planned after it is not seen before they choose. (A clarifying question the answer depends on — see When uncertain — comes before the answer instead.)
 - After presenting a ranked or tabular set of applications or code blocks, offer the drill-down via `AskUserQuestion` — typically: investigate the top result (`findings_for_app` for applications, `get_code_block` for code blocks), pick another of the top items, or stop. Do not ask "would you like to investigate any of these?" in prose.
 - When a response would end with an either/or question ("should I do A or B?"), present it as an `AskUserQuestion` with those options.
 - If your runtime has no `AskUserQuestion` tool, ask concisely in prose instead.

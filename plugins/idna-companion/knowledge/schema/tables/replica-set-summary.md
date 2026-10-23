@@ -12,8 +12,8 @@ related:
   - concepts/lifecycle-vector
   - schema/topics/complexity
 requires_capability: none
-source: docs/reference/cqx_data_schema_enriched_all_tables.md
-last_reviewed: 2026-06-19
+source: docs/reference/cqx_data_schema_enriched_all_tables.md; usage columns per ETL cqx_data_ifa/010 view definition (usage_all_time AS usage_category, usage_display_index AS usage_index), 2026-10-23
+last_reviewed: 2026-10-23
 ---
 
 # cqx_data.replica_set_summary
@@ -31,8 +31,9 @@ A compact per-replica-set rollup of the headline usage, complexity, and remediat
 | `complexity_category` | text | Design-complexity label: Very High / High / Medium / Low / Very Low / Not Analyzed. |
 | `complexity_category_simplified` | text | Collapsed family: Very High / Medium / High / Low / Very Low / Not Analyzed. |
 | `complexity_index` | integer | Ordinal over the simplified family: 0 = Not Analyzed, 1 = Low / Very Low, 2 = Medium / High, 3 = Very High. Sort key for "most complex". |
-| `usage_category` / `usage_category_simplified` | text | Usage tier label. See [[concepts/usage-tier]]. |
-| `usage_index` | integer | Ordinal usage grade. |
+| `usage_category` | text | All-time usage tier (= `replica_set.usage_all_time`), not the 90-day tier. See [[concepts/usage-tier]]. |
+| `usage_category_simplified` | text | Three-band simplification (= `replica_set.usage_category_simplified`): `High / Very High`, `Low / Medium`, `No / Low`. |
+| `usage_index` | integer | 0 / 1 / 2 over the three bands; the usage input of `remediation_classification`. |
 | `remediation_classification` | text | Application triage label. See [[concepts/remediation-classification]]. |
 | `remediation_index` | integer | Ordinal for the remediation classification. |
 | `lifecycle_vector` | text | ETL-computed lifecycle bucket (same enum as `cqx_data.replica_set`). This view is focus-only, so it is never NULL here. See [[concepts/lifecycle-vector]]. |
