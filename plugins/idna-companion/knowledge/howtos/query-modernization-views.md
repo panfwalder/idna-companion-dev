@@ -12,12 +12,13 @@ related:
   - concepts/about-modernization-plan
   - schema/tables/design-insight-overview-byrepset
   - schema/tables/code-source
+  - schema/tables/code-element
   - schema/tables/template-ancestry
   - schema/tables/modernization-lineage-dossier
   - schema/tables/modernization-session-steps
 requires_capability: none
 source: modernization-vector-integration plan (verified queries, ifa test instance 2026-07-09/23); template-lineage views and the revised reach identity (ETL ADRs 0002-0004) verified live 2026-09-24; the n_hcl_current identity term (ETL ADR 0006) verified live 2026-09-30; the not-ready split by route (`readiness.not_ready_by_route`) per docs/plans/active/plan-overview-route-split (2026-10-06)
-last_reviewed: 2026-10-06
+last_reviewed: 2026-10-22
 ---
 
 # How to query the modernization views
@@ -98,7 +99,7 @@ WHERE mv.replicaid = '<replicaid>' AND mv.ruleset_id = '<ruleset_id>'
 
 - **`design_insight_overview_byrepset`** (with a `ruleset_id` predicate) — findings at focus-repset grain; this is the vector's reach source *by construction*: `count(DISTINCT replicaid)` per `source_code_hash` reconciles 1:1 with `n_shared_items`/`n_solo_items` — **with one caveat**: the modernization precompute additionally applies the `etl_modernization_ignore_codeblocks` FP-suppression config, which this view does not. Raw-finding reach reconciles exactly when no suppressions are configured; with suppressions it counts dismissed occurrences too — **and the gap is itself reconcilable** since the vector documents every dismissal (`n_dismissed_items`/`dismissed_items`; recipe below).
 - **`find_code_block_usage` (MCP tool)** — the same join, input `code_hash_id`, restricted-profile approved. Pass `target`/`ruleset_id` for grouped per-app rows whose `row_count` IS the per-ruleset focus reach; without it the rows are occurrence-grain across all rulesets (row_count is NOT app reach). Same suppression caveat as above. Grouped rows carry NO design-element context (which form/library/agent holds the block) — when locations matter, pair the grouped call with occurrence mode or `get_code_block`; never present a bare app list as a block's spread.
-- **`code_element` + `code_source`** — raw presence of a hash anywhere in the licensed estate, flagged or not, at **database-instance grain**, with design location (`named_path`) and source text. Answers "show me the code / where exactly does it sit" — **never** use it to reconcile shared/solo (no ruleset scoping, instance grain, presence ≠ finding). Large surface (~9M rows): always filter by hash.
+- **`code_element` + `code_source`** — raw presence of a hash anywhere in the licensed estate, flagged or not, at **database-instance grain**, with design location (`named_path`) and source text. Answers "show me the code / where exactly does it sit" — **never** use it to reconcile shared/solo (no ruleset scoping, instance grain, presence ≠ finding). Large surface: always filter by `database_id` (then by `code_hash`); an estate-wide filter on `code_hash` alone does not finish in time - find the holders first ([[schema/tables/code-element]]).
 
 ## Rule 4b: dismissed non-issues reconcile the suppression gap
 

@@ -9,6 +9,7 @@ related:
   - concepts/insights-and-rulesets
   - howtos/find-design-dashboards
   - howtos/use-source-code-remediation-mcp-tools
+  - howtos/navigate-code
   - schema/tables/design-insight
   - schema/tables/design-insight-ruleset
   - schema/tables/design-insight-ruleset-member
@@ -16,9 +17,9 @@ related:
   - schema/topics/insights-overview-exclude
   - schema/topics/trial-license-masking
 requires_capability: none
-source: ETL repo dda_ci/080-085 (shipped ruleset ids, 3df3647); MCP finding tools (ruleset_id override verified on the panagenda test instance, 2026-10-18); cqx_data views per ETL ADR 0013; docs/plans/active/insight-catalog/
+source: ETL repo dda_ci/080-085 (shipped ruleset ids, 3df3647); MCP finding tools (ruleset_id override verified on the panagenda test instance, 2026-10-18); cqx_data views per ETL ADR 0013; docs/plans/active/insight-catalog/; search_code routing per docs/plans/active/code-navigation (2026-10-22)
 kbase_sources: [portal-insights, portal-custom-insights-manage, portal-databases]
-last_reviewed: 2026-10-18
+last_reviewed: 2026-10-22
 ---
 
 # Find a code pattern in the estate - existing insights first
@@ -48,7 +49,7 @@ First check whether iDNA already detects X with a shipped or custom insight: its
    - Catalog › Databases (`{{idna_server}}/#/catalog`) with the column set of the insight's ruleset.
    - MCP, any profile: `exposure_summary` / `most_affected_apps` with the ruleset's `ruleset_id` (table below) rank applications by ALL insights of that ruleset, not only this one; `findings_for_app` (replica id + `ruleset_id`) lists one application's findings, each with `finding_name` = the insight name.
    - MCP, privileged: per-insight counts with `execute_sql` (below).
-3. **If no insight fits:** test a regular expression in Custom Insights › Code Search (`{{idna_server}}/#/codesearch`). A useful expression can be saved as a pattern and assigned to a custom insight in a custom ruleset; its findings appear after the next nightly run.
+3. **If no insight fits:** MCP, any profile: `search_code` (mode `regex` for an expression; MCP builds with the tool) - see [[howtos/navigate-code]]. In the iDNA UI, or on a build without the tool: test a regular expression in Custom Insights › Code Search (`{{idna_server}}/#/codesearch`). A useful expression can be saved there as a pattern and assigned to a custom insight in a custom ruleset; its findings appear after the next nightly run.
 
 ### Shipped ruleset ids (identical on every iDNA server that ships the ruleset)
 
@@ -128,7 +129,7 @@ Per application: the same filter, `GROUP BY replicaid, title`, ordered by occurr
 - **One detection, one count.** An insight with "Same detection as" in the catalog reports the same code as its twin in another ruleset: filter on one `ruleset_id`, never add the rulesets.
 - **Scope.** `design_insight_overview_byrepset` holds focus replica sets only; say so.
 - **Trial licence.** What the finding rows show depends on the iDNA build: newer builds mask the rows of applications outside the trial selection (aliased names, no Designer links; counts complete, detail withheld), older builds return no finding rows - see [[schema/topics/trial-license-masking]]. Identify applications by `replicaid`.
-- **Zero is not proof.** A pattern finds only the shapes it was written for - Hardcoded IP Addresses, for example, finds an address only directly after a quote, apostrophe, slash or backslash, not one inside longer text; the catalog's "What it flags" says what each insight covers. For a full sweep, test a broader expression in Code Search. Databases flagged "Insights Overview Exclude" carry no findings ([[schema/topics/insights-overview-exclude]]); an insight in no enabled ruleset is not evaluated; values kept outside the code (documents, notes.ini) are not scanned.
+- **Zero is not proof.** A pattern finds only the shapes it was written for - Hardcoded IP Addresses, for example, finds an address only directly after a quote, apostrophe, slash or backslash, not one inside longer text; the catalog's "What it flags" says what each insight covers. For a full sweep, test a broader expression with `search_code` (MCP builds with the tool) or in Code Search. An empty finding result is not missing code: to see whether code exists or who uses it, follow [[howtos/navigate-code]]. Databases flagged "Insights Overview Exclude" carry no findings ([[schema/topics/insights-overview-exclude]]); an insight in no enabled ruleset is not evaluated; values kept outside the code (documents, notes.ini) are not scanned.
 - **Patterns are heuristics.** A finding says the pattern matched; review the code before calling it a defect.
 
 ## Variations

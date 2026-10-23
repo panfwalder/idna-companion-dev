@@ -13,7 +13,7 @@ related:
   - concepts/shipped-insight-catalog
   - howtos/find-code-patterns
 requires_capability: none
-source: Portal and Metabase inventory, iDNA 3.5.0, 2026-09-08
+source: Portal and Metabase inventory, iDNA 3.5.0, 2026-09-08; Code Search scope and detail view checked on the panagenda test instance 2026-10-23 (docs/plans/active/code-navigation G8)
 kbase_sources:
   - metabase-10000019-agent-list-search
   - metabase-10000035-code-search-results-overview
@@ -29,7 +29,7 @@ kbase_sources:
   - portal-insights-findings-by-unique-code-block
   - portal-similarity
   - portal-source-code
-last_reviewed: 2026-10-18
+last_reviewed: 2026-10-23
 ---
 
 # Find the Design and Custom Insights dashboards and pages
@@ -87,7 +87,7 @@ This page covers two Portal sections. The Design section shows the application e
 ### Code Search (Custom Insights)
 
 - **Where:** Custom Insights › Code Search, `{{idna_server}}/#/codesearch`.
-- **What you get:** a search of the source code iDNA collected from the focus databases, as plain text, whole words or a regular expression, with matches listed per code block together with database, design element and matching line. A search expression can be saved as a Custom Insights pattern.
+- **What you get:** a search of the source code iDNA collected from the analysed databases - focus and non-focus - as plain text, whole words or a regular expression, with matches listed per code block together with database, design element and matching line; the detail view shows a block as written, comments included. A search expression can be saved as a Custom Insights pattern.
 - **Fits questions like:** which of our applications use a particular LotusScript class or function? Where does a particular API call appear in our code? Can I check what a search expression matches before saving it as a pattern? Check [[concepts/shipped-insight-catalog]] first: a shipped insight may already detect the pattern.
 
 ### Code Search Results Overview

@@ -21,7 +21,7 @@ related:
   - schema/topics/insights-overview-exclude
 requires_capability: none
 source: docs/reference/cqx_data_schema_enriched_all_tables.md; element pair = the code inside the document per ETL ADR 0008 (2026-10-01); Java file names and host events per ETL ADR 0010 (2026-10-02; live on the panagenda test instance); trial rows per the ETL trial-findings-surface hand-off (ETL ADR 0011, final contract 2026-10-05); the exclusion per ETL ADR 0012 (2026-10-07)
-last_reviewed: 2026-10-07
+last_reviewed: 2026-10-22
 ---
 
 # cqx_data.design_insight_overview_byrepset
@@ -58,7 +58,7 @@ The per-finding detail table for source-code remediation. One row per finding oc
 - `replicaid` -> `cqx_data.replica_set.replicaid`.
 - `insight_id` -> `cqx_data.design_insight.insight_id`.
 - `ruleset_id` -> `cqx_data.design_insight_ruleset.ruleset_id`.
-- `code_hash_id` joins to `cqx_data.code_source.hash_id` for source lookup — a documented join, not an enforced key: on trial a block with no licensed holder (held only by non-selected databases) has no `code_source` row.
+- `code_hash_id` joins to `cqx_data.code_source.hash_id` for source lookup — a documented join, not an enforced key: on trial a block with no licensed holder (held only by unlicensed databases: instances not selected for the trial, mail and orphan databases) has no `code_source` row.
 
 ## Typical use
 

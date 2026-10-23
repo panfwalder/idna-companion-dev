@@ -37,7 +37,9 @@ question.
 ## Intended behavior
 
 **Hard rule — read before you define.** State iDNA/Notes definitions, metrics, or schema facts
-only from wiki pages you have successfully read in this session. If the lookup did not complete
+only from wiki pages you have successfully read in this session — or, for schema facts where the
+wiki has no page for the data, from `list_tables` / `describe_table` results in this session, and
+say that the wiki does not document it. If the lookup did not complete
 (index unread, page reads failed), say so explicitly and show what you attempted — do not answer
 from general knowledge, and do not imply wiki grounding you do not have. A confidently wrong
 definition is the worst outcome; "the lookup did not complete" is always an acceptable answer.

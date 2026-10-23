@@ -12,9 +12,11 @@ related:
   - schema/topics/template-inheritance
   - schema/tables/code-block-hcl-origin
   - schema/tables/modernization-worklist
+  - schema/tables/code-element-summary
+  - howtos/navigate-code
 requires_capability: none
 source: CoCo_Playbook_64bit_Migration_Consulting.docx + CoCo seed material; the shared-vs-copied rule from plan code-block-eval-fixes (D-7, the external audit's EX-3 wording; eval gq-08, 2026-10-02) and the get_code_block notes of the 2026-10 MCP build
-last_reviewed: 2026-10-02
+last_reviewed: 2026-10-22
 ---
 
 # Code Block
@@ -22,6 +24,8 @@ last_reviewed: 2026-10-02
 ## What it is
 
 A unit of source code identified by iDNA via a content hash. The same normalized block may appear in many different applications.
+
+iDNA keeps every analysed block, with or without findings: a block without a finding is stored like any other ([[schema/tables/code-source]]).
 
 ## Why it matters
 
@@ -37,6 +41,8 @@ The same `code_hash_id` in several apps proves identical normalized code; it doe
 
 - finding-level references: [[schema/tables/design-insight-overview-byrepset]]
 - normalized source lookup: [[schema/tables/code-source]]
+- where a block sits (database, design document, element): [[schema/tables/code-element-summary]]
+- reading and tracing code: [[howtos/navigate-code]]
 
 ## Playbook use
 

@@ -53,7 +53,9 @@ Catalog of all wiki pages, grouped by type. Updated on every ingest.
 - [[schema/tables/design-insight]] - `cqx_data.design_insight` (live insight catalog: name, severity, custom)
 - [[schema/tables/design-insight-ruleset]] - `cqx_data.design_insight_ruleset` (rulesets; enabled = evaluated)
 - [[schema/tables/design-insight-ruleset-member]] - `cqx_data.design_insight_ruleset_member` (which insight belongs to which ruleset; newer iDNA builds)
-- [[schema/tables/code-source]] - `cqx_data.code_source` (code block source text)
+- [[schema/tables/code-source]] - `cqx_data.code_source` (every analysed code block, with or without findings; normalized text)
+- [[schema/tables/code-element-summary]] - `cqx_data.code_element_summary` (where each code block sits: database, design document, element)
+- [[schema/tables/code-element]] - `cqx_data.code_element` (code locations with their path inside the document, also outside the parsed set; filter by database)
 - [[schema/tables/department]] - `cqx_data.department` (org hierarchy)
 - [[schema/tables/location]] - `cqx_data.location` (location hierarchy)
 - [[schema/tables/usage-cube-repset-vs-department]] - app x department cube
@@ -127,6 +129,7 @@ Catalog of all wiki pages, grouped by type. Updated on every ingest.
 - [[howtos/list-master-templates]] - List master templates in the environment
 - [[howtos/use-source-code-remediation-mcp-tools]] - Route remediation questions to the MCP tool surface
 - [[howtos/find-code-patterns]] - "Do we have X in our code?" - existing insights first, where their results are, Code Search when none fits
+- [[howtos/navigate-code]] - Read a design element's code, find who uses a library or function, tell clean code from missing code
 - [[howtos/use-application-lifecycle-mcp-tools]] - Route lifecycle / consolidation questions to the MCP tool surface
 - [[howtos/attribute-usage-aggregate-only]] - Strict-mode attribution: department/location rank without per-user detail
 - [[howtos/identify-content-creators-and-consumers]] - Permissive-mode attribution: per-user heavy-user detection and content-creator vs consumer split

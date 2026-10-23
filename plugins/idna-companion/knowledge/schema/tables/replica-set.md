@@ -33,7 +33,7 @@ related:
   - howtos/identify-content-creators-and-consumers
 requires_capability: none
 source: docs/reference/cqx_data_schema_enriched_all_tables.md; the declared-link gloss per code-block-eval-fixes Part E / PE-4 (option b) and mcp-trial-awareness EX-11, 2026-10-05; `design_insights_score` NULL cases per ETL ADR 0012 (2026-10-07)
-last_reviewed: 2026-10-07
+last_reviewed: 2026-10-22
 ---
 
 # cqx_data.replica_set
@@ -84,7 +84,7 @@ One row per replica set, i.e. one row per distinct application in the environmen
 | `design_is_similar_to_standard_template` | boolean | Quick flag for HCL standard-template derivation. |
 | `design_complexity_score` | bigint | Aggregate design-complexity score. Read it through template similarity — see [[concepts/database-complexity]]. |
 | `design_insights_score` | bigint | Aggregate code-insights score. NULL when the app has no insights result: no code analysed, no findings, or (on ETL builds with ETL ADR 0012) its design reference is excluded from the analysis ([[schema/topics/insights-overview-exclude]]). |
-| `database_id_design_reference` | bigint | Database instance used as design reference. |
+| `database_id_design_reference` | bigint | Database instance used as design reference. Set for focus replica sets only (on trial: the trial-selected ones); NULL otherwise. |
 | `is_content_age_analyzed` | boolean | Whether content-age analysis has completed for this replica set. Retention and doc-age fields below are populated only when true. |
 | `contentage_status` | text | Status of the content-age scan. |
 | `retention_analysis_status_detail` | text | Detail/diagnostic string for the retention-analysis outcome. |

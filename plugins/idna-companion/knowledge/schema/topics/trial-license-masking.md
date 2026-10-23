@@ -18,9 +18,10 @@ related:
   - schema/topics/similarity
   - concepts/about-modernization-vector
   - howtos/use-source-code-remediation-mcp-tools
+  - howtos/navigate-code
 requires_capability: none
-source: ETL cqx_data_ifa/010_cqx_data.initialize_components_structure.pxsql + dda_dm scripts 280/285/286/288; behavior gated live on dev instances 2026-08-17/18 (ETL repo, plans modernization-trial-license + modernization-trial-refinement); template-lineage views per ETL 010 view definitions and ADRs 0002-0004 (2026-09-24); lineage dossier document grain per ETL ADR 0005 (2026-09-25); element pair = the code inside the document per ETL ADR 0008 (2026-10-01); the ETL ADR 0010 element names (Java file base names, host events; trial alias Java n) 2026-10-02; the trial findings surface per ETL ADR 0011 hand-off (trial-findings-surface, final contract 2026-10-05) and the MCP trial flag per Companion ADR 0006 rev 6.8 (2026-10-05)
-last_reviewed: 2026-10-05
+source: ETL cqx_data_ifa/010_cqx_data.initialize_components_structure.pxsql + dda_dm scripts 280/285/286/288; behavior gated live on dev instances 2026-08-17/18 (ETL repo, plans modernization-trial-license + modernization-trial-refinement); template-lineage views per ETL 010 view definitions and ADRs 0002-0004 (2026-09-24); lineage dossier document grain per ETL ADR 0005 (2026-09-25); element pair = the code inside the document per ETL ADR 0008 (2026-10-01); the ETL ADR 0010 element names (Java file base names, host events; trial alias Java n) 2026-10-02; the trial findings surface per ETL ADR 0011 hand-off (trial-findings-surface, final contract 2026-10-05) and the MCP trial flag per Companion ADR 0006 rev 6.8 (2026-10-05); the per-instance licence of cqx_data.database and the code views per ETL 089 / ETL ADR 0009 decision 2, verified on the trial dev instance 2026-10-19 (docs/plans/active/code-navigation)
+last_reviewed: 2026-10-22
 ---
 
 # Trial-license masking across cqx_data
@@ -32,7 +33,8 @@ iDNA instances on an **evaluation/trial license** (`ia_eval_license` instance pr
 ## Identity pseudonymization
 
 - `replicaid` values are deterministic 16-hex pseudonyms (`md5` of the raw id) — stable across runs, so joins between views keep working. The pseudonym is NEVER unmasked, not even for trial-selected replica sets.
-- Titles read `*** Trial License ***`; `title_unique` reads `*** Trial license (<pseudonym>) ***`; replica paths and mail-in names are masked — EXCEPT fully trial-selected replica sets (M9 revision): they show their real `title`, their LICENSED instances' real `replica_paths`, and a real `title_unique` with the pseudonym in the bracket (`AutoMover [<pseudonym>]`). `mailin_names` and the newest/oldest-design columns stay masked even for selected repsets.
+- In `replica_set` (and the views that copy its application identity), titles read `*** Trial License ***`; `title_unique` reads `*** Trial license (<pseudonym>) ***`; replica paths and mail-in names are masked — EXCEPT fully trial-selected replica sets (M9 revision): they show their real `title`, their LICENSED instances' real `replica_paths`, and a real `title_unique` with the pseudonym in the bracket (`AutoMover [<pseudonym>]`). `mailin_names` and the newest/oldest-design columns stay masked even for selected repsets.
+- **The licence works per database instance.** `cqx_data.database` lists the licensed instances: the instances selected for the trial - also inside a replica set that is not fully selected - and the non-focus databases licensed by rule (mail and orphan databases excluded). They carry their real title, server and file name, and their code is visible in `code_element_summary`, `code_element`, `design_element` and `code_source`. Unlicensed instances are absent from these views; `cqx_data.database_basic` lists them with the title `*** Not Licensed ***`. A replica set that is not fully selected keeps `*** Trial License ***` in `replica_set.title` even when one of its instances is licensed: the application is masked, the licensed instance is not. `replicaid` is the same pseudonym in `database` and `replica_set`. See [[howtos/navigate-code]].
 
 ## Honest compute + detail masking (2026-08 ETL revision)
 
@@ -103,7 +105,7 @@ What the finding views return on trial depends on the iDNA build and the complet
   - **Right after the ETL change is deployed,** before its first completed nightly run, every app is masked; the selected apps then show their real title on masked rows. A masked row can therefore carry a real application title.
 - **Alias scope:** `n` is per (application, ruleset, type) within one ETL run — the same alias the document carries in that app's `modernization_vector.items` for that ruleset. A masked location is (`replicaid`, `ruleset_id`, `design_document_type`, alias) within one completed run. The same alias text in two rulesets or two apps can name different documents: never merge masked locations across rulesets or apps, and never persist or compare aliases across runs.
 - **Identity:** `replicaid` always. `title_unique` is display only and can be NULL until the next nightly run after a metadata edit in the iDNA UI.
-- **Code blocks:** `code_hash_id` is run-local (renumbered nightly); `source_code_hash` is the stable key. [[schema/tables/code-source]] keeps only blocks with a licensed holder, so a block with no licensed holder (held only by non-selected databases) has no source on trial.
+- **Code blocks:** `code_hash_id` is run-local (renumbered nightly); `source_code_hash` is the stable key. [[schema/tables/code-source]] keeps only blocks with a licensed holder, so a block with no licensed holder (held only by unlicensed databases: instances not selected for the trial, mail and orphan databases) has no source on trial.
 - **Templates:** template names are `Master n` aliases (see Master-name aliasing above), so template-grouped counts (`templates_by_downstream_exposure`) include masked contributions under aliased names.
 
 ## Counting units
