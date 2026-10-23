@@ -16,7 +16,7 @@ related:
   - concepts/code-block
 requires_capability: none
 source: modernization-vector-integration phase-2 plan §4.10; worked reconciliation example verified live 2026-07-09; the hcl_owned blocks and the n_hcl_current identity term (ETL ADR 0006) 2026-10-01
-last_reviewed: 2026-10-18
+last_reviewed: 2026-10-23
 ---
 
 # Analyze Shared vs. Solo Code Blocks
@@ -35,7 +35,7 @@ Turn per-app shared/solo counts into a concrete authored-once/apply-elsewhere wo
 2. **Classify the fix-once candidates.** Blocks whose authoring home is *elsewhere* are pastes (the fix already exists — apply it); blocks authored in *this* app's session are written here and reapplied at their other carriers. Solo blocks (`reach` 1, estate-wide solo) are genuine one-offs.
 3. **Estate-wide context per block** — `find_code_block_usage` **with the target bound**: grouped one-row-per-app output whose `row_count` is the block's per-ruleset focus reach. Without the target the tool returns occurrence-grain rows spanning all rulesets — never reconcile shared/solo from that.
 4. **Family drift interpretation** (unify/investigate apps): design-family membership is *design similarity* at the configured cluster threshold (default 95) — it tolerates code drift; hashes don't. A family member can be 8/0 shared/solo next to a 4/4 sibling because the sibling carries drifted block *versions* nobody else has. See [[concepts/design-families]].
-5. **Reconcile any doubted number.** The accounting identity on every worklist row: `reach = n_cleared_by_refresh + n_persists_after_update + n_hcl_current + apply + review + scan_first` (ETL ADR 0003 as amended by ETL ADR 0006: covered occurrences that survive the template update count as persists; occurrences of current HCL code outside lineage master coverage count as `n_hcl_current`, never as work). The two reach scopes: the vector's shared/solo counts use estate-wide reach across ALL focus apps **including sunset**; the worklist's `reach` counts kept apps only. A block "shared only with a sunset sibling" is shared in the strict accounting but effectively a one-off in practice — say so.
+5. **Reconcile any doubted number.** The accounting identity on every worklist row: `reach = n_cleared_by_refresh + n_persists_after_update + n_hcl_current + apply + review + scan_first` (ETL ADR 0003 as amended by ETL ADR 0006; every term counts kept apps: those whose covered copy survives the template update count as persists; those whose copy is current HCL code outside lineage master coverage count as `n_hcl_current`, never as work). The two reach scopes: the vector's shared/solo counts use estate-wide reach across ALL focus apps **including sunset**; the worklist's `reach` counts kept apps only. A block "shared only with a sunset sibling" is shared in the strict accounting but effectively a one-off in practice — say so.
 
 ## Decision points (advisory — the customer owns these)
 

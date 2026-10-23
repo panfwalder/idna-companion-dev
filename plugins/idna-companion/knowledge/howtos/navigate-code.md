@@ -46,7 +46,7 @@ Code questions - where code is, who references it, where something is defined - 
 
 1. **Bind the question:** one application (its `replicaid`; it can have several instances, and only focus replica sets have a design reference) or the estate - the Focus applications by default; all analysed databases, focus and non-focus, when the user asks.
 
-2. **Privileged session (or SQL for the customer to run).** With `search_code` (MCP builds with the tool), Q-2 and Q-3 are one call each: `design_document` / `code_element` for Q-2, `pattern` for Q-3, with `focus_only: true` unless the user asked for all databases or named the application or template (then its `replicaid` alone; the tool's own default covers focus and non-focus); the remaining entries of a row come from its entries request (`database_id` + `code_hash`). Q-1..Q-4 stay for what the tool does not return (an application's full `code_text`, the `named_path` drill-down) and for the customer to run.
+2. **Privileged session (or SQL for the customer to run).** With `search_code` (MCP builds with the tool), Q-2 and Q-3 are one call each: `design_document` / `code_element` for Q-2, `pattern` for Q-3, with `focus_only: true` unless the user asked for all databases or named the application or template (then its `replicaid` alone); the remaining entries of a row come from its entries request (`database_id` + `code_hash`). Q-1..Q-4 stay for what the tool does not return (an application's full `code_text`, the `named_path` drill-down) and for the customer to run.
 
    - **Q-1** code of one design document in one application, every instance, the design reference first:
 

@@ -2,7 +2,7 @@
 id: concepts/data-freshness
 title: Data freshness — the nightly ETL and what "as of" means
 type: concept
-status: draft
+status: verified
 tags: [domain/idna, topic/usage, audience/consultant]
 related:
   - concepts/usage-time-windows

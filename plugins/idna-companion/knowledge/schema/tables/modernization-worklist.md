@@ -18,8 +18,8 @@ related:
   - schema/tables/code-block-hcl-origin
   - concepts/modernization-dashboard-labels
 requires_capability: none
-source: ETL cqx_data_ifa/010_cqx_data.initialize_components_structure.pxsql (views) over dda_dm.modernization_worklist (ETL script 288); types verified against live instance 2026-07-23; trial masking gated live 2026-08-18; verdict-aware work kinds, inherited_standard scope, reach identity (ETL ADR 0003) and step_kind (ETL ADR 0004) checked live 2026-09-24; HCL-origin classification (ETL ADR 0006: hcl_owned scope and work kind, n_hcl_current identity, the six trailing columns) checked live 2026-09-29
-last_reviewed: 2026-10-12
+source: ETL cqx_data_ifa/010_cqx_data.initialize_components_structure.pxsql (views) over dda_dm.modernization_worklist (ETL script 288); types verified against live instance 2026-07-23; trial masking gated live 2026-08-18; verdict-aware work kinds, inherited_standard scope, reach identity (ETL ADR 0003) and step_kind (ETL ADR 0004) checked live 2026-09-24; HCL-origin classification (ETL ADR 0006: hcl_owned scope and work kind, n_hcl_current identity, the six trailing columns) checked live 2026-09-29; the identity's terms count distinct kept apps per block (ETL dda_dm/scheduled/288, checked 2026-10-23)
+last_reviewed: 2026-10-23
 ---
 
 # cqx_data.modernization_worklist (+ `_by_session`)
@@ -38,8 +38,8 @@ last_reviewed: 2026-10-12
 | `item_rank` | integer | Reach-first ranking: reach → `n_masters_containing` → severity; authorable blocks first, the two trailing scopes (`inherited_standard`, `hcl_owned`) after them. Ranks compact when a block moves between the groups (ETL ADR 0006) — a rank is a position in the current run, not a stable id. |
 | `scope` | text | Work topology: `session` (all occurrences inside ONE session home), `cross_session` (author once, apply in several sittings), `inherited_standard` (no sitting owns the block — template upgrades/rebases resolve it; `authored_in` is NULL), or `hcl_owned` (no sitting owns it — the code is current shipped HCL template code, ETL ADR 0006; `authored_in` is NULL; diverging copies still to review are named in `item_display`). **NOT the reach split** — see caveats. |
 | `reach` | integer | Kept apps carrying the block (this ruleset). |
-| `n_cleared_by_refresh` | integer | Occurrences the master session clears — no hand work. |
-| `n_persists_after_update` | integer | Covered occurrences whose block SURVIVES the template update (re-applied element, HCL-owned code, unknown fate) — counted as persists, not cleared. |
+| `n_cleared_by_refresh` | integer | Kept apps whose copy the master session clears — no hand work. |
+| `n_persists_after_update` | integer | Kept apps whose covered copy SURVIVES the template update (re-applied element, HCL-owned code, unknown fate) — counted as persists, not cleared. |
 | `n_sessions` | integer | Session homes touching this block (counts `(session_kind, anchor)` PAIRS). |
 | `sessions` | jsonb | Ordered home objects: `{anchor, session_kind, session_rank, is_master_target, has_apply, has_review, requires_master_scan, is_authoring_home, block_verdict, is_hcl_current}` — authoring home first, then definite-work homes. `block_verdict` is the lineage dossier verdict at that home (NULL outside lineage sessions); `is_hcl_current` is the block-level current-HCL fact, copied per home (ETL ADR 0006). |
 | `session_anchors` | text[] | Flat anchor list (display convenience; identity is the pair — see caveats). |
@@ -50,7 +50,7 @@ last_reviewed: 2026-10-12
 | `scan_first_replicaids` | text[] | Occurrences under an UNSCANNED master — coverage unknown (see caveats). |
 | `severity_weight` | smallint | Numeric severity (rank tie-breaker). |
 | `n_masters_containing` | integer | Masters carrying the block (leverage signal). |
-| `n_hcl_current` | integer | Occurrences of current HCL template code outside lineage master coverage (verbatim copies) — counted as notes, never as work (ETL ADR 0006). |
+| `n_hcl_current` | integer | Kept apps whose copy is current HCL template code outside lineage master coverage (verbatim copies) — counted as notes, never as work (ETL ADR 0006). |
 | `hcl_in_current` | boolean | The block's exact code is in the newest shipped member of a live HCL template family. |
 | `hcl_origin` | text | Name-free origin note (family labels and Notes versions only), e.g. "HCL Mail template code (Notes 6.5 - 14.5; in the current shipped catalog version 14.5)". "Older HCL ..." marks code HCL has since changed or removed — "compare with the current HCL version before hand-fixing". NULL when the block is not shipped HCL code. Also reachable by `code_hash` for blocks without a worklist row: [[schema/tables/code-block-hcl-origin]]. |
 

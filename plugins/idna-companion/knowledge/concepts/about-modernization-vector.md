@@ -21,7 +21,7 @@ related:
   - concepts/modernization-dashboard-labels
 requires_capability: none
 source: ETL dda_dm/scheduled/285_dda_dm.modernization_vector.update.sql (routing CASE) + ADR 0001, 0002, 0003, 0006 (HCL-origin classification), 0007 (occurrence state, readiness amendment) (iDNA_Applications_ETL docs/decisions) + product-owner design dialogue 2026-07-08; displays checked live 2026-10-01; Companion plan code-block-eval-fixes Part E (G5, 2026-10-02); the not-ready split by route (`readiness.not_ready_by_route`) per docs/plans/active/plan-overview-route-split (2026-10-06); excluded apps read `ready` per ETL 285 and ETL ADR 0012 (2026-10-07)
-last_reviewed: 2026-10-12
+last_reviewed: 2026-10-23
 ---
 
 # Modernization Vector
@@ -118,7 +118,7 @@ For master-linked apps, each finding block is classified against the primary mas
 
 For these routes, quote the display's "N of M blocks clear with the update", not raw coverage.
 
-**Outside the lineage routes, current HCL code is a note too** (ETL ADR 0006). A block whose exact code ships in the current HCL template version is a verbatim copy wherever no lineage verdict covers it (including in an app that declares an HCL template no estate-operated master carries): `n_hcl_notes` counts those blocks on every route outside the lineage routes (on `upgrade_standard` / `rebase_ancestor` it counts only the covered verdict notes, so a surplus copy there is not in `n_hcl_notes`), and the worklist counts their occurrences as `n_hcl_current` on every route, never as work. The block's origin (template family, Notes versions, current catalog version) is in [[schema/tables/code-block-hcl-origin]].
+**Outside the lineage routes, current HCL code is a note too** (ETL ADR 0006). A block whose exact code ships in the current HCL template version is a verbatim copy wherever no lineage verdict covers it (including in an app that declares an HCL template no estate-operated master carries): `n_hcl_notes` counts those blocks on every route outside the lineage routes (on `upgrade_standard` / `rebase_ancestor` it counts only the covered verdict notes, so a surplus copy there is not in `n_hcl_notes`), and the worklist counts the kept apps holding such a copy as `n_hcl_current` on every route, never as work. The block's origin (template family, Notes versions, current catalog version) is in [[schema/tables/code-block-hcl-origin]].
 
 **Per-block labels come from the ETL** (ETL ADR 0007): each item carries its `occurrence_state` and `verdict`, and the label follows from route × state × verdict (see [[schema/tables/modernization-vector]]) — never re-derive it from `clearance`.
 
