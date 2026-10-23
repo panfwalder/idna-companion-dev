@@ -11,9 +11,9 @@ related:
   - schema/topics/cqx-data-execution-surface
   - concepts/data-freshness
 requires_capability: none
-source: MCP server error mappings, timeout hints and tool descriptions per docs/plans/active/mcp-code-search step T (2026-10-23); client ceilings per the same plan (F-2, T-F4); DataMiner as the route for long queries (product owner, 2026-10-23)
+source: MCP server error mappings, timeout hints and tool descriptions per docs/plans/active/mcp-code-search step T (2026-10-23); client ceilings per the same plan (F-2, T-F4); DataMiner as the route for long queries (product owner, 2026-10-23); the next step as a choice with search_code per step V (2026-10-24)
 kbase_sources: [dataminer-query-viewer, dataminer-_index]
-last_reviewed: 2026-10-23
+last_reviewed: 2026-10-24
 ---
 
 # Handle a query that times out
@@ -34,7 +34,7 @@ None beyond the failed call: its error code, message and hint. For the shapes th
 
 | Signal | Meaning | Move |
 |---|---|---|
-| `TIMEOUT` "The query exceeded the server-side statement timeout." | The request ran past the server's limit. | The procedure below. Where the error carries a hint, it names what this tool can narrow. |
+| `TIMEOUT` "The query exceeded the server-side statement timeout." | The request ran past the server's limit. The server cancelled the statement; nothing is still running. | The procedure below. Where the error carries a hint, it names what this tool can narrow. |
 | `TIMEOUT` "The query waited too long for a table lock." | The nightly data refresh (the ETL run from 18:30 server time, [[concepts/data-freshness]]) holds the data. | Wait until the refresh has finished and retry the same request once. |
 | The client's own request timeout (in Cowork: "Request timed out"), with no result from the MCP | The call outlived the client's ceiling. | Treat it like a statement timeout. A longer server limit does not help this client. |
 | `INTERNAL` "timeout exceeded when trying to connect" | The server is busy: no database connection was free. | Retry once after a short pause; if it happens again, narrow the request. |
@@ -50,7 +50,7 @@ A `search_code` refusal for a pattern that matches too many code blocks is not a
 ## Procedure
 
 1. **Narrow the request or change its shape.** One application instead of the estate, a design-document or code-element key instead of a text search, a more specific pattern, a smaller `top_n` or `limit`. For code text use `search_code` where the build has it; in SQL read `cqx_data.code_source` first and the locations second (two calls, see [[howtos/navigate-code]]). Most timeouts end here.
-2. **Use the semantic tool that answers the question,** if there is one. Never rebuild a semantic tool's logic in SQL; for lifecycle decisions there is no SQL route at all.
+2. **Use the semantic tool that answers the question,** if there is one - for code text `search_code`, where the build has it (one call, the blocks and their locations). For a statement the user prescribed, offer it rather than run it (Interpretation). Never rebuild a semantic tool's logic in SQL; for lifecycle decisions there is no SQL route at all.
 3. **Still too long, and the question needs SQL:** the user can run the query in DataMiner, which is not bound by the MCP's limit. DataMiner opens from the Portal footer ("Open DataMiner") and depends on the user's DataMiner access. Give the SQL with a one-line description of what it shows; the user runs it there with ▶▶ (run all) for the full result - ▶ shows a preview with a row limit - and copies the result back into the conversation if needed. The Companion cannot read DataMiner results itself.
    - The SQL follows the session's rules like any SQL shown here: in a restricted session no per-user method - state what is not available and offer the aggregate alternative first; a question about a named individual stays a clean refusal, with no SQL and no alternative.
    - For a long query the user needs again: a saved DataMiner query can be scheduled on its Options tab for automatic nightly data preparation, so its result is ready without waiting (saving a query needs DataMiner's Editor Mode).
@@ -60,7 +60,7 @@ A `search_code` refusal for a pattern that matches too many code blocks is not a
 
 - A statement or client timeout is not "the MCP is unavailable": do not fall back to the wiki's SQL patterns as if the server were down, and do not retry the same request unchanged (the lock-wait and connection rows above are the exceptions).
 - During the appliance's nightly data refresh, queries run slower and lock waits happen: wait and retry once after it.
-- Tell the user in plain words what happened (the request ran past the time limit) and what you tried, relay the hint where the error carries one, and offer the next step as an `AskUserQuestion`: narrow the request, use the semantic tool, or run the SQL in DataMiner.
+- Answer first - what happened (the request ran past the time limit and the server cancelled it), what you tried, the hint where the error carries one - then, where a choice remains, end with an `AskUserQuestion` (concise prose only where the runtime has none), not a prose list of options: the semantic tool where one answers the question (for code text `search_code`, where the build has it), the narrowed query, or the SQL as written in DataMiner. A choice always remains when the user prescribed the statement; when the statement was yours and a semantic tool answers the question, run it and say what you changed.
 
 ## Variations
 
