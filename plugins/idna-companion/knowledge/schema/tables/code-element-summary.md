@@ -13,8 +13,8 @@ related:
   - schema/tables/database
   - schema/topics/trial-license-masking
 requires_capability: none
-source: docs/reference/cqx_data_schema_enriched_all_tables.md; ETL dda_dwh 061 and dda_dm 083; structure, name forms, scope and trial filter verified live 2026-10-19 / 2026-10-21 (docs/plans/active/code-navigation)
-last_reviewed: 2026-10-22
+source: docs/reference/cqx_data_schema_enriched_all_tables.md; ETL dda_dwh 061 and dda_dm 083; structure, name forms, scope and trial filter verified live 2026-10-19 / 2026-10-21 (docs/plans/active/code-navigation); the grouped search unit per docs/plans/active/mcp-result-contracts D-4 (2026-10-31)
+last_reviewed: 2026-10-31
 ---
 
 # cqx_data.code_element_summary
@@ -59,7 +59,7 @@ From a row of [[schema/tables/design-insight-overview-byrepset]]:
 - One entry can stand for many blocks: one design note can hold hundreds of Java files, each its own block under the same `code[1]` entry. The block is `hash_id`; never merge blocks because their entries match.
 - A common block (a short formula) can have thousands of entries in one database. Select `jsonb_array_length(code_elements) AS n_entries` and a slice (`jsonb_path_query_array(code_elements, '$[0 to 4]') AS first_entries`) in searches across many rows; the full array belongs in a query for one `database_id` and `hash_id`.
 - Match an entry by its whole key, case-insensitively and literally: `lower(e->>'design_document') = lower('<form>')`. This finds every spelling of a name and treats `_`, `%`, `"` and `\` as ordinary characters. Never match names with `ILIKE` or in `code_elements::text`.
-- The MCP tool `search_code` (MCP builds with the tool) uses the same entries: for a text search its `n_locations` / `first_locations` are all entries of the block in that database, for a key search only the entries that match the key; its entries request lists every entry of the (database, block).
+- The MCP tool `search_code` (MCP builds with the tool) uses the same entries: for a text search its `n_locations` / `first_locations` are all entries of the block in that database, for a key search only the entries that match the key; its entries request lists every entry of the (database, block). Grouped by application (`group_by: "application"`, where the tool offers it), a row counts the application's distinct blocks and matching instances instead.
 
 ### Not the same as `code_element`
 
