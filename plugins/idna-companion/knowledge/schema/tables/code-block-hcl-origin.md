@@ -12,8 +12,8 @@ related:
   - concepts/about-template-lineage
   - concepts/modernization-dashboard-labels
 requires_capability: none
-source: ETL cqx_data_ifa/010_cqx_data.initialize_components_structure.pxsql (view + COMMENT) over dda_dm.code_block_hcl_origin (ETL script 224); ETL ADRs 0006 and 0007; column types and row counts verified against the live instance 2026-10-01; Companion plan code-block-eval-fixes Part E (G6, 2026-10-02); HCL Domino Designer 14 help: "Refreshing a design", "Preventing design changes"
-last_reviewed: 2026-10-02
+source: ETL cqx_data_ifa/010_cqx_data.initialize_components_structure.pxsql (view + COMMENT) over dda_dm.code_block_hcl_origin (ETL script 224); ETL ADRs 0006 and 0007; column types and row counts verified against the live instance 2026-10-01; Companion plan code-block-eval-fixes Part E (G6, 2026-10-02); HCL Domino Designer 14 help: "Refreshing a design", "Preventing design changes"; the three catalog classes - absence says nothing about authorship - per docs/plans/active/mcp-code-search step Y (2026-10-31)
+last_reviewed: 2026-10-31
 ---
 
 # cqx_data.code_block_hcl_origin
@@ -66,7 +66,7 @@ WHERE code_hash = '<code_hash>'
 
 - **"Current" means the product's reference catalog, not the customer's installed release.** Name the catalog version (`current_version`, e.g. "current shipped catalog version 14.5"); never say "your current version".
 - **Older-only rows** (`in_current = false`) are code HCL has since changed or removed. They are not `hcl_owned`; where such a block is work, the developer compares it with the current HCL version before hand-fixing.
-- **A block absent from this view** is not shipped HCL code: a NULL origin after a LEFT JOIN means "not in the shipped HCL catalog", not "unknown".
+- **Three classes.** A block falls in one of three classes: in the catalog and current (`in_current = true`), in the catalog and older-only (`in_current = false`), or not in the shipped HCL catalog (no row; a NULL origin after a LEFT JOIN means this, not "unknown"). The third class says nothing about who wrote the code: customer code, third-party code and HCL code outside the catalog look the same here. Dropping only the current rows leaves the older-only HCL code in the remainder.
 - **Name-free and identical on every licence.** No template names, no person names, no aliasing: trial and full licences show the same rows. The view rebuilds `family_ranges` from its six keys, so no producer-side field can leak a name.
 - Size: 14,630 rows, 11,261 current, on a reference instance (2026-10-01). The longest `hcl_origin` is 730 characters; `modernization_for_app` and `modernization_session_dossier` shorten it to 256 characters and say so (`origin_shortened`) — the full sentence is here, by `code_hash`.
 - Precomputed by ETL (script 224).

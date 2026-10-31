@@ -53,7 +53,7 @@ These objects are still part of the public `cqx_data` execution surface, so they
 
 ## Privacy
 
-iDNA applies threshold-pseudonymization at the ETL layer. When `pseudonymize=Y`, a department or location whose user count falls below iDNA's configured threshold has its **name pseudonymized (masked)** at the source — but the row stays present with its usage counts intact. Below-threshold cohorts surface as rows with a masked name, not as missing or suppressed rows. The `department` and `location` lookup tables that resolve IDs to names carry the same threshold mechanism. For `pseudonymize=N` tenants, real names appear under the customer's pseudonymization-waiver attestation. State to the user that small org units may appear under masked names rather than treating absent names as missing data.
+iDNA applies threshold-pseudonymization at the ETL layer. When `pseudonymize=Y`, a department or location whose user count falls below iDNA's configured threshold has its **name pseudonymized (masked)** at the source — but the row stays present with its usage counts intact. Below-threshold cohorts surface as rows with a masked name, not as missing or suppressed rows. The `department` and `location` lookup tables that resolve IDs to names carry the same threshold mechanism. For `pseudonymize=N` tenants, small units appear under their real names like any other; pseudonymization is switched off only after the customer's written confirmation (see [[concepts/regulatory-usage-constraints]]). State to the user that small org units may appear under masked names rather than treating absent names as missing data.
 
 ## Typical questions
 

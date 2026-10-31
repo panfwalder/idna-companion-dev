@@ -15,9 +15,10 @@ related:
   - schema/topics/trial-license-masking
   - schema/topics/insights-overview-exclude
   - howtos/handle-query-timeouts
+  - schema/tables/code-block-hcl-origin
 requires_capability: none
-source: cqx_data code views and the MCP tools, recipes measured through execute_sql on the panagenda test instance (2026-10-21); search_code contract per docs/plans/active/mcp-code-search (handover 2026-10-21); docs/plans/active/code-navigation
-last_reviewed: 2026-10-23
+source: cqx_data code views and the MCP tools, recipes measured through execute_sql on the panagenda test instance (2026-10-21); search_code contract per docs/plans/active/mcp-code-search (handover 2026-10-21); docs/plans/active/code-navigation; step 1's estate scope, the completeness condition for step 2's list and the HCL catalog routing per docs/plans/active/mcp-code-search step Y (2026-10-31)
+last_reviewed: 2026-10-31
 ---
 
 # Navigate the analysed code
@@ -119,7 +120,7 @@ Code questions - where code is, who references it, where something is defined - 
 
    - **Q-3** who uses a library or calls a function, across the estate - two calls.
 
-     Step 1, the matching blocks with their stable hash:
+     Step 1, the matching blocks with their stable hash - matches across the estate (`code_source` has no location; the Focus line in step 2 narrows them):
 
      ```sql
      SELECT
@@ -162,7 +163,7 @@ Code questions - where code is, who references it, where something is defined - 
 
      One row per database instance and block. Use step 2's `code_hash_id` (the current one) for `get_code_block`. With the Focus line, a hash from step 1 without a row in step 2 usually sits only in non-focus databases: if no hash has a row, Focus found nothing - say so and offer the wider search (step 2 without the Focus line). Without the Focus line, a missing hash changed or disappeared in between (a nightly run): run step 1 again. No hash from step 1 means no literal reference in any analysed database - there is no wider search to offer. `first_entries` holds up to five summary entries; when `n_entries` is larger, list the rest with the unnest pattern on [[schema/tables/code-element-summary]], filtered by that row's `database_id` and `code_hash_id`. Never select the whole `code_elements` array in an estate-wide search: one row can hold thousands of entries.
 
-     Step 1 returns at most the tool's row limit: when it reports truncation, count first (`SELECT count(*)` with the same `WHERE`) and narrow the pattern before listing. Do not fold step 1 into step 2 as a subquery or a CTE: through `execute_sql` that form is several times slower and can exceed the tool's time limit ([[howtos/handle-query-timeouts]]). For a function: `WHERE code_text ILIKE '%<FunctionName>(%'`; a function without parameters is called without parentheses (`x=<FunctionName>`), so search the bare name as well (with `search_code`, mode `word`) - a zero result for `<FunctionName>(` alone does not mean no caller. Joining `code_source` to `code_element_summary` without the hash list, or searching `code_element` across the estate, is slower still.
+     Step 1 returns at most the tool's row limit: when it reports truncation, count first (`SELECT count(*)` with the same `WHERE`). Step 2's list is complete only when step 1 returned its complete hash set within that limit; after a truncated step 1, no ranking is complete - offer one statement over the full set in DataMiner, or a narrower pattern the user agrees to, and disclose a truncated step 2. Do not fold step 1 into step 2 as a subquery or a plain CTE: through `execute_sql` that form is several times slower and can exceed the tool's time limit ([[howtos/handle-query-timeouts]]); one statement with `WITH hits AS MATERIALIZED` suits a one-row aggregate (counts, totals), a list of rows (per database, per application) in that form can time out there too. For a function: `WHERE code_text ILIKE '%<FunctionName>(%'`; a function without parameters is called without parentheses (`x=<FunctionName>`), so search the bare name as well (with `search_code`, mode `word`) - a zero result for `<FunctionName>(` alone does not mean no caller. Joining `code_source` to `code_element_summary` without the hash list, or searching `code_element` across the estate, is slower still.
 
    - Q-2 (`HAVING bool_or(d.is_focus_db)`) and Q-3 step 2 (`AND d.is_focus_db`) keep the Focus default; drop that filter when the user asks for all analysed databases. In Q-2 keep it as the aggregate in `HAVING`: in `WHERE` - or as a plain `HAVING d.is_focus_db`, which PostgreSQL moves into `WHERE` - it changes the query plan, and the search can exceed the tool's time limit. They return the instance's title, `replicaid`, `server_name` and `file_name` for opening the database in Domino Designer, and `is_focus_db` for the scope. Several rows with one `replicaid` are replicas of one application.
 
@@ -204,6 +205,7 @@ Code questions - where code is, who references it, where something is defined - 
 - **Scope:** the code views hold the analysed code of the licensed databases whose design iDNA could parse, focus and non-focus; `code_element` (Q-4) also covers licensed databases outside that set; finding counts cover focus replica sets. Searches use the Focus applications unless the user asks for all databases; report the scope, and mark which results are Focus (`is_focus_db`) when non-focus databases are included.
 - **Large estates:** if an estate-wide search exceeds the tool's time limit, narrow it to one application (Q-1) or a more specific pattern; the other routes are in [[howtos/handle-query-timeouts]].
 - **The original text:** `code_text` is normalized; see [[schema/tables/code-source]].
+- **HCL template code or not:** [[schema/tables/code-block-hcl-origin]] splits blocks into catalogued HCL template code (current or older-only) and code outside the catalog - not into HCL code and your own.
 - **Trial:** the trial licence works per database instance. These views show the licensed instances - selected ones, also in an application that is not fully selected, and non-focus databases licensed by rule - with their real title, server, file and code; unlicensed instances are absent. The application's title in `replica_set` can still read `*** Trial License ***` when not all its instances are selected; that is masking at the application level, not an error. `replicaid` is a pseudonym on trial, the same in every view; built Designer links do not open. Masked finding rows keep their aliases: never recover their names through these views ([[schema/topics/trial-license-masking]]).
 
 ## Variations

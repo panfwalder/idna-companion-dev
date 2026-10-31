@@ -52,7 +52,7 @@ last_reviewed: 2026-10-23
 | `n_masters_containing` | integer | Masters carrying the block (leverage signal). |
 | `n_hcl_current` | integer | Kept apps whose copy is current HCL template code outside lineage master coverage (verbatim copies) — counted as notes, never as work (ETL ADR 0006). |
 | `hcl_in_current` | boolean | The block's exact code is in the newest shipped member of a live HCL template family. |
-| `hcl_origin` | text | Name-free origin note (family labels and Notes versions only), e.g. "HCL Mail template code (Notes 6.5 - 14.5; in the current shipped catalog version 14.5)". "Older HCL ..." marks code HCL has since changed or removed — "compare with the current HCL version before hand-fixing". NULL when the block is not shipped HCL code. Also reachable by `code_hash` for blocks without a worklist row: [[schema/tables/code-block-hcl-origin]]. |
+| `hcl_origin` | text | Name-free origin note (family labels and Notes versions only), e.g. "HCL Mail template code (Notes 6.5 - 14.5; in the current shipped catalog version 14.5)". "Older HCL ..." marks code HCL has since changed or removed — "compare with the current HCL version before hand-fixing". NULL when the block is not in the shipped HCL catalog. Also reachable by `code_hash` for blocks without a worklist row: [[schema/tables/code-block-hcl-origin]]. |
 
 **Accounting identity on every row (ETL ADR 0003 as amended by ETL ADR 0006):** `reach = n_cleared_by_refresh + n_persists_after_update + n_hcl_current + |apply| + |review| + |scan_first|`. Use it to reconcile any doubted number. (The earlier identities without `n_persists_after_update` or `n_hcl_current` are superseded.)
 

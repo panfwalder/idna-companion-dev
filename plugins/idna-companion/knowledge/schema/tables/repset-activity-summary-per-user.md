@@ -12,7 +12,7 @@ related:
   - howtos/identify-content-creators-and-consumers
 requires_capability: mcp_unrestricted
 source: docs/reference/cqx_data_schema_enriched_all_tables.md
-last_reviewed: 2026-05-08
+last_reviewed: 2026-10-29
 ---
 
 # cqx_data.repset_activity_summary_per_user
@@ -58,7 +58,7 @@ Wrapping recipe: [[howtos/identify-content-creators-and-consumers]] (Variations 
 - **Deny-listed in restricted mode.** Same posture as [[schema/tables/usage-cube-repset-vs-user]] — see [[concepts/regulatory-usage-constraints]] for the framing.
 - Time period values are determined by ETL configuration; treat them as opaque strings unless you control the ETL.
 - The richer per-user surface (read/write split, sessions_client / sessions_web, days_active) lives on [[schema/tables/usage-cube-repset-vs-user]]. This table is the time-period-aware companion.
-- `username` posture identical to `usage-cube-repset-vs-user`: hashed when `pseudonymize=Y`, real when `pseudonymize=N`.
+- `username` posture identical to `usage-cube-repset-vs-user`: hashed when `pseudonymize=Y`, real when `pseudonymize=N`. Exception: an installation whose period-summary function predates the October 2026 licence-key fix keeps this table pseudonymized under `pseudonymize=N` too.
 
 ## Sources
 

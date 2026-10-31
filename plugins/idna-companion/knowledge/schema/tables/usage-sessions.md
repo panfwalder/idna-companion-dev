@@ -14,7 +14,7 @@ related:
   - howtos/identify-content-creators-and-consumers
 requires_capability: mcp_unrestricted
 source: docs/reference/cqx_data_schema_enriched_all_tables.md
-last_reviewed: 2026-07-27
+last_reviewed: 2026-10-29
 ---
 
 # cqx_data.usage_sessions
@@ -77,7 +77,7 @@ Wrapping recipe (where this granularity is occasionally cited as a fallback): [[
 
 - **Deny-listed in restricted mode.** Same posture as [[schema/tables/usage-cube-repset-vs-user]] and [[schema/tables/repset-activity-summary-per-user]] — see [[concepts/regulatory-usage-constraints]].
 - **`person_id` can be NULL — anonymous sessions are real activity.** Sessions with no resolvable node ID (predominantly anonymous web access; ~20% of web session volume on the reference instance, verified 2026-07-27) carry `person_id IS NULL`. Any INNER JOIN on `person_id` silently drops them — use LEFT JOINs and surface the unattributable share explicitly rather than losing it.
-- Keyed on `person_id` rather than `username`. The pseudonymization posture applies through `person` (also deny-listed); under `pseudonymize=Y` the join produces hashed names, under `pseudonymize=N` real names.
+- Keyed on `person_id` rather than `username`. The pseudonymization posture applies through `person` (also deny-listed); under `pseudonymize=Y` the join produces hashed names, under `pseudonymize=N` real names. On ETL builds with ETL ADR 0014 the hashed name is the same pseudonym the per-user tables carry in `username` (for example `cqx_data.usage_cube_repset_vs_user`), so one person's session rows and per-user rows match by name; earlier builds pseudonymized `person` differently.
 - Aggregate-grain twins that *are* allowlisted under rev 6.3: [[schema/tables/usage-sessions-by-department]], [[schema/tables/usage-sessions-by-location]]. Prefer those for org-attribution questions.
 - The mail counters (`mails_sent_web`, `mails_sent_attachments_web`) are present but per-user mail analysis lives more naturally on the `mail_*` family. This page does not cover that surface.
 

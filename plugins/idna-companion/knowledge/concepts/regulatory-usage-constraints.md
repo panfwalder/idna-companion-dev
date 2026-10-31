@@ -75,7 +75,7 @@ The six legitimate cells:
 | Y | Y | Y | DACH default with restricted MCP. AI sees pseudonymized activity data and an explicit subset of tables. Most-defensive AI cell. |
 | Y | Y | N | DACH default with permissive MCP. AI sees pseudonymized activity data with full table access. Pseudonym-frequency analysis is theoretically possible; works-council precedent accepts this. |
 | N | N | * | RoW or DACH-after-agreement, no MCP. |
-| N | Y | Y | Real names visible (last-modifier columns, ACL principals, agent signers) but no detailed behavioural-activity tables. Conservative AI for customers who waived pseudonymization for design reasons. **Restricted ≠ anonymous in this cell.** |
+| N | Y | Y | Real names visible (last-modifier columns, ACL principals, agent signers) but no detailed behavioural-activity tables. Conservative AI for customers who run without pseudonymization (switched off after their written confirmation) for design reasons. **Restricted ≠ anonymous in this cell.** |
 | N | Y | N | Real names + full table access. Customer has cleared all obligations. |
 
 `restrict_mcp` and `pseudonymize` are independent controls. `restrict_mcp=Y` limits table and tool reach. `pseudonymize=Y` controls whether activity-related names are pseudonymized at the data layer. Customer-side opt-in to MCP requires acknowledgment of panagenda's AI positioning paper (commercial / legal scope; out of scope for this page).
@@ -87,7 +87,7 @@ Restricted mode (`restrict_mcp=Y`) limits **table and tool reach**. It does **no
 - Under `pseudonymize=Y`, activity-related user names in mixed tables are hashed at the ETL layer before reaching the MCP. Restricted mode is effectively pseudonymous for activity columns under this combination.
 - Under `pseudonymize=N`, activity-related user names in mixed tables carry real values. Restricted mode still excludes detailed behavioural-activity tables (per-user cubes, sessions, MarvelClient, mail per-user, person tables), but real names of last-modifiers, ACL principals, and agent signers will appear in output that joins through allowlisted tables.
 
-The `pseudonymize=N, restrict_mcp=Y` cell is a customer-attested combination: the customer has signed both the existing iDNA pseudonymization waiver (real names in the data layer) and the AI positioning paper acknowledgment (AI capability). Both attestations are documented; their combination is the customer's explicit choice under their own conformity assessment.
+The `pseudonymize=N, restrict_mcp=Y` cell is a customer-attested combination: the customer has signed both the existing iDNA written confirmation on pseudonymization (real names in the data layer) and the AI positioning paper acknowledgment (AI capability). In the written confirmation the customer confirms that it has taken the necessary internal steps, including with its works council, and that it is responsible for processing real names; only then does panagenda switch pseudonymization off in the licence. Switching it back on is a licence change and needs no confirmation. Both attestations are documented; their combination is the customer's explicit choice under their own conformity assessment.
 
 ### Why this is defensible
 

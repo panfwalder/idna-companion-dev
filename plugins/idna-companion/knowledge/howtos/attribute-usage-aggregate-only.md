@@ -11,7 +11,7 @@ related:
   - howtos/find-app-lifecycle-dashboards
 requires_capability: none
 source:
-last_reviewed: 2026-10-12
+last_reviewed: 2026-10-29
 ---
 
 # Attribute application usage at aggregate grain only
@@ -80,7 +80,7 @@ When the question asks for an application's top users and the session cannot ans
 
 Do **not** run these at a strict customer:
 
-- **Per-user cubes and summaries** — `cqx_data.usage_cube_repset_vs_user`, `cqx_data.usage_cube_user_summary`, `cqx_data.usage_cube_user_activity_history`, `cqx_data.repset_activity_summary_per_user`, `cqx_data.person_activity_summary`, `cqx_data.user_activity_summary`. All carry `username` (or join trivially to `cqx_data.person`).
+- **Per-user cubes and summaries** — `cqx_data.usage_cube_repset_vs_user`, `cqx_data.usage_cube_user_summary`, `cqx_data.usage_cube_user_activity_history`, `cqx_data.repset_activity_summary_per_user`, `cqx_data.person_activity_summary`, `cqx_data.user_activity_summary`. All carry a user name (`username`, or `user_name` in `person_activity_summary`); `user_activity_summary` and `person_activity_summary` also carry the person id of `cqx_data.person`. Under pseudonymization, `person.name` and the per-user name columns show the same pseudonym on ETL builds with ETL ADR 0014; earlier builds pseudonymized `person` differently, so the names do not match there.
 - **Raw session detail** — `cqx_data.usage_sessions` (keyed on `person_id`), and the unfiltered `cqx_data.usage_cube_raw` / `cqx_data.usage_cube_raw_no_summaries`.
 - **Last-user columns naming individuals** — `last_accessed_user`, `last_write_user` on `cqx_data.replica_set` and `cqx_data.usage_summary_by_database`; `db_last_accessed_user`, `db_last_write_user`, `rs_last_accessed_user`, `rs_last_write_user` on `cqx_data.database_content_retention_summary`.
 - Any aggregate query that filters or groups by a single user (e.g. joining `cqx_data.person` and grouping by `person_id`).

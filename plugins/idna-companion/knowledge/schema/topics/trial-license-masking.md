@@ -20,8 +20,8 @@ related:
   - howtos/use-source-code-remediation-mcp-tools
   - howtos/navigate-code
 requires_capability: none
-source: ETL cqx_data_ifa/010_cqx_data.initialize_components_structure.pxsql + dda_dm scripts 280/285/286/288; behavior gated live on dev instances 2026-08-17/18 (ETL repo, plans modernization-trial-license + modernization-trial-refinement); template-lineage views per ETL 010 view definitions and ADRs 0002-0004 (2026-09-24); lineage dossier document grain per ETL ADR 0005 (2026-09-25); element pair = the code inside the document per ETL ADR 0008 (2026-10-01); the ETL ADR 0010 element names (Java file base names, host events; trial alias Java n) 2026-10-02; the trial findings surface per ETL ADR 0011 hand-off (trial-findings-surface, final contract 2026-10-05) and the MCP trial flag per Companion ADR 0006 rev 6.8 (2026-10-05); the per-instance licence of cqx_data.database and the code views per ETL 089 / ETL ADR 0009 decision 2, verified on the trial dev instance 2026-10-19 (docs/plans/active/code-navigation)
-last_reviewed: 2026-10-22
+source: ETL cqx_data_ifa/010_cqx_data.initialize_components_structure.pxsql + dda_dm scripts 280/285/286/288; behavior gated live on dev instances 2026-08-17/18 (ETL repo, plans modernization-trial-license + modernization-trial-refinement); template-lineage views per ETL 010 view definitions and ADRs 0002-0004 (2026-09-24); lineage dossier document grain per ETL ADR 0005 (2026-09-25); element pair = the code inside the document per ETL ADR 0008 (2026-10-01); the ETL ADR 0010 element names (Java file base names, host events; trial alias Java n) 2026-10-02; the trial findings surface per ETL ADR 0011 hand-off (trial-findings-surface, final contract 2026-10-05) and the MCP trial flag per Companion ADR 0006 rev 6.8 (2026-10-05); the per-instance licence of cqx_data.database and the code views per ETL 089 / ETL ADR 0009 decision 2, verified on the trial dev instance 2026-10-19 (docs/plans/active/code-navigation); a null template field is not masking per docs/plans/active/mcp-code-search step Y (2026-10-31)
+last_reviewed: 2026-10-31
 ---
 
 # Trial-license masking across cqx_data
@@ -62,6 +62,7 @@ Rules the Companion must respect:
 
 - **Aliases renumber on every ETL run** (deliberately). Never cache or compare aliases across days; never try to de-alias, and never try to recover masked names through other views.
 - **Within one run they are consistent across all views** — `Master 292` in a vector anchor is the same master as `Master 292` in the plan and worklist, so pair-joins (`session_kind`, anchor) work normally.
+- **A null template field is not masking.** Masking shows template names as `Master n` aliases; an empty or null template field (e.g. `templates_inherits_from`) is reported as empty in the returned rows, not as withheld - say why only where a page says why.
 - `Master ?` is a fail-closed sentinel for a name the current catalog can no longer resolve (rare, self-heals next run). `*** No Template Found ***` keeps its normal meaning.
 - Display suffixes stay truthful: `(standard template)` / `(standard master)` certify membership in the public HCL list only — so an aliased name can read "Master 12 (standard template)": the CLASS is public, the name is not. Customer-known-only matches carry no suffix.
 
