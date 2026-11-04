@@ -39,9 +39,10 @@ Installing or using the plugin is subject to its license ([plugins/idna-companio
 
 ### GitHub Copilot App
 
-**Settings → Plugins → Install ▾ → Add marketplace** → enter
-`https://github.com/panfwalder/idna-companion-dev`, then
-**Install ▾ → Install plugin** → `idna-companion@panagenda`.
+**Customize → + Add ▾ → Manage marketplaces...** → under Source, enter
+`https://github.com/panfwalder/idna-companion-dev` and click **Add**. Then, under Plugins,
+**+ Add plugin → Browse all plugins** → search for `idna` and click **+ Install** next to
+`idna-companion`.
 
 ### GitHub Copilot CLI
 
@@ -91,7 +92,7 @@ Without the MCP connection the Companion answers from the wiki in restricted mod
 ## Updating
 
 Marketplace-based installs receive updates from this repository: use your client's marketplace
-**Update** action (Cowork), `copilot plugin marketplace update panagenda`, then `copilot plugin update idna-companion@panagenda` (Copilot CLI), or reinstall from the refreshed
+**Update** action (Cowork), **Update all** next to Plugins in **Customize** (GitHub Copilot App), `copilot plugin marketplace update panagenda`, then `copilot plugin update idna-companion@panagenda` (Copilot CLI), or reinstall from the refreshed
 marketplace.
 
 ## Contents
