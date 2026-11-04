@@ -3,7 +3,14 @@
 Development/test marketplace for the **iDNA Applications Companion** plugin — an AI-assistant
 plugin that grounds Notes/Domino estate analysis (usage, modernization, source-code remediation,
 application lifecycle) in a curated knowledge wiki, powered by [panagenda iDNA
-Applications](https://www.panagenda.com/products/idna-applications/) data.
+Applications](https://www.panagenda.com/idna-applications/) data.
+
+> [!TIP]
+> **Setup guide:** [Setting up iDNA Applications Companion](https://www.panagenda.com/kbase/display/IA/Setting+up+iDNA+Applications+Companion)
+> in the panagenda knowledge base walks through installing the plugin in every supported client
+> and connecting it to the MCP server of your iDNA Applications appliance. It uses the official
+> repository; for this test channel, enter `panfwalder/idna-companion-dev` wherever it says
+> `panagenda/idna-companion`.
 
 **Test channel.** This repository carries builds for testing before release. Customers install
 from the official repository, [panagenda/idna-companion](https://github.com/panagenda/idna-companion).
@@ -23,12 +30,6 @@ Copilot, and OpenAI Codex. One repo serves all of them.
 ## Install
 
 Installing or using the plugin is subject to its license ([plugins/idna-companion/LICENSE](plugins/idna-companion/LICENSE)).
-
-Step-by-step instructions for every supported client, including the connection to the MCP server
-of your iDNA Applications appliance, are in the panagenda knowledge base: [Setting up iDNA
-Applications Companion](https://www.panagenda.com/kbase/display/IA/Setting+up+iDNA+Applications+Companion).
-They use the official repository; for this test channel, enter `panfwalder/idna-companion-dev`
-wherever they say `panagenda/idna-companion`.
 
 ### Cowork
 
