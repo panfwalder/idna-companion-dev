@@ -24,6 +24,12 @@ Copilot, and OpenAI Codex. One repo serves all of them.
 
 Installing or using the plugin is subject to its license ([plugins/idna-companion/LICENSE](plugins/idna-companion/LICENSE)).
 
+Step-by-step instructions for every supported client, including the connection to the MCP server
+of your iDNA Applications appliance, are in the panagenda knowledge base: [Setting up iDNA
+Applications Companion](https://www.panagenda.com/kbase/display/IA/Setting+up+iDNA+Applications+Companion).
+They use the official repository; for this test channel, enter `panfwalder/idna-companion-dev`
+wherever they say `panagenda/idna-companion`.
+
 ### Cowork
 
 **Customize → Plugins → Add marketplace** → enter `panfwalder/idna-companion-dev`
@@ -77,8 +83,9 @@ model.
 
 The plugin's knowledge wiki works standalone. For live estate data, connect the read-only iDNA
 MCP server of your iDNA Applications appliance — setup is documented for your administrators in
-the appliance's MCP admin guide (per-user token, HTTPS endpoint). Without the MCP connection the
-Companion answers from the wiki in restricted mode and says so.
+the appliance's MCP admin guide (per-user token, HTTPS endpoint). How to connect each client is
+described in [Setting up iDNA Applications Companion](https://www.panagenda.com/kbase/display/IA/Setting+up+iDNA+Applications+Companion).
+Without the MCP connection the Companion answers from the wiki in restricted mode and says so.
 
 ## Updating
 
